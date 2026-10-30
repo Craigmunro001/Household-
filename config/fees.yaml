@@ -1,0 +1,12 @@
+# Indicative fee range quoted to the prospect, per debt band.
+# Leave a band as null and the bot will NOT quote a fee for it - it just says a
+# consultant will confirm. Fill these in once you've settled the sliding scale.
+# Format:  "<band key>": {min: 15000, max: 20000}
+# Band keys are "<from>-<to>" in rand, "500000+" for the open-ended top band.
+"0-100000": null
+"100000-120000": null
+"120000-150000": null
+"150000-200000": null
+"200000-300000": null
+"300000-500000": null
+"500000+": null
