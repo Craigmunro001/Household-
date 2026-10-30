@@ -232,3 +232,22 @@ def test_spouse_mentioned_after_saying_not_married_is_flagged():
     handle(s, "gauteng", NIGHT)
     handle(s, "will my wife find out", NIGHT, llm=FakeLLM(None))
     assert any("clarify" in n for n in s.notes)
+
+
+def test_cost_question_answered_from_fee_table_not_ai():
+    s = Session(phone="1", step="province", lang="en", name="Craig", answers={"debt_band": "150000-200000"})
+    r = handle(s, "how much will this cost me?", NIGHT, llm=FakeLLM("AI says R999"), fees=FEES)
+    assert "R15 000" in r.messages[0] and "R20 000" in r.messages[0] and "999" not in r.messages[0]
+    assert "estimate" in r.messages[0]
+
+
+def test_cost_question_without_fee_table_never_quotes():
+    s = Session(phone="1", step="province", lang="en", name="Craig", answers={"debt_band": "150000-200000"})
+    r = handle(s, "how much will this cost me?", NIGHT, llm=FakeLLM("Your consultant confirms cost. [GAP]"), fees={})
+    assert "R1" not in r.messages[0] and s.notes[0].startswith("UNANSWERED")
+
+
+def test_cost_question_after_completion_uses_fee_table():
+    s, _ = full_chat("1")
+    r = handle(s, "What are your fees?", NIGHT, llm=None, fees=FEES)
+    assert "R15 000" in r.messages[0]

@@ -83,6 +83,13 @@ YES_WORDS = {"yes", "y", "yep", "yeah", "ok", "okay", "sure", "continue", "ja", 
 NO_WORDS = {"no", "n", "nope", "nee", "cha", "no thanks", "nee dankie"}
 START_WORDS = {"start", "subscribe"}  # only an explicit START re-engages someone who sent STOP
 
+COST_PHRASES = [
+    "cost", "costs", "price", "fee", "fees", "charge", "charges", "how much will it", "how much will i pay",
+    "how much do you charge", "what will i pay", "what do i pay", "will i pay",
+    "koste", "kos", "prys", "tarief", "hoeveel gaan dit", "hoeveel kos",
+    "ixabiza", "malini", "imali engizoyikhokha",
+]
+
 STOP_PHRASES = ["stop", "unsubscribe", "opt out", "optout", "hou op", "yeka", "yima"]
 
 AGENT_PHRASES = [

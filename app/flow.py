@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 
 from .content import (
-    AGENT_PHRASES, BANDS, DISTRESS_PHRASES, NO_WORDS, OPTIONS, START_WORDS, STOP_PHRASES, YES_WORDS,
+    AGENT_PHRASES, BANDS, COST_PHRASES, DISTRESS_PHRASES, NO_WORDS, OPTIONS, START_WORDS, STOP_PHRASES, YES_WORDS,
     band_key, options_text, rand, tr,
 )
 
@@ -90,6 +90,10 @@ def note_spouse_mismatch(s, text):
         note = "Mentions a spouse but marital answer was 'not married' - consultant to clarify"
         if note not in s.notes:
             s.notes.append(note)
+
+
+def is_cost_question(text):
+    return has_phrase(text, COST_PHRASES)
 
 
 def looks_like_question(text):
@@ -256,7 +260,7 @@ def handle(s, text, now, llm=None, fees=None, kind="text", bands=BANDS):
         return out
 
     if s.status == "completed":
-        _after_completion(s, t, out, now, llm)
+        _after_completion(s, t, out, now, llm, fees)
         return out
 
     if s.step == "new":
@@ -268,9 +272,9 @@ def handle(s, text, now, llm=None, fees=None, kind="text", bands=BANDS):
     return out
 
 
-def _after_completion(s, t, out, now, llm):
+def _after_completion(s, t, out, now, llm, fees):
     if looks_like_question(t):
-        ans, gap = split_gap(llm.faq(t, s.lang) if llm else None)
+        ans, gap = _faq_or_cost(s, t, llm, fees)
         s.notes.append(("Asked: " if ans and not gap else "UNANSWERED: ") + t[:200])
         if ans:
             out.messages.append(ans)
@@ -281,9 +285,18 @@ def _after_completion(s, t, out, now, llm):
     out.messages.append(tr("already_done", s.lang, name=s.name or ""))
 
 
-def _answer_question(s, t, out, llm, step, bands):
+def _faq_or_cost(s, t, llm, fees):
+    """Fee questions are answered from config/fees.yaml (never by the AI); everything else from the FAQ."""
+    if is_cost_question(t):
+        line = fee_range(s, fees, s.lang).strip()
+        if line:
+            return line, False
+    return split_gap(llm.faq(t, s.lang) if llm else None)
+
+
+def _answer_question(s, t, out, llm, step, bands, fees):
     """Answer what they asked, log it, then gently return to the current question."""
-    answer, gap = split_gap(llm.faq(t, s.lang) if llm else None)
+    answer, gap = _faq_or_cost(s, t, llm, fees)
     s.notes.append(("Asked: " if answer and not gap else "UNANSWERED: ") + t[:200])
     out.messages.append((answer or tr("faq_fallback", s.lang).strip()) + "\n\n" + ask(s, step, bands))
 
@@ -293,7 +306,7 @@ def _answer_step(s, t, out, now, llm, fees, bands):
 
     # A genuine question is always answered first, even if it contains words that look like an answer.
     if step != "callback" and looks_like_question(t):
-        _answer_question(s, t, out, llm, step, bands)
+        _answer_question(s, t, out, llm, step, bands, fees)
         return
 
     # --- parse the answer for this step
