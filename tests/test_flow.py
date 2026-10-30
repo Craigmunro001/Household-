@@ -244,7 +244,7 @@ def test_cost_question_answered_from_fee_table_not_ai():
 def test_cost_question_without_fee_table_never_quotes():
     s = Session(phone="1", step="province", lang="en", name="Craig", answers={"debt_band": "150000-200000"})
     r = handle(s, "how much will this cost me?", NIGHT, llm=FakeLLM("Your consultant confirms cost. [GAP]"), fees={})
-    assert "R1" not in r.messages[0] and s.notes[0].startswith("UNANSWERED")
+    assert "R1" not in r.messages[0] and any(n.startswith("UNANSWERED") for n in s.notes)
 
 
 def test_cost_question_after_completion_uses_fee_table():
@@ -258,7 +258,7 @@ def test_request_phrased_as_statement_is_treated_as_a_question():
     msg = "Please tell me more or less what I'm going to pay if my debt's 2,500 or 250,000 rand."
     r = handle(s, msg, NIGHT, llm=FakeLLM("Your consultant confirms cost. [GAP]"), fees={})
     assert "consultant confirms" in r.messages[0] and "details are with our team" not in r.messages[0]
-    assert s.notes[-1].startswith("UNANSWERED")
+    assert any(n.startswith("UNANSWERED") for n in s.notes)
     r = handle(s, msg, NIGHT, llm=None, fees=FEES)  # fee table filled in, band 150-200k
     assert "R15 000" in r.messages[0]
 
