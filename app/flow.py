@@ -77,7 +77,9 @@ QUESTION_WORDS = {
 def looks_like_question(text):
     t = norm(text)
     words = t.split()
-    return ("?" in text) or (len(words) >= 3 and words[0] in QUESTION_WORDS)
+    if len(words) < 3:
+        return False  # "yes?" / "no?" are answers, not questions
+    return "?" in text or words[0] in QUESTION_WORDS
 
 
 # ---------------------------------------------------------------- answer parsing
@@ -248,17 +250,32 @@ def handle(s, text, now, llm=None, fees=None, kind="text", bands=BANDS):
 
 
 def _after_completion(s, t, out, now, llm):
-    if looks_like_question(t) and llm:
-        ans = llm.faq(t, s.lang)
+    if looks_like_question(t):
+        ans = llm.faq(t, s.lang) if llm else None
+        s.notes.append(("Asked: " if ans else "UNANSWERED: ") + t[:200])
         if ans:
             out.messages.append(ans)
             return
+        out.messages.append(tr("faq_fallback", s.lang).strip())
+        return
     s.notes.append("Client wrote after completing: " + t[:200])
     out.messages.append(tr("already_done", s.lang, name=s.name or ""))
 
 
+def _answer_question(s, t, out, llm, step, bands):
+    """Answer what they asked, log it, then gently return to the current question."""
+    answer = llm.faq(t, s.lang) if llm else None
+    s.notes.append(("Asked: " if answer else "UNANSWERED: ") + t[:200])
+    out.messages.append((answer or tr("faq_fallback", s.lang).strip()) + "\n\n" + ask(s, step, bands))
+
+
 def _answer_step(s, t, out, now, llm, fees, bands):
     step = s.step
+
+    # A genuine question is always answered first, even if it contains words that look like an answer.
+    if step != "callback" and looks_like_question(t):
+        _answer_question(s, t, out, llm, step, bands)
+        return
 
     # --- parse the answer for this step
     ok = False
@@ -306,20 +323,14 @@ def _answer_step(s, t, out, now, llm, fees, bands):
         return
 
     # --- not understood: a question gets an answer, anything else gets a gentle re-ask
-    prefix = ""
-    if looks_like_question(t):
-        prefix = (llm.faq(t, s.lang) if llm else None) or tr("faq_fallback", s.lang)
-        prefix += "\n\n"
-        s.notes.append("Asked: " + t[:200])
-    else:
-        s.fails += 1
-        if s.fails >= MAX_FAILS:
-            s.status = "handover"
-            s.notes.append(f"Bot could not understand answers at step '{step}'")
-            out.messages.append(tr("handover", s.lang))
-            out.events.append("handover")
-            return
-        prefix = tr("reask", s.lang)
+    s.fails += 1
+    if s.fails >= MAX_FAILS:
+        s.status = "handover"
+        s.notes.append(f"Bot could not understand answers at step '{step}'")
+        out.messages.append(tr("handover", s.lang))
+        out.events.append("handover")
+        return
+    prefix = tr("reask", s.lang)
 
     if step == "lang" and s.fails >= 2:
         s.lang, s.step, s.fails = "en", "consent", 0  # default to English rather than stall

@@ -184,3 +184,37 @@ def test_alert_email_content():
     s, _ = full_chat("1")
     subject, body = notify.build("completed", s)
     assert "Craig" in subject and "+27820000000" in body and "tomorrow after 2pm" in body
+
+
+class FakeLLM:
+    def __init__(self, answer):
+        self.answer = answer
+
+    def faq(self, q, lang):
+        return self.answer
+
+    def classify(self, *a, **k):
+        return None
+
+    def normalise_callback(self, *a, **k):
+        return None
+
+
+def test_question_containing_answer_words_is_answered_not_misparsed():
+    s = Session(phone="1", step="review", lang="en", name="Craig", status="active")
+    r = handle(s, "no what is the difference between debt review and debt counselling?", NIGHT, llm=FakeLLM("They are the same thing."))
+    assert "same thing" in r.messages[0] and "1. Yes" in r.messages[0]
+    assert s.step == "review" and "review" not in s.answers
+    assert s.notes == ["Asked: no what is the difference between debt review and debt counselling?"]
+
+
+def test_unanswered_question_is_logged_for_faq_growth():
+    s = Session(phone="1", step="province", lang="en", name="Craig")
+    handle(s, "do you work with people in Namibia?", NIGHT, llm=FakeLLM(None))
+    assert s.notes[0].startswith("UNANSWERED:")
+
+
+def test_short_yes_no_with_question_mark_still_counts_as_answer():
+    s = Session(phone="1", step="review", lang="en", name="Craig")
+    handle(s, "no?", NIGHT)
+    assert s.answers["review"] == "no"

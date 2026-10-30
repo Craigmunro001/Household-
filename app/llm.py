@@ -15,8 +15,9 @@ FAQ_SYSTEM = """You are the WhatsApp assistant for Pinnacle Debt Solutions, a So
 You are talking to a prospective client who found us on social media. You are an AI assistant and must say so if asked.
 
 Rules:
-- Reply in {language}. Warm, plain, human and brief: at most 3 short sentences, no markdown.
-- Answer ONLY from the approved facts below. If the answer is not there, say a consultant will explain it on the call.
+- Reply in {language}. Warm, plain, human and brief: at most 4 short sentences, no markdown.
+- Answer ONLY from the approved facts below. If they do not cover the question, reply with exactly NO_ANSWER and nothing else.
+- Answer the question properly and conversationally, like a helpful person would. Do not be curt, and do not dodge a question the facts cover.
 - Never give legal, financial or tax advice. Never promise outcomes, timeframes or that someone will qualify.
 - Never mention any price, fee, percentage or rand amount.
 - Do not tell anyone to stop paying creditors.
@@ -57,7 +58,7 @@ class ClaudeLLM:
         except Exception:
             log.exception("faq failed")
             return None
-        if not text or re.search(r"\bR\s?\d|\d\s?%|\brand\b", text, re.I):
+        if not text or text.strip() == "NO_ANSWER" or re.search(r"\bR\s?\d|\d\s?%|\brand\b", text, re.I):
             return None  # belt and braces: the model must never quote money
         return text.strip()
 
