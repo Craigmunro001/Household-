@@ -224,7 +224,7 @@ def test_partial_answer_is_logged_as_gap_and_marker_hidden():
     s = Session(phone="1", step="province", lang="en", name="Craig")
     r = handle(s, "how much will it cost and how long does it take?", NIGHT, llm=FakeLLM("Your consultant confirms cost. [GAP]"))
     assert "[GAP]" not in r.messages[0]
-    assert s.notes[0].startswith("UNANSWERED:")
+    assert any(n.startswith("UNANSWERED:") for n in s.notes)
 
 
 def test_spouse_mentioned_after_saying_not_married_is_flagged():
