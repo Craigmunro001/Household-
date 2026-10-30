@@ -280,3 +280,27 @@ def test_cost_question_with_no_fee_table_flags_lead_for_consultant():
     handle(s, "How much will I pay on 250,000 rand debt?", NIGHT, llm=FakeLLM("x [GAP]"), fees={})
     handle(s, "what are your fees", NIGHT, llm=FakeLLM("x [GAP]"), fees={})
     assert sum("COST" in n for n in s.notes) == 1
+
+
+@pytest.mark.parametrize("text,lang", [
+    ("Kan ek tronk toe gaan?", "af"), ("Wat is die verskil tussen skuldhersiening en skuldberading", "af"),
+    ("ngingakwazi yini ukuthi ngilahlekelwe yimoto yami", "zu"), ("What is the difference between these two", "en"),
+    ("ja", None), ("Craig", None), ("tomorrow after 2pm", None),
+])
+def test_language_detection(text, lang):
+    assert flow.detect_lang(text) == lang
+
+
+def test_conversation_switches_to_afrikaans_when_lead_writes_afrikaans():
+    s, _ = full_chat("1")
+    assert s.lang == "en"
+    r = handle(s, "Kan ek tronk toe gaan?", NIGHT, llm=FakeLLM("Nee."))
+    assert s.lang == "af" and r.messages == ["Nee."]
+    r = handle(s, "ok dankie", NIGHT)
+    assert "Dankie" in r.messages[0] or "dankie" in r.messages[0].lower()
+
+
+def test_mid_flow_language_switch_changes_next_question_too():
+    s = Session(phone="1", step="review", lang="en", name="Craig")
+    r = handle(s, "Wat is skuldhersiening en hoe werk dit eintlik", NIGHT, llm=FakeLLM("Antwoord."))
+    assert s.lang == "af" and "skuldhersiening" in r.messages[0].lower() and "1. Ja" in r.messages[0]

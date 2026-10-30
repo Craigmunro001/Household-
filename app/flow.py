@@ -74,6 +74,39 @@ QUESTION_WORDS = {
 }
 
 
+AF_WORDS = {"ek", "jy", "nie", "wat", "hoe", "kan", "gaan", "die", "het", "dit", "ons", "tronk", "skuld", "moet", "sal",
+            "asseblief", "dankie", "wil", "ook", "maar", "nog", "vir", "toe", "my", "jou", "sê", "wanneer", "hoekom", "baie"}
+EN_WORDS = {"the", "i", "you", "is", "are", "what", "how", "can", "will", "to", "of", "and", "a", "it", "do", "does",
+            "my", "me", "this", "that", "with", "for", "if", "be", "have", "not", "when", "why", "who", "about", "please"}
+ZU_PREFIXES = ("ngi", "uku", "nga", "ngo", "ngu", "kwa", "uma", "yin", "kan", "ngin", "angi", "ubu", "ama", "aba")
+ZU_WORDS = {"yebo", "cha", "futhi", "kodwa", "impela", "kakhulu", "nini", "kuphi", "ngubani", "yini", "kanjani", "uma",
+            "ngicela", "ngiyabonga", "angikwazi", "ngifuna", "ngingakwazi", "ukuthi", "nami", "wami", "lami"}
+
+
+def detect_lang(text):
+    """Cheap language detector for en / af / zu. Returns None unless it is clear (>= 3 words)."""
+    words = norm(text).split()
+    if len(words) < 3:
+        return None
+    en = sum(w in EN_WORDS for w in words)
+    af = sum(w in AF_WORDS for w in words)
+    zu = sum(w in ZU_WORDS or (len(w) > 5 and w.startswith(ZU_PREFIXES) and w not in EN_WORDS) for w in words)
+    if af >= 2 and af > en and af >= zu:
+        return "af"
+    if zu >= 2 and zu > en:
+        return "zu"
+    if en >= 2 and en > af and en > zu:
+        return "en"
+    return None
+
+
+def maybe_switch_language(s, text):
+    lang = detect_lang(text)
+    if lang and lang != s.lang and s.step not in ("new", "lang"):
+        s.notes.append(f"Switched language {s.lang} -> {lang}")
+        s.lang = lang
+
+
 SPOUSE_WORDS = ["wife", "husband", "spouse", "wyf", "vrou", "eggenoot", "eggenote", "umfazi", "umyeni"]
 GAP_MARK = "[GAP]"
 
@@ -239,6 +272,7 @@ def handle(s, text, now, llm=None, fees=None, kind="text", bands=BANDS):
     if kind != "text" or not t:
         out.messages.append(tr("voice_note", s.lang))
         return out
+    maybe_switch_language(s, t)
     note_spouse_mismatch(s, t)
     if is_stop(t) and s.step != "new":
         s.status = "opted_out"

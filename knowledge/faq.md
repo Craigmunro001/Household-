@@ -58,6 +58,9 @@ A: One of Pinnacle Debt Solutions' consultants. They will go through your situat
 ## Q: Who are Pinnacle Debt Solutions?
 A: We help South Africans who are overwhelmed by debt. We specialise in voluntary surrender of estate and work together with a partner attorney.
 
+## Q: Can I go to prison because of my debt?
+A: No. Owing money is a civil matter, not a crime, so nobody goes to prison simply because they can't pay their debts. What does matter is being completely honest throughout the process, because hiding assets or giving false information is a different matter and can be an offence. Your consultant will go through this with you. [DRAFT-VERIFY]
+
 ## Q: Do I have to decide anything now?
 A: No. All I'm doing is arranging a call. Any decisions are made later, with your consultant, once you understand your options.
 
