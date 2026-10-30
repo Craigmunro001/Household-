@@ -1,6 +1,6 @@
 # Pinnacle WhatsApp lead assistant
 
-Greets social-media leads on WhatsApp 24/7, asks the qualifying questions in English, Afrikaans or isiZulu,
+Greets social-media leads on WhatsApp 24/7, asks the five qualifying questions (debt, marital status, province, debt review, call time) in English, Afrikaans or isiZulu,
 records the lead in a Google Sheet and emails a consultant to call at the time the prospect chose.
 
 ```

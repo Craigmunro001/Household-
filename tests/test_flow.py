@@ -20,7 +20,7 @@ def run(session, *texts, now=NIGHT, fees=None, llm=None):
 def full_chat(lang_choice, **kw):
     s = Session(phone="27820000000")
     replies = run(s, "hi", lang_choice, "yes" if lang_choice == "1" else ("ja" if lang_choice == "2" else "yebo"),
-                  "craig", "4", "2", "2", "1", "tomorrow after 2pm", **kw)
+                  "craig", "4", "2", "4", "2", "tomorrow after 2pm", **kw)
     return s, replies
 
 
@@ -29,9 +29,9 @@ def test_happy_path_english():
     assert s.status == "completed" and s.lang == "en"
     assert s.name == "Craig"
     assert s.answers["debt_band"] == "150000-200000"
-    assert s.answers["afford"] == "struggling"
+    assert s.answers["marital"] == "in_community"
+    assert s.answers["province"] == "KZN"
     assert s.answers["review"] == "no"
-    assert s.answers["employment"] == "employed"
     assert s.qualification == "likely"
     assert s.consent_at
     assert "completed" in replies[-1].events
@@ -48,7 +48,7 @@ def test_other_languages(choice, marker):
 
 def test_no_fee_quoted_when_not_configured():
     _, replies = full_chat("1", fees={})
-    assert "R" not in replies[-1].messages[0].replace("Reply", "")
+    assert "R" not in replies[-1].messages[0]
 
 
 def test_fee_quoted_only_from_config_and_marked_as_estimate():
@@ -153,21 +153,26 @@ def test_small_bare_numbers_are_menu_choices_not_amounts():
 
 
 @pytest.mark.parametrize("text,value", [
-    ("2", "struggling"), ("I'm struggling", "struggling"), ("ek sukkel", "struggling"),
-    ("no i can't", "no"), ("yebo", "yes"),
+    ("2", "in_community"), ("married in community of property", "in_community"),
+    ("out of community", "out_of_community"), ("buite gemeenskap van goedere", "out_of_community"),
+    ("I'm divorced", "not_married"), ("single", "not_married"), ("angishadile", "not_married"),
+    ("married but I'm not sure", "unsure"),
 ])
-def test_afford_parsing(text, value):
-    assert parse_choice("afford", text) == value
+def test_marital_parsing(text, value):
+    assert parse_choice("marital", text) == value
+
+
+@pytest.mark.parametrize("text,value", [
+    ("4", "KZN"), ("Ballito", "KZN"), ("Gauteng", "GP"), ("joburg", "GP"), ("Wes-Kaap", "WC"),
+    ("Western Cape", "WC"), ("northern cape", "NC"), ("noordwes", "NW"), ("Free State", "FS"),
+])
+def test_province_parsing(text, value):
+    assert parse_choice("province", text) == value
 
 
 def test_review_not_sure_beats_not():
     assert parse_choice("review", "not sure") == "unsure"
     assert parse_choice("review", "not under debt review") == "no"
-
-
-def test_employment_unemployed_not_confused_with_employed():
-    assert parse_choice("employment", "unemployed") == "unemployed"
-    assert parse_choice("employment", "self-employed") == "self_employed"
 
 
 def test_name_cleaning():

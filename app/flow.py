@@ -14,7 +14,7 @@ from .content import (
 )
 
 SAST = timezone(timedelta(hours=2))
-STEPS = ["lang", "consent", "name", "debt", "afford", "review", "employment", "callback"]
+STEPS = ["lang", "consent", "name", "debt", "marital", "province", "review", "callback"]
 MAX_FAILS = 3
 
 
@@ -146,7 +146,7 @@ def ask(s, step, bands=BANDS):
         return tr("ask_name", s.lang)
     if step == "debt":
         return tr("ask_debt", s.lang, name=s.name, options=options_text("debt", s.lang, bands))
-    if step in ("afford", "review", "employment"):
+    if step in ("marital", "province", "review"):
         return tr(f"ask_{step}", s.lang, options=options_text(step, s.lang))
     if step == "callback":
         return tr("ask_callback", s.lang)
@@ -180,12 +180,13 @@ def fee_range(s, fees, lang):
 def assess(s):
     """Triage for the consultant only. Never shown to, or used to turn away, the prospect.
 
-    DRAFT rules; refine with real outcomes.
+    DRAFT rules; refine with real outcomes. Under debt review needs the consultant to
+    explain next steps first; very low debt may not justify the process.
     """
     a = s.answers
-    if a.get("afford") in ("struggling", "no"):
-        return "likely"
-    return "unsure"
+    if a.get("review") == "yes" or a.get("debt_band") == "0-100000":
+        return "unsure"
+    return "likely"
 
 
 def in_business_hours(now):

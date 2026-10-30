@@ -9,7 +9,7 @@ log = logging.getLogger("pinnacle.leads")
 
 COLUMNS = [
     "Updated", "Phone", "Name", "Language", "Status", "Qualification", "Debt band", "Debt stated (R)",
-    "Affordability", "Under debt review", "Employment", "Callback preference", "Consent given", "Notes", "Created",
+    "Marital status", "Province", "Under debt review", "Callback preference", "Consent given", "Notes", "Created",
 ]
 _BAND_LABELS = {band_key(b): band_label(b, "en") for b in BANDS}
 
@@ -19,7 +19,7 @@ def lead_row(s):
     return [
         s.updated_at, s.phone, s.name, s.lang, s.status, s.qualification.upper(),
         _BAND_LABELS.get(a.get("debt_band", ""), ""), a.get("debt_amount_stated", ""),
-        a.get("afford", ""), a.get("review", ""), a.get("employment", ""), a.get("callback", ""),
+        a.get("marital", ""), a.get("province", ""), a.get("review", ""), a.get("callback", ""),
         s.consent_at, " | ".join(s.notes), s.created_at,
     ]
 
