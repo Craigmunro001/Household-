@@ -295,6 +295,9 @@ def _faq_or_cost(s, t, llm, fees):
         line = fee_range(s, fees, s.lang).strip()
         if line:
             return line, False
+        note = "Asked about COST - consultant should open the call with the fee"
+        if note not in s.notes:
+            s.notes.append(note)
     return split_gap(llm.faq(t, s.lang) if llm else None)
 
 

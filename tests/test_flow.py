@@ -273,3 +273,10 @@ def test_unrecognised_but_real_message_mid_flow_goes_to_ai_without_penalty():
     s = Session(phone="1", step="review", lang="en", name="Craig")
     r = handle(s, "my brother says he went through this and it was a nightmare", NIGHT, llm=FakeLLM("I'm sorry to hear that."))
     assert "sorry" in r.messages[0] and "1. Yes" in r.messages[0] and s.fails == 0
+
+
+def test_cost_question_with_no_fee_table_flags_lead_for_consultant():
+    s = Session(phone="1", step="province", lang="en", name="Craig", answers={"debt_band": "200000-300000"})
+    handle(s, "How much will I pay on 250,000 rand debt?", NIGHT, llm=FakeLLM("x [GAP]"), fees={})
+    handle(s, "what are your fees", NIGHT, llm=FakeLLM("x [GAP]"), fees={})
+    assert sum("COST" in n for n in s.notes) == 1
