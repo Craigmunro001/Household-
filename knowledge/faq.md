@@ -46,6 +46,9 @@ A: I'm Pinnacle's virtual assistant, an AI, so not a person. I take your details
 ## Q: Is my information confidential?
 A: Yes. Your details are only used to assess how we can help you, they're handled in line with POPIA, and only our team sees them. You can type STOP at any time to opt out.
 
+## Q: How much does it cost?
+A: It depends on your circumstances, so your consultant confirms the cost after a proper assessment of your situation. I can't give you a figure myself, and I don't want to guess. [Fee wording with amounts is added by the system from config/fees.yaml once approved.]
+
 ## Q: When will someone call me?
 A: A consultant will phone you at the time you choose. Our consultants work Monday to Friday, 08:00 to 17:00, so if you message after hours you'll hear from us at the first suitable time.
 
@@ -60,7 +63,7 @@ A: No. All I'm doing is arranging a call. Any decisions are made later, with you
 
 ---
 # NOT YET COVERED (Craig / David to supply: these currently get "your consultant will explain")
-- How much does it cost / is the first call free / payment terms and finance options (WellTech)
+- Cost: the actual fee figures per debt band / is the first call free / payment terms and finance options (WellTech)
 - How long does the process take; how long until I can get credit again
 - Qualifying criteria: minimum debt, income, assets, types of debt covered
 - Is Pinnacle registered / how do I know you are legitimate; physical address; reviews

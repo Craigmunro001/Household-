@@ -74,6 +74,24 @@ QUESTION_WORDS = {
 }
 
 
+SPOUSE_WORDS = ["wife", "husband", "spouse", "wyf", "vrou", "eggenoot", "eggenote", "umfazi", "umyeni"]
+GAP_MARK = "[GAP]"
+
+
+def split_gap(answer):
+    """The AI marks a partly-answered question with [GAP]; strip it and report whether it was there."""
+    if answer and GAP_MARK in answer:
+        return answer.replace(GAP_MARK, "").strip(), True
+    return answer, False
+
+
+def note_spouse_mismatch(s, text):
+    if s.answers.get("marital") == "not_married" and has_phrase(text, SPOUSE_WORDS):
+        note = "Mentions a spouse but marital answer was 'not married' - consultant to clarify"
+        if note not in s.notes:
+            s.notes.append(note)
+
+
 def looks_like_question(text):
     t = norm(text)
     words = t.split()
@@ -214,6 +232,7 @@ def handle(s, text, now, llm=None, fees=None, kind="text", bands=BANDS):
     if kind != "text" or not t:
         out.messages.append(tr("voice_note", s.lang))
         return out
+    note_spouse_mismatch(s, t)
     if is_stop(t) and s.step != "new":
         s.status = "opted_out"
         out.messages.append(tr("stopped", s.lang))
@@ -251,8 +270,8 @@ def handle(s, text, now, llm=None, fees=None, kind="text", bands=BANDS):
 
 def _after_completion(s, t, out, now, llm):
     if looks_like_question(t):
-        ans = llm.faq(t, s.lang) if llm else None
-        s.notes.append(("Asked: " if ans else "UNANSWERED: ") + t[:200])
+        ans, gap = split_gap(llm.faq(t, s.lang) if llm else None)
+        s.notes.append(("Asked: " if ans and not gap else "UNANSWERED: ") + t[:200])
         if ans:
             out.messages.append(ans)
             return
@@ -264,8 +283,8 @@ def _after_completion(s, t, out, now, llm):
 
 def _answer_question(s, t, out, llm, step, bands):
     """Answer what they asked, log it, then gently return to the current question."""
-    answer = llm.faq(t, s.lang) if llm else None
-    s.notes.append(("Asked: " if answer else "UNANSWERED: ") + t[:200])
+    answer, gap = split_gap(llm.faq(t, s.lang) if llm else None)
+    s.notes.append(("Asked: " if answer and not gap else "UNANSWERED: ") + t[:200])
     out.messages.append((answer or tr("faq_fallback", s.lang).strip()) + "\n\n" + ask(s, step, bands))
 
 

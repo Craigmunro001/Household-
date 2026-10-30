@@ -218,3 +218,17 @@ def test_short_yes_no_with_question_mark_still_counts_as_answer():
     s = Session(phone="1", step="review", lang="en", name="Craig")
     handle(s, "no?", NIGHT)
     assert s.answers["review"] == "no"
+
+
+def test_partial_answer_is_logged_as_gap_and_marker_hidden():
+    s = Session(phone="1", step="province", lang="en", name="Craig")
+    r = handle(s, "how much will it cost and how long does it take?", NIGHT, llm=FakeLLM("Your consultant confirms cost. [GAP]"))
+    assert "[GAP]" not in r.messages[0]
+    assert s.notes[0].startswith("UNANSWERED:")
+
+
+def test_spouse_mentioned_after_saying_not_married_is_flagged():
+    s = Session(phone="1", step="province", lang="en", name="Craig", answers={"marital": "not_married"})
+    handle(s, "gauteng", NIGHT)
+    handle(s, "will my wife find out", NIGHT, llm=FakeLLM(None))
+    assert any("clarify" in n for n in s.notes)
