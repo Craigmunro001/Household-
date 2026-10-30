@@ -88,6 +88,13 @@ COST_PHRASES = [
     "how much do you charge", "what will i pay", "what do i pay", "will i pay",
     "koste", "kos", "prys", "tarief", "hoeveel gaan dit", "hoeveel kos",
     "ixabiza", "malini", "imali engizoyikhokha",
+    "going to pay", "have to pay", "need to pay", "must pay", "gaan betaal", "moet betaal",
+]
+
+REQUEST_STARTS = [
+    "tell me", "please tell", "please explain", "explain", "i want to know", "i need to know", "i would like to know",
+    "i wanna know", "let me know", "please advise", "please clarify", "sê vir my", "verduidelik", "ek wil weet",
+    "ngicela ungitshele", "ngifuna ukwazi",
 ]
 
 STOP_PHRASES = ["stop", "unsubscribe", "opt out", "optout", "hou op", "yeka", "yima"]

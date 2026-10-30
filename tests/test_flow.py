@@ -251,3 +251,25 @@ def test_cost_question_after_completion_uses_fee_table():
     s, _ = full_chat("1")
     r = handle(s, "What are your fees?", NIGHT, llm=None, fees=FEES)
     assert "R15 000" in r.messages[0]
+
+
+def test_request_phrased_as_statement_is_treated_as_a_question():
+    s, _ = full_chat("1")
+    msg = "Please tell me more or less what I'm going to pay if my debt's 2,500 or 250,000 rand."
+    r = handle(s, msg, NIGHT, llm=FakeLLM("Your consultant confirms cost. [GAP]"), fees={})
+    assert "consultant confirms" in r.messages[0] and "details are with our team" not in r.messages[0]
+    assert s.notes[-1].startswith("UNANSWERED")
+    r = handle(s, msg, NIGHT, llm=None, fees=FEES)  # fee table filled in, band 150-200k
+    assert "R15 000" in r.messages[0]
+
+
+def test_short_acknowledgement_after_completion_gets_canned_reply():
+    s, _ = full_chat("1")
+    r = handle(s, "ok thanks", NIGHT, llm=FakeLLM("SHOULD NOT BE USED"))
+    assert "SHOULD NOT" not in r.messages[0]
+
+
+def test_unrecognised_but_real_message_mid_flow_goes_to_ai_without_penalty():
+    s = Session(phone="1", step="review", lang="en", name="Craig")
+    r = handle(s, "my brother says he went through this and it was a nightmare", NIGHT, llm=FakeLLM("I'm sorry to hear that."))
+    assert "sorry" in r.messages[0] and "1. Yes" in r.messages[0] and s.fails == 0

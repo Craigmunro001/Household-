@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 
 from .content import (
-    AGENT_PHRASES, BANDS, COST_PHRASES, DISTRESS_PHRASES, NO_WORDS, OPTIONS, START_WORDS, STOP_PHRASES, YES_WORDS,
+    AGENT_PHRASES, BANDS, COST_PHRASES, DISTRESS_PHRASES, NO_WORDS, OPTIONS, REQUEST_STARTS, START_WORDS, STOP_PHRASES, YES_WORDS,
     band_key, options_text, rand, tr,
 )
 
@@ -101,6 +101,9 @@ def looks_like_question(text):
     words = t.split()
     if len(words) < 3:
         return False  # "yes?" / "no?" are answers, not questions
+    t = " ".join(words)
+    if is_cost_question(t) or any(t.startswith(r) for r in REQUEST_STARTS):
+        return True
     return "?" in text or words[0] in QUESTION_WORDS
 
 
@@ -273,13 +276,14 @@ def handle(s, text, now, llm=None, fees=None, kind="text", bands=BANDS):
 
 
 def _after_completion(s, t, out, now, llm, fees):
-    if looks_like_question(t):
+    is_q = looks_like_question(t)
+    if is_q or len(norm(t).split()) >= 4:  # a real message, not just "ok" / "thanks"
         ans, gap = _faq_or_cost(s, t, llm, fees)
         s.notes.append(("Asked: " if ans and not gap else "UNANSWERED: ") + t[:200])
         if ans:
             out.messages.append(ans)
             return
-        out.messages.append(tr("faq_fallback", s.lang).strip())
+        out.messages.append(tr("faq_fallback" if is_q else "already_done", s.lang, name=s.name or "").strip())
         return
     s.notes.append("Client wrote after completing: " + t[:200])
     out.messages.append(tr("already_done", s.lang, name=s.name or ""))
@@ -354,7 +358,15 @@ def _answer_step(s, t, out, now, llm, fees, bands):
             out.messages.append(ask(s, s.step, bands))
         return
 
-    # --- not understood: a question gets an answer, anything else gets a gentle re-ask
+    # --- not an answer: if it's a real message, let the AI/FAQ respond before treating it as a failed answer
+    if llm and len(norm(t).split()) >= 4 and step != "callback":
+        answer, gap = _faq_or_cost(s, t, llm, fees)
+        if answer:
+            s.notes.append(("Asked: " if not gap else "UNANSWERED: ") + t[:200])
+            out.messages.append(answer + "\n\n" + ask(s, step, bands))
+            return
+
+    # --- not understood: a gentle re-ask, and hand over after repeated failures
     s.fails += 1
     if s.fails >= MAX_FAILS:
         s.status = "handover"
