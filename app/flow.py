@@ -9,12 +9,12 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 
 from .content import (
-    AGENT_PHRASES, ASSET_WORDS, CORRECTION_WORDS, COST_PHRASES, DISTRESS_PHRASES, NO_WORDS, OPTIONS, REQUEST_STARTS, START_WORDS, STOP_PHRASES,
+    AGENT_PHRASES, CORRECTION_WORDS, COST_PHRASES, DISTRESS_PHRASES, NO_WORDS, OPTIONS, REQUEST_STARTS, START_WORDS, STOP_PHRASES,
     TERMS, WHEN, YES_WORDS, money, options_text, tr,
 )
 
 SAST = timezone(timedelta(hours=2))
-STEPS = ["lang", "consent", "name", "province", "debt", "home", "vehicle", "asset_ack", "term", "marital", "review", "callback"]
+STEPS = ["lang", "consent", "name", "province", "debt", "home", "home_ack", "vehicle", "vehicle_ack", "term", "marital", "review", "callback"]
 MAX_FAILS = 3
 DEFAULT_DECLINE_BELOW = 100_000  # Pinnacle does not take cases under R100 000 (the price book can override)
 
@@ -218,8 +218,8 @@ def ask(s, step):
         return tr("ask_province", s.lang, name=s.name, options=options_text("province", s.lang))
     if step == "term":
         return tr("ask_term", s.lang, options=options_text("term", s.lang))
-    if step == "asset_ack":
-        return tr("ask_asset_ack", s.lang, assets=ASSET_WORDS[assets_key(s)][s.lang], options=options_text("asset_ack", s.lang))
+    if step in ("home_ack", "vehicle_ack"):
+        return tr(f"ask_{step}", s.lang, name=s.name, options=options_text(step, s.lang))
     if step in ("marital", "review", "home", "vehicle"):
         return tr(f"ask_{step}", s.lang, options=options_text(step, s.lang))
     if step == "callback":
@@ -262,11 +262,6 @@ def estimate_text(s, pb, months):
 def restate_estimate(s):
     e = s.answers["estimate"]
     return tr("estimate", s.lang, amount=money(e["monthly"]), months=e["months"])
-
-
-def assets_key(s):
-    home, car = s.answers.get("home") == "yes", s.answers.get("vehicle") == "yes"
-    return "both" if home and car else "home" if home else "vehicle"
 
 
 def assess(s):
@@ -398,7 +393,7 @@ def _faq_or_cost(s, t, llm, pb):
             return restate_estimate(s), False
         amount = s.answers.get("debt_amount")
         can_still_quote = pb and (amount is None or pb.can_quote(amount))
-        if s.status == "active" and can_still_quote and s.step in ("lang", "consent", "name", "province", "debt", "home", "vehicle", "asset_ack", "term"):
+        if s.status == "active" and can_still_quote and s.step in ("lang", "consent", "name", "province", "debt", "home", "home_ack", "vehicle", "vehicle_ack", "term"):
             return tr("cost_need_info", s.lang), False
         note = "Asked about COST - consultant should open the call with the fee"
         if note not in s.notes:
@@ -445,24 +440,28 @@ def _after_assets(s, out, pb):
 
 
 def _asset_answer(s, out, step, value, pb):
-    """home, then vehicle. Owning a home or a financed vehicle is not a hard stop: we warn, then they choose."""
+    """home / vehicle. Owning either triggers an immediate, friendly warning; nothing else is asked until they choose."""
     s.answers[step] = value
-    if step == "home":
+    if value == "yes":
+        s.step = f"{step}_ack"
+        out.messages.append(ask(s, s.step))
+    elif step == "home":
         s.step = "vehicle"
         out.messages.append(ask(s, "vehicle"))
-    elif s.answers.get("home") == "yes" or s.answers.get("vehicle") == "yes":
-        s.step = "asset_ack"
-        out.messages.append(ask(s, "asset_ack"))
     else:
         _after_assets(s, out, pb)
 
 
-def _accept_asset_risk(s, out, pb):
-    """They were told the asset(s) would be sold/repossessed and still want to go ahead: record it and carry on."""
-    s.answers["asset_ack"] = {"at": s.updated_at, "home": s.answers.get("home") == "yes",
-                              "vehicle": s.answers.get("vehicle") == "yes"}
-    s.notes.append("WARNED that home/financed vehicle would be sold or repossessed; chose to continue - consultant to assess")
-    _after_assets(s, out, pb)
+def _accept_asset_risk(s, out, pb, which):
+    """They were warned (home -> trustee sells it, vehicle -> bank takes it back) and still want to go ahead."""
+    s.answers.setdefault("asset_ack", {})[which] = {"at": s.updated_at}
+    s.notes.append(f"WARNED about their {which} ({'sold by the trustee, usually at auction' if which == 'home' else 'taken back by the bank'}); "
+                   "chose to continue - consultant to assess")
+    if which == "home":
+        s.step = "vehicle"
+        out.messages.append(ask(s, "vehicle"))
+    else:
+        _after_assets(s, out, pb)
 
 
 def _answer_step(s, t, out, now, llm, pb):
@@ -524,12 +523,14 @@ def _answer_step(s, t, out, now, llm, pb):
             s.fails = 0
             _asset_answer(s, out, step, value, pb)
             return
-        if value and step == "asset_ack":
+        if value and step in ("home_ack", "vehicle_ack"):
             s.fails = 0
+            which = step.removesuffix("_ack")
             if value == "yes":
-                _accept_asset_risk(s, out, pb)
+                _accept_asset_risk(s, out, pb, which)
             else:
-                _decline(s, out, "assets", "Owns a home/financed vehicle; warned, chose not to continue - no consultant call",
+                s.answers["not_fit_asset"] = which
+                _decline(s, out, "assets", f"Warned about their {which}; chose not to continue - no consultant call",
                          tr("not_fit_assets", s.lang, name=s.name))
             return
         if value:
@@ -573,16 +574,16 @@ def _after_not_fit(s, t, out, llm, pb):
     """Let them correct the answer (the debt amount was only a rough estimate; or they misread an asset question)."""
     reason = s.answers.get("not_fit_reason", "debt")
     if reason == "assets":
+        which = s.answers.get("not_fit_asset", "home")
         if parse_choice("asset_ack", t) == "yes":  # changed their mind
             s.status, s.fails, s.qualification = "active", 0, ""
-            _accept_asset_risk(s, out, pb)
+            _accept_asset_risk(s, out, pb, which)
             return
-        if has_phrase(t, CORRECTION_WORDS):         # they misread a question: ask again
-            s.status, s.step, s.fails, s.qualification = "active", "home", 0, ""
-            for k in ("home", "vehicle"):
-                s.answers.pop(k, None)
-            s.notes.append("Re-asked the home/vehicle questions after a correction")
-            out.messages.append(ask(s, "home"))
+        if has_phrase(t, CORRECTION_WORDS):         # they misread the question: ask it again
+            s.status, s.step, s.fails, s.qualification = "active", which, 0, ""
+            s.answers.pop(which, None)
+            s.notes.append(f"Re-asked the {which} question after a correction")
+            out.messages.append(ask(s, which))
             return
         if looks_like_question(t):
             ans, gap = _faq_or_cost(s, t, llm, pb)

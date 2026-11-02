@@ -79,6 +79,8 @@ OPTIONS = {
     ],
 }
 
+OPTIONS["home_ack"] = OPTIONS["vehicle_ack"] = OPTIONS["asset_ack"]
+
 YES_WORDS = {"yes", "y", "yep", "yeah", "ok", "okay", "sure", "continue", "ja", "goed", "yebo", "yes please", "ja asseblief"}
 NO_WORDS = {"no", "n", "nope", "nee", "cha", "no thanks", "nee dankie"}
 START_WORDS = {"start", "subscribe"}  # only an explicit START re-engages someone who sent STOP
@@ -101,13 +103,6 @@ WHEN = {  # when the team is next available, by language
     "today": {"en": "08:00 this morning", "af": "08:00 vanoggend", "zu": "ngo-08:00 ekuseni"},
     "tomorrow": {"en": "tomorrow", "af": "môre", "zu": "kusasa"},
     "monday": {"en": "Monday", "af": "Maandag", "zu": "ngoMsombuluko"},
-}
-
-ASSET_WORDS = {  # how the warning names what they own
-    "home": {"en": "your home", "af": "jou huis", "zu": "indlu yakho"},
-    "vehicle": {"en": "your financed vehicle", "af": "jou gefinansierde voertuig", "zu": "isithuthi sakho esisakhokhelwa"},
-    "both": {"en": "your home and your financed vehicle", "af": "jou huis en jou gefinansierde voertuig",
-             "zu": "indlu yakho nesithuthi sakho esisakhokhelwa"},
 }
 
 CORRECTION_WORDS = ["misunderstood", "mistake", "wrong", "i rent", "renting", "paid off", "fully paid", "settled", "huur", "afbetaal",
@@ -244,10 +239,15 @@ M = {
         "af": "Het jy 'n voertuig wat nog onder finansiering is ('n motorlening of afbetalingskontrak)?\n\n{options}",
         "zu": "Ingabe unesithuthi esisakhokhelwa ngemali-mboleko (isikweletu semoto noma isivumelwano sezinkokhelo)?\n\n{options}",
     },
-    "ask_asset_ack": {
-        "en": "Thank you for being open about that. Please know that {assets} would be sold or repossessed as part of the process. Your consultant will explain exactly what this means for you before you decide anything.\n\nWould you still like to continue?\n\n{options}",
-        "af": "Dankie dat jy so openhartig is daaroor. Weet asseblief dat {assets} as deel van die proses verkoop of teruggeneem sou word. Jou konsultant sal presies verduidelik wat dit vir jou beteken voordat jy enigiets besluit.\n\nWil jy steeds voortgaan?\n\n{options}",
-        "zu": "Ngiyabonga ngokuvuleka ngalokho. Sicela wazi ukuthi {assets} kungathengiswa noma kubuyiselwe njengengxenye yenqubo. Umeluleki wakho uzochaza ngokuqondile ukuthi lokhu kusho ini kuwe ngaphambi kokuba unqume noma yini.\n\nUsafuna ukuqhubeka?\n\n{options}",
+    "ask_home_ack": {
+        "en": "Thanks for letting me know, {name}. Before we go any further, I want to make sure you're aware of something important. With a voluntary surrender of estate, a trustee is appointed to look after your estate on behalf of your creditors, and that means your home would be sold, usually by auction, to pay off part of your debts. Your consultant will explain exactly how this works for you, so there are no surprises.\n\nWould you like to continue?\n\n{options}",
+        "af": "Dankie dat jy my laat weet, {name}. Voordat ons verder gaan, wil ek seker maak jy weet van iets belangriks. By 'n vrywillige oorhandiging van boedel word 'n kurator aangestel om jou boedel namens jou skuldeisers te hanteer, en dit beteken jou huis sou verkoop word, gewoonlik op 'n veiling, om 'n deel van jou skuld te delg. Jou konsultant sal presies verduidelik hoe dit vir jou werk, sodat daar geen verrassings is nie.\n\nWil jy voortgaan?\n\n{options}",
+        "zu": "Ngiyabonga ngokungazisa, {name}. Ngaphambi kokuba siqhubeke, ngifuna ukuqinisekisa ukuthi uyazi ngento ebalulekile. Ku-voluntary surrender of estate, kuqokwa umphathi (trustee) ukuze aphathe impahla yakho egameni labakweletwa, futhi lokho kusho ukuthi indlu yakho izothengiswa, ngokuvamile ngomthengisi esidlangalaleni (auction), ukuze kukhokhelwe ingxenye yezikweletu zakho. Umeluleki wakho uzochaza ngokuqondile ukuthi lokhu kusebenza kanjani kuwe, ukuze kungabikho okukumangazayo.\n\nUfuna ukuqhubeka?\n\n{options}",
+    },
+    "ask_vehicle_ack": {
+        "en": "Thanks, {name}. Because your vehicle is still under finance, please know that it would most likely be taken back by the bank during the process. Your consultant will explain exactly what this means for you, so there are no surprises.\n\nWould you like to continue?\n\n{options}",
+        "af": "Dankie, {name}. Omdat jou voertuig nog onder finansiering is, weet asseblief dat die bank dit heel waarskynlik gedurende die proses sal terugneem. Jou konsultant sal presies verduidelik wat dit vir jou beteken, sodat daar geen verrassings is nie.\n\nWil jy voortgaan?\n\n{options}",
+        "zu": "Ngiyabonga, {name}. Ngoba isithuthi sakho sisakhokhelwa, sicela wazi ukuthi ibhange lingasithatha kabusha phakathi nenqubo. Umeluleki wakho uzochaza ngokuqondile ukuthi lokhu kusho ini kuwe, ukuze kungabikho okukumangazayo.\n\nUfuna ukuqhubeka?\n\n{options}",
     },
     "not_fit_assets": {
         "en": "Understood, {name}, and thank you for being open with me. If you change your mind, just reply CONTINUE and we'll carry on. And if I've misunderstood your situation (for example you rent your home, or your vehicle is fully paid off), tell me. Otherwise, I wish you well.",

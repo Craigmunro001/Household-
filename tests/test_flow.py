@@ -439,81 +439,100 @@ def test_mid_flow_language_switch_changes_next_question_too():
     assert s.lang == "af" and "skuldhersiening" in r.messages[0].lower() and "1. Ja" in r.messages[0]
 
 
-# ------------------------------------------------------------ assets: warn first, then the lead chooses
+# ------------------------------------------------------------ assets: warn immediately, then the lead chooses
 def asset_chat(*answers, lang="1"):
     s = Session(phone="1")
     return s, run(s, "hi", lang, YES[lang], "craig", "3", "250000", *answers)
 
 
-def test_asks_home_then_vehicle_before_any_figure_is_shown():
+def test_asks_home_first_and_shows_no_figure_before_the_asset_questions():
     s, r = asset_chat()
     assert s.step == "home" and "own a home" in r[-1].messages[0] and "estimate" not in s.answers
-    r = handle(s, "2", NIGHT, pricebook=PB)
-    assert s.step == "vehicle" and "under finance" in r.messages[0] and "estimate" not in s.answers
-    r = handle(s, "2", NIGHT, pricebook=PB)
-    assert s.step == "term" and "25 to 36 months" in r.messages[0] and "asset_ack" not in s.answers
 
 
 @pytest.mark.parametrize("home_answer", ["1", "yes", "I own a house", "bonded", "yes it's fully paid off"])
-def test_owning_a_home_triggers_the_warning_not_a_decline(home_answer):
-    s, r = asset_chat(home_answer, "2")
-    assert s.status == "active" and s.step == "asset_ack" and r[-1].events == []
+def test_owning_a_home_triggers_the_warning_immediately_before_the_vehicle_question(home_answer):
+    s, r = asset_chat(home_answer)
+    assert s.status == "active" and s.step == "home_ack" and "vehicle" not in s.answers
     msg = r[-1].messages[0]
-    assert "your home would be sold or repossessed" in msg and "financed vehicle" not in msg
-    assert "Would you still like to continue?" in msg and "estimate" not in s.answers
+    assert "trustee" in msg and "sold, usually by auction" in msg and "pay off part of your debts" in msg
+    assert "under finance" not in msg and "Would you like to continue?" in msg
 
 
-def test_financed_vehicle_triggers_the_warning():
+def test_home_owner_who_continues_is_then_asked_about_the_vehicle():
+    s, _ = asset_chat("1")
+    r = handle(s, "yes", NIGHT, pricebook=PB)
+    assert s.step == "vehicle" and "under finance" in r.messages[0]
+    assert "home" in s.answers["asset_ack"] and any("WARNED" in n for n in s.notes)
+
+
+def test_no_home_goes_straight_to_the_vehicle_question_without_a_warning():
+    s, r = asset_chat("2")
+    assert s.step == "vehicle" and "asset_ack" not in s.answers and "under finance" in r[-1].messages[0]
+
+
+def test_financed_vehicle_gets_its_own_warning():
     s, r = asset_chat("2", "1")
-    assert s.step == "asset_ack" and "your financed vehicle would be sold or repossessed" in r[-1].messages[0]
+    assert s.step == "vehicle_ack" and "taken back by the bank" in r[-1].messages[0]
+    assert "auction" not in r[-1].messages[0]
 
 
-def test_home_and_vehicle_are_named_together_in_one_warning():
-    s, r = asset_chat("1", "1")
-    assert s.step == "asset_ack" and "your home and your financed vehicle would be sold" in r[-1].messages[0]
+def test_home_and_vehicle_each_get_their_own_separate_warning():
+    s, _ = asset_chat("1", "yes", "1")
+    assert s.step == "vehicle_ack"
+    r = handle(s, "yes", NIGHT, pricebook=PB)
+    assert s.step == "term" and set(s.answers["asset_ack"]) == {"home", "vehicle"}
 
 
-@pytest.mark.parametrize("answer", ["1", "yes", "Yes I understand", "continue", "go ahead"])
-def test_continuing_after_the_warning_records_it_and_goes_on_to_the_estimate(answer):
-    s, _ = asset_chat("1", "2")
-    r = handle(s, answer, NIGHT, pricebook=PB)
-    assert s.status == "active" and s.step == "term" and "25 to 36 months" in r.messages[0]
-    ack = s.answers["asset_ack"]
-    assert ack["home"] is True and ack["vehicle"] is False and ack["at"]
-    assert any("WARNED" in n for n in s.notes)
-
-
-def test_lead_who_continues_gets_the_normal_estimate_and_is_flagged_for_the_consultant():
-    s = Session(phone="27820000000")
-    run(s, "hi", "1", "yes", "craig", "3", "250000", "1", "1", "yes", "1", "2", "2", "tomorrow after 2pm")
-    assert s.status == "completed" and s.answers["estimate"]["monthly"] == 4788.86
-    assert s.qualification == "unsure" and s.answers["asset_ack"]["vehicle"] is True
-    subject, body = notify.build("completed", s)
-    assert "Asset warning: told it would be sold/repossessed" in body and "Owns a home: yes" in body
+def test_no_financed_vehicle_after_a_home_warning_goes_straight_to_the_term_question():
+    s, _ = asset_chat("1", "yes", "2")
+    assert s.step == "term" and set(s.answers["asset_ack"]) == {"home"}
 
 
 @pytest.mark.parametrize("answer", ["2", "no", "No, I'd rather not"])
-def test_declining_after_the_warning_ends_politely_with_no_alert_or_call(answer):
-    s, _ = asset_chat("1", "2")
+def test_declining_after_the_home_warning_ends_politely_and_never_asks_about_the_vehicle(answer):
+    s, _ = asset_chat("1")
     r = handle(s, answer, NIGHT, pricebook=PB)
     assert s.status == "not_fit" and s.answers["not_fit_reason"] == "assets" and r.events == ["not_fit"]
-    assert "CONTINUE" in r.messages[0] and "call you" not in r.messages[0] and "estimate" not in s.answers
+    assert "CONTINUE" in r.messages[0] and "vehicle" not in s.answers and "call you" not in r.messages[0]
     assert "not_fit" not in notify.SUBJECTS
 
 
-def test_lead_who_declined_can_change_their_mind_later():
-    s, _ = asset_chat("1", "2", "no")
+def test_lead_who_declined_the_home_warning_can_change_their_mind_and_resumes_at_the_vehicle_question():
+    s, _ = asset_chat("1", "no")
     r = handle(s, "CONTINUE", NIGHT, pricebook=PB)
-    assert s.status == "active" and s.step == "term" and s.answers["asset_ack"]["home"] is True
+    assert s.status == "active" and s.step == "vehicle" and "home" in s.answers["asset_ack"]
 
 
-def test_misread_question_is_corrected_by_asking_again():
-    s, _ = asset_chat("1", "2", "no")
+def test_lead_who_declined_the_vehicle_warning_can_change_their_mind_and_resumes_at_the_term_question():
+    s, _ = asset_chat("2", "1", "no")
+    assert s.status == "not_fit" and s.answers["not_fit_asset"] == "vehicle"
+    handle(s, "continue", NIGHT, pricebook=PB)
+    assert s.status == "active" and s.step == "term" and "vehicle" in s.answers["asset_ack"]
+
+
+def test_misread_home_question_is_corrected_by_asking_it_again():
+    s, _ = asset_chat("1", "no")
     r = handle(s, "sorry I misunderstood, I actually rent", NIGHT, pricebook=PB)
     assert s.status == "active" and s.step == "home" and "home" not in s.answers and "own a home" in r.messages[0]
     handle(s, "2", NIGHT, pricebook=PB)
     r = handle(s, "no it's paid off", NIGHT, pricebook=PB)
     assert s.step == "term" and "asset_ack" not in s.answers
+
+
+def test_misread_vehicle_question_is_corrected_by_asking_it_again():
+    s, _ = asset_chat("2", "1", "no")
+    r = handle(s, "sorry, the car is fully paid off", NIGHT, pricebook=PB)
+    assert s.step == "vehicle" and "vehicle" not in s.answers and "under finance" in r.messages[0]
+
+
+def test_lead_who_continues_gets_the_normal_estimate_and_is_flagged_for_the_consultant():
+    s = Session(phone="27820000000")
+    run(s, "hi", "1", "yes", "craig", "3", "250000", "1", "yes", "2", "1", "2", "2", "tomorrow after 2pm")  # home yes, warned, continue, no vehicle, 25m, married in community... review no
+    assert s.status == "completed" and s.answers["estimate"]["monthly"] == 4788.86
+    assert s.qualification == "unsure" and set(s.answers["asset_ack"]) == {"home"}
+    subject, body = notify.build("completed", s)
+    assert "Asset warning: home (told it would be sold by the trustee, usually at auction" in body and "Owns a home: yes" in body
 
 
 def test_no_assets_means_no_warning_and_a_clean_record():
@@ -523,11 +542,11 @@ def test_no_assets_means_no_warning_and_a_clean_record():
 
 def test_asset_warning_afrikaans_and_zulu():
     s = Session(phone="1")
-    r = run(s, "hi", "2", "ja", "pieter", "3", "250000", "1", "2")
-    assert "jou huis as deel van die proses verkoop of teruggeneem sou word" in r[-1].messages[0]
+    r = run(s, "hi", "2", "ja", "pieter", "3", "250000", "1")
+    assert "kurator" in r[-1].messages[0] and "veiling" in r[-1].messages[0]
     s = Session(phone="1")
-    r = run(s, "hi", "3", "yebo", "thandi", "3", "250000", "1", "2")
-    assert "indlu yakho kungathengiswa" in r[-1].messages[0]
+    r = run(s, "hi", "3", "yebo", "thandi", "3", "250000", "1")
+    assert "trustee" in r[-1].messages[0] and "auction" in r[-1].messages[0]
 
 
 def test_under_100k_is_still_declined_before_any_asset_question():
@@ -536,12 +555,13 @@ def test_under_100k_is_still_declined_before_any_asset_question():
     assert s.answers["not_fit_reason"] == "debt" and "own a home" not in r[-1].messages[0]
 
 
-def test_lead_record_shows_asset_answers_and_when_the_warning_was_accepted():
+def test_lead_record_shows_asset_answers_and_when_each_warning_was_accepted():
     from app.leads import COLUMNS, lead_row
     s, _ = full_chat()
     row = dict(zip(COLUMNS, lead_row(s)))
     assert row["Owns home"] == "no" and row["Financed vehicle"] == "no" and row["Asset warning accepted"] == ""
     s = Session(phone="1")
-    run(s, "hi", "1", "yes", "craig", "3", "250000", "1", "2", "yes")
+    run(s, "hi", "1", "yes", "craig", "3", "250000", "1", "yes", "1", "yes")
     row = dict(zip(COLUMNS, lead_row(s)))
-    assert row["Owns home"] == "yes" and row["Asset warning accepted"]
+    assert row["Owns home"] == "yes" and row["Financed vehicle"] == "yes"
+    assert "home " in row["Asset warning accepted"] and "vehicle " in row["Asset warning accepted"]
