@@ -38,6 +38,13 @@ OPTIONS = {
         ("no", {"en": "No (no vehicle, or it's fully paid off)", "af": "Nee (geen voertuig nie, of dit is heeltemal afbetaal)", "zu": "Cha (asikho isithuthi, noma sikhokhiwe sonke)"},
          ["no", "nee", "cha", "paid off", "fully paid", "settled", "no vehicle", "no car", "don't have", "dont have", "afbetaal", "geen voertuig", "geen kar", "asikho"]),
     ],
+    "asset_ack": [
+        ("yes", {"en": "Yes, I understand and want to continue", "af": "Ja, ek verstaan en wil voortgaan", "zu": "Yebo, ngiyaqonda futhi ngifuna ukuqhubeka"},
+         ["yes", "y", "ja", "yebo", "continue", "go ahead", "carry on", "proceed", "i understand", "understand", "ok", "okay",
+          "gaan voort", "ek verstaan", "qhubeka", "ngiyaqonda"]),
+        ("no", {"en": "No, I'd rather not", "af": "Nee, liewer nie", "zu": "Cha, angithandi"},
+         ["no", "nee", "cha", "rather not", "stop", "dont want", "don't want", "liewer nie", "angithandi"]),
+    ],
     "review": [
         ("yes", {"en": "Yes", "af": "Ja", "zu": "Yebo"}, ["yes", "ja", "yebo", "i am", "ek is"]),
         ("no", {"en": "No", "af": "Nee", "zu": "Cha"}, ["no", "not", "nee", "cha", "nope"]),
@@ -95,6 +102,16 @@ WHEN = {  # when the team is next available, by language
     "tomorrow": {"en": "tomorrow", "af": "môre", "zu": "kusasa"},
     "monday": {"en": "Monday", "af": "Maandag", "zu": "ngoMsombuluko"},
 }
+
+ASSET_WORDS = {  # how the warning names what they own
+    "home": {"en": "your home", "af": "jou huis", "zu": "indlu yakho"},
+    "vehicle": {"en": "your financed vehicle", "af": "jou gefinansierde voertuig", "zu": "isithuthi sakho esisakhokhelwa"},
+    "both": {"en": "your home and your financed vehicle", "af": "jou huis en jou gefinansierde voertuig",
+             "zu": "indlu yakho nesithuthi sakho esisakhokhelwa"},
+}
+
+CORRECTION_WORDS = ["misunderstood", "mistake", "wrong", "i rent", "renting", "paid off", "fully paid", "settled", "huur", "afbetaal",
+                    "ngiqasha", "i misread", "my bad"]
 
 STOP_PHRASES = ["stop", "unsubscribe", "opt out", "optout", "hou op", "yeka", "yima"]
 
@@ -227,15 +244,20 @@ M = {
         "af": "Het jy 'n voertuig wat nog onder finansiering is ('n motorlening of afbetalingskontrak)?\n\n{options}",
         "zu": "Ingabe unesithuthi esisakhokhelwa ngemali-mboleko (isikweletu semoto noma isivumelwano sezinkokhelo)?\n\n{options}",
     },
+    "ask_asset_ack": {
+        "en": "Thank you for being open about that. Please know that {assets} would be sold or repossessed as part of the process. Your consultant will explain exactly what this means for you before you decide anything.\n\nWould you still like to continue?\n\n{options}",
+        "af": "Dankie dat jy so openhartig is daaroor. Weet asseblief dat {assets} as deel van die proses verkoop of teruggeneem sou word. Jou konsultant sal presies verduidelik wat dit vir jou beteken voordat jy enigiets besluit.\n\nWil jy steeds voortgaan?\n\n{options}",
+        "zu": "Ngiyabonga ngokuvuleka ngalokho. Sicela wazi ukuthi {assets} kungathengiswa noma kubuyiselwe njengengxenye yenqubo. Umeluleki wakho uzochaza ngokuqondile ukuthi lokhu kusho ini kuwe ngaphambi kokuba unqume noma yini.\n\nUsafuna ukuqhubeka?\n\n{options}",
+    },
     "not_fit_assets": {
-        "en": "Thank you for being so open, {name}. Unfortunately our process isn't suitable if you own a home or have a vehicle that is still under finance, because those assets would be sold or repossessed as part of the process, and that wouldn't be in your interest.\n\nIf I've misunderstood (for example you rent your home, or your vehicle is fully paid off), just tell me. Otherwise, I wish you well.",
-        "af": "Dankie dat jy so openhartig was, {name}. Ongelukkig is ons proses nie geskik as jy 'n huis besit of 'n voertuig het wat nog onder finansiering is nie, omdat daardie bates as deel van die proses verkoop of teruggeneem sou word, en dit sou nie in jou belang wees nie.\n\nAs ek jou verkeerd verstaan het (byvoorbeeld jy huur jou huis, of jou voertuig is heeltemal afbetaal), sê net. Andersins wens ek jou alles van die beste toe.",
-        "zu": "Ngiyabonga ngokuvuleka, {name}. Ngeshwa inqubo yethu ayifanele uma unendlu noma unesithuthi esisakhokhelwa, ngoba lezo zinto zingathengiswa noma zibuyiselwe njengengxenye yenqubo, futhi lokho ngeke kube yinzuzo kuwe.\n\nUma ngingakuzwanga kahle (isibonelo uqasha indlu yakho, noma isithuthi sakho sikhokhiwe sonke), ngitshele nje. Uma kungenjalo, ngikufisela konke okuhle.",
+        "en": "Understood, {name}, and thank you for being open with me. If you change your mind, just reply CONTINUE and we'll carry on. And if I've misunderstood your situation (for example you rent your home, or your vehicle is fully paid off), tell me. Otherwise, I wish you well.",
+        "af": "Verstaan, {name}, en dankie dat jy so openhartig was. As jy van plan verander, antwoord net CONTINUE (voortgaan) en ons gaan voort. En as ek jou situasie verkeerd verstaan het (byvoorbeeld jy huur jou huis, of jou voertuig is heeltemal afbetaal), sê net. Andersins wens ek jou alles van die beste toe.",
+        "zu": "Ngiyaqonda, {name}, futhi ngiyabonga ngokuvuleka kimi. Uma ushintsha umqondo, phendula nje ngo-CONTINUE (qhubeka) futhi siqhubeke. Futhi uma ngingasiqondanga kahle isimo sakho (isibonelo uqasha indlu yakho, noma isithuthi sakho sikhokhiwe sonke), ngitshele. Uma kungenjalo, ngikufisela konke okuhle.",
     },
     "not_fit_assets_followup": {
-        "en": "Thanks, {name}. If your situation is different (for example you rent your home, or your vehicle is fully paid off), just tell me and we'll carry on. I wish you well.",
-        "af": "Dankie, {name}. As jou situasie anders is (byvoorbeeld jy huur jou huis, of jou voertuig is heeltemal afbetaal), sê net en ons gaan voort. Ek wens jou alles van die beste toe.",
-        "zu": "Ngiyabonga, {name}. Uma isimo sakho sihlukile (isibonelo uqasha indlu yakho, noma isithuthi sakho sikhokhiwe sonke), ngitshele nje futhi siqhubeke. Ngikufisela konke okuhle.",
+        "en": "Thanks, {name}. Reply CONTINUE if you'd like to carry on, or tell me if I've misunderstood your situation. I wish you well.",
+        "af": "Dankie, {name}. Antwoord CONTINUE (voortgaan) as jy wil voortgaan, of sê my as ek jou situasie verkeerd verstaan het. Ek wens jou alles van die beste toe.",
+        "zu": "Ngiyabonga, {name}. Phendula ngo-CONTINUE (qhubeka) uma ufuna ukuqhubeka, noma ungitshele uma ngingasiqondanga kahle isimo sakho. Ngikufisela konke okuhle.",
     },
     "ask_marital": {
         "en": "Thanks. Are you married? If so, is it in community of property or out of community of property?\n\n{options}",

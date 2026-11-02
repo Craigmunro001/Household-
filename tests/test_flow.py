@@ -432,7 +432,7 @@ def test_mid_flow_language_switch_changes_next_question_too():
     assert s.lang == "af" and "skuldhersiening" in r.messages[0].lower() and "1. Ja" in r.messages[0]
 
 
-# ------------------------------------------------------------ assets: a home or a financed vehicle rules the lead out
+# ------------------------------------------------------------ assets: warn first, then the lead chooses
 def asset_chat(*answers, lang="1"):
     s = Session(phone="1")
     return s, run(s, "hi", lang, YES[lang], "craig", "3", "250000", *answers)
@@ -444,66 +444,83 @@ def test_asks_home_then_vehicle_before_any_figure_is_shown():
     r = handle(s, "2", NIGHT, pricebook=PB)
     assert s.step == "vehicle" and "under finance" in r.messages[0] and "estimate" not in s.answers
     r = handle(s, "2", NIGHT, pricebook=PB)
-    assert s.step == "term" and "25 to 36 months" in r.messages[0]
+    assert s.step == "term" and "25 to 36 months" in r.messages[0] and "asset_ack" not in s.answers
 
 
-@pytest.mark.parametrize("answer", ["1", "yes", "I own a house", "bonded", "yes it's fully paid off"])
-def test_owning_a_home_declines_bonded_or_not_and_skips_the_vehicle_question(answer):
-    s, r = asset_chat(answer)
-    assert s.status == "not_fit" and s.answers["not_fit_reason"] == "home" and r[-1].events == ["not_fit"]
-    assert "owns a home" not in r[-1].messages[0].lower() and "vehicle" in r[-1].messages[0]
-    assert "vehicle" not in s.answers and "estimate" not in s.answers and "R4" not in r[-1].messages[0]
+@pytest.mark.parametrize("home_answer", ["1", "yes", "I own a house", "bonded", "yes it's fully paid off"])
+def test_owning_a_home_triggers_the_warning_not_a_decline(home_answer):
+    s, r = asset_chat(home_answer, "2")
+    assert s.status == "active" and s.step == "asset_ack" and r[-1].events == []
+    msg = r[-1].messages[0]
+    assert "your home would be sold or repossessed" in msg and "financed vehicle" not in msg
+    assert "Would you still like to continue?" in msg and "estimate" not in s.answers
 
 
-def test_financed_vehicle_declines():
+def test_financed_vehicle_triggers_the_warning():
     s, r = asset_chat("2", "1")
-    assert s.status == "not_fit" and s.answers["not_fit_reason"] == "vehicle" and r[-1].events == ["not_fit"]
-    assert any("vehicle under finance" in n for n in s.notes)
+    assert s.step == "asset_ack" and "your financed vehicle would be sold or repossessed" in r[-1].messages[0]
 
 
-@pytest.mark.parametrize("answer", ["2", "no", "I rent", "no I live with my parents"])
-def test_no_home_continues(answer):
-    s, _ = asset_chat(answer)
-    assert s.status == "active" and s.step == "vehicle" and s.answers["home"] == "no"
+def test_home_and_vehicle_are_named_together_in_one_warning():
+    s, r = asset_chat("1", "1")
+    assert s.step == "asset_ack" and "your home and your financed vehicle would be sold" in r[-1].messages[0]
 
 
-@pytest.mark.parametrize("answer", ["2", "no", "paid off", "I have a car but it is fully paid off", "no vehicle"])
-def test_vehicle_not_under_finance_does_not_disqualify(answer):
-    s, _ = asset_chat("2", answer)
-    assert s.status == "active" and s.step == "term" and s.answers["vehicle"] == "no"
+@pytest.mark.parametrize("answer", ["1", "yes", "Yes I understand", "continue", "go ahead"])
+def test_continuing_after_the_warning_records_it_and_goes_on_to_the_estimate(answer):
+    s, _ = asset_chat("1", "2")
+    r = handle(s, answer, NIGHT, pricebook=PB)
+    assert s.status == "active" and s.step == "term" and "25 to 36 months" in r.messages[0]
+    ack = s.answers["asset_ack"]
+    assert ack["home"] is True and ack["vehicle"] is False and ack["at"]
+    assert any("WARNED" in n for n in s.notes)
 
 
-def test_asset_decline_sends_no_consultant_alert_and_no_call_promise():
-    s, r = asset_chat("1")
-    assert "not_fit" not in notify.SUBJECTS and "call you" not in r[-1].messages[0]
+def test_lead_who_continues_gets_the_normal_estimate_and_is_flagged_for_the_consultant():
+    s = Session(phone="27820000000")
+    run(s, "hi", "1", "yes", "craig", "3", "250000", "1", "1", "yes", "1", "2", "2", "tomorrow after 2pm")
+    assert s.status == "completed" and s.answers["estimate"]["monthly"] == 4788.86
+    assert s.qualification == "unsure" and s.answers["asset_ack"]["vehicle"] is True
+    subject, body = notify.build("completed", s)
+    assert "Asset warning: told it would be sold/repossessed" in body and "Owns a home: yes" in body
 
 
-def test_home_decline_can_be_corrected_if_the_lead_misread_the_question():
-    s, _ = asset_chat("1")
-    r = handle(s, "sorry no I rent", NIGHT, pricebook=PB)
-    assert s.status == "active" and s.answers["home"] == "no" and s.step == "vehicle"
-    assert "under finance" in r.messages[0]
+@pytest.mark.parametrize("answer", ["2", "no", "No, I'd rather not"])
+def test_declining_after_the_warning_ends_politely_with_no_alert_or_call(answer):
+    s, _ = asset_chat("1", "2")
+    r = handle(s, answer, NIGHT, pricebook=PB)
+    assert s.status == "not_fit" and s.answers["not_fit_reason"] == "assets" and r.events == ["not_fit"]
+    assert "CONTINUE" in r.messages[0] and "call you" not in r.messages[0] and "estimate" not in s.answers
+    assert "not_fit" not in notify.SUBJECTS
 
 
-def test_vehicle_decline_can_be_corrected_if_the_car_is_paid_off():
-    s, _ = asset_chat("2", "1")
-    r = handle(s, "no it's fully paid off", NIGHT, pricebook=PB)
-    assert s.status == "active" and s.answers["vehicle"] == "no" and s.step == "term"
+def test_lead_who_declined_can_change_their_mind_later():
+    s, _ = asset_chat("1", "2", "no")
+    r = handle(s, "CONTINUE", NIGHT, pricebook=PB)
+    assert s.status == "active" and s.step == "term" and s.answers["asset_ack"]["home"] is True
 
 
-def test_asset_decline_otherwise_gets_polite_followup_not_silence():
-    s, _ = asset_chat("1")
-    r = handle(s, "ok thanks", NIGHT, pricebook=PB)
-    assert s.status == "not_fit" and "rent your home" in r.messages[0]
+def test_misread_question_is_corrected_by_asking_again():
+    s, _ = asset_chat("1", "2", "no")
+    r = handle(s, "sorry I misunderstood, I actually rent", NIGHT, pricebook=PB)
+    assert s.status == "active" and s.step == "home" and "home" not in s.answers and "own a home" in r.messages[0]
+    handle(s, "2", NIGHT, pricebook=PB)
+    r = handle(s, "no it's paid off", NIGHT, pricebook=PB)
+    assert s.step == "term" and "asset_ack" not in s.answers
 
 
-def test_asset_decline_afrikaans_and_zulu():
+def test_no_assets_means_no_warning_and_a_clean_record():
+    s, _ = full_chat()
+    assert "asset_ack" not in s.answers and s.qualification == "likely"
+
+
+def test_asset_warning_afrikaans_and_zulu():
     s = Session(phone="1")
-    r = run(s, "hi", "2", "ja", "pieter", "3", "250000", "1")
-    assert "nie geskik" in r[-1].messages[0]
+    r = run(s, "hi", "2", "ja", "pieter", "3", "250000", "1", "2")
+    assert "jou huis as deel van die proses verkoop of teruggeneem sou word" in r[-1].messages[0]
     s = Session(phone="1")
-    r = run(s, "hi", "3", "yebo", "thandi", "3", "250000", "1")
-    assert "ayifanele" in r[-1].messages[0]
+    r = run(s, "hi", "3", "yebo", "thandi", "3", "250000", "1", "2")
+    assert "indlu yakho kungathengiswa" in r[-1].messages[0]
 
 
 def test_under_100k_is_still_declined_before_any_asset_question():
@@ -512,8 +529,12 @@ def test_under_100k_is_still_declined_before_any_asset_question():
     assert s.answers["not_fit_reason"] == "debt" and "own a home" not in r[-1].messages[0]
 
 
-def test_lead_record_shows_asset_answers():
+def test_lead_record_shows_asset_answers_and_when_the_warning_was_accepted():
     from app.leads import COLUMNS, lead_row
     s, _ = full_chat()
     row = dict(zip(COLUMNS, lead_row(s)))
-    assert row["Owns home"] == "no" and row["Financed vehicle"] == "no"
+    assert row["Owns home"] == "no" and row["Financed vehicle"] == "no" and row["Asset warning accepted"] == ""
+    s = Session(phone="1")
+    run(s, "hi", "1", "yes", "craig", "3", "250000", "1", "2", "yes")
+    row = dict(zip(COLUMNS, lead_row(s)))
+    assert row["Owns home"] == "yes" and row["Asset warning accepted"]

@@ -20,7 +20,7 @@ A: It's a formal legal process under the Insolvency Act where, if you can't pay 
 A: No. Debt review keeps you paying your creditors through a restructured monthly payment. Voluntary surrender is a court process where your estate is surrendered to your creditors. Which one fits depends on your full financial picture, and the consultant will explain the options. [DRAFT-VERIFY]
 
 ## Q: Will I lose my house, car or other assets?
-A: If you own a home, or have a vehicle that's still under finance, our process isn't suitable for you, because those assets would be sold or repossessed as part of the process. That's why I ask about them first. If you don't have either, your consultant will explain how everything else is treated. [From Craig, 3 Nov; DRAFT-VERIFY wording with David]
+A: If you own a home, or have a vehicle that's still under finance, those would be sold or repossessed as part of the process. Some people still choose to go ahead once they understand that, and your consultant will explain exactly what it means for you before you decide anything. If you have neither, your consultant will explain how everything else is treated. [From Craig, 3 Nov; DRAFT-VERIFY wording with David]
 
 ## Q: Will it affect my credit record? Can I get credit again?
 A: Yes, it does affect your credit record and your ability to get credit while the process runs and for a period afterwards. Your consultant will explain what that means for you so there are no surprises. [DRAFT-VERIFY]
@@ -77,7 +77,7 @@ A: You pay one fixed amount every month. It's interest free and the total never 
 A: Paying extra doesn't reduce the total, it shortens the plan. Every extra instalment takes a month off the end. [From Craig, 2 Nov]
 
 ## Q: Are my car and house included in the plan?
-A: If you own a home, or have a vehicle that's still under finance, our process isn't suitable for you, because those assets would be sold or repossessed as part of the process. A vehicle that isn't under finance doesn't rule you out, and your consultant will explain how it's treated. [From Craig, 3 Nov; this replaces the 2 Nov "no vehicles or property are included" line. CONFIRM the unfinanced-vehicle point with Craig/David]
+A: If you own a home, or have a vehicle that's still under finance, they would be sold or repossessed as part of the process, and I make sure you know that before we go any further. It's your choice whether to continue. A vehicle that isn't under finance isn't affected in the same way, and your consultant will explain how it's treated. [From Craig, 3 Nov; replaces the 2 Nov "no vehicles or property are included" line. CONFIRM the unfinanced-vehicle point with Craig/David]
 
 ## Q: Who actually handles my plan?
 A: Pinnacle handles the first part of the plan, and then an attorney takes over the collection for the rest. [From Craig, 2 Nov]
@@ -89,10 +89,10 @@ A: Our plans run 25 to 36 months, nothing shorter or longer. [From Craig, 2 Nov.
 A: A matter outside Gauteng needs a correspondent attorney at the Master's Office, and that fee comes out of the estate first, so the monthly amount is higher. [From Craig, 2 Nov. The assistant must not quote the correspondent fee.]
 
 ## Q: Why do you ask if I own a home or have a financed vehicle?
-A: Because they decide whether our process is suitable for you. If you own a home, or have a vehicle that's still under finance, those assets would be sold or repossessed as part of the process, and that wouldn't be in your interest. [From Craig, 3 Nov]
+A: Because they matter for the process. If you own a home, or have a vehicle under finance, they would be sold or repossessed, so I want you to know that before we go any further. It's then your choice whether to continue. [From Craig, 3 Nov]
 
 ## Q: My home is fully paid off, or has no bond. Does that matter?
-A: Unfortunately yes. Whether or not it's bonded, owning a home means our process isn't suitable for you. [From Craig, 3 Nov: "any home, bonded or not"]
+A: Yes. Whether or not it's bonded, a home would be sold as part of the process. If you still want to go ahead, your consultant will look into your situation with you. [From Craig, 3 Nov: "any home, bonded or not"]
 
 ## Q: My car is fully paid off. Does that matter?
 A: A vehicle that isn't under finance doesn't rule you out. Your consultant will explain how it's treated. [From Craig, 3 Nov. CONFIRM with Craig/David]

@@ -22,11 +22,15 @@
 - Under R100 000: kindly declined. R100 000-R120 000 and over R500 000: no figure, consultant works it out.
 - Open points flagged to Craig: bracket edges (exactly R140 000 goes to the HIGHER bracket); firm described as "debt-review firm" in the pasted spec (wrong word for a VSE business, and "debt review" is a regulated activity); FAQ conflict on whether cars/property can be sold; email address not collected (WhatsApp number only) - decide.
 
-## Asset rule (3 Nov) - DONE
-- New questions after the debt amount: "Do you own a home (bonded or not)?" then "Do you have a vehicle under finance?". Yes to either = kindly declined (assets would be sold/repossessed), no figure shown, no consultant call, no alert email. Lead can correct if they misread it (rent / car paid off). Both answers saved to the Sheet.
-- Order is now: language, consent, name, province, debt, home, vehicle, term, estimate, marital, debt review, call time.
-- Consequence for marketing: most people with R100k+ debt own a home or financed car. Put "no home, no financed vehicle, debt over R100 000" in the ad copy, otherwise ad spend goes to leads the bot must decline. Count the not_fit rows in the Sheet by reason (debt / home / vehicle) in the first two weeks.
-- FAQ entries on cars/houses were rewritten to match. Wording "sold or repossessed" is deliberately neutral (bonded = bank, unbonded = trustee): David to approve.
+## Asset rule (3 Nov) - DONE (revised same day: warn first, lead decides)
+- After the debt amount the bot asks "Do you own a home (bonded or not)?" then "Do you have a vehicle under finance?". If either is yes it WARNS that the asset(s) would be sold or repossessed as part of the process and asks "Would you still like to continue?".
+  - Yes: the acknowledgement is recorded (timestamp, which assets) and the lead carries on to the estimate; the consultant is told, triage = UNSURE, and the email says they were warned.
+  - No: ends politely, no call, no alert. They can reply CONTINUE later, or say they misread (rent / car paid off) and the two questions are re-asked.
+- Order: language, consent, name, province, debt, home, vehicle, [asset warning], term, estimate, marital, debt review, call time.
+- OPEN: the price book tables do not mention assets. Confirm the estimate is still valid for a lead who owns a home or financed vehicle, otherwise the bot shows a figure that may not apply.
+- OPEN: the recorded acknowledgement shows the lead was told by the bot. It is NOT a substitute for the consultant explaining it properly and getting their own informed consent. David to confirm what the consultant must still do.
+- Wording "sold or repossessed" is deliberately neutral (bonded = bank, unbonded = trustee): David to approve.
+- Marketing: put "debt over R100 000" and a short asset warning in the ad copy so people know before they click.
 
 ## After-hours handover (3 Nov) - DONE
 - If a lead asks for a person outside Mon-Fri 08:00-17:00 SAST, the bot says the team is resting until tomorrow/Monday/08:00 this morning, keeps helping and carries on with the questions (or asks what time suits if already completed, then updates the call time). A second request hands over for real with the return time. In business hours it hands over immediately as before. Consultant gets an email either way (different subjects).

@@ -8,7 +8,7 @@ log = logging.getLogger("pinnacle.leads")
 
 COLUMNS = [
     "Updated", "Phone", "Name", "Language", "Status", "Qualification", "Province", "Debt stated (R)", "Estimate shown (R/month)",
-    "Term (months)", "Estimate bracket", "Owns home", "Financed vehicle", "Marital status", "Under debt review", "Callback preference", "Consent given", "Notes", "Created",
+    "Term (months)", "Estimate bracket", "Owns home", "Financed vehicle", "Asset warning accepted", "Marital status", "Under debt review", "Callback preference", "Consent given", "Notes", "Created",
 ]
 
 
@@ -18,7 +18,7 @@ def lead_row(s):
     return [
         s.updated_at, s.phone, s.name, s.lang, s.status, s.qualification.upper(),
         a.get("province", ""), a.get("debt_amount", ""), est.get("monthly", ""), est.get("months", ""),
-        est.get("bracket", ""), a.get("home", ""), a.get("vehicle", ""), a.get("marital", ""), a.get("review", ""), a.get("callback", ""),
+        est.get("bracket", ""), a.get("home", ""), a.get("vehicle", ""), (a.get("asset_ack") or {}).get("at", ""), a.get("marital", ""), a.get("review", ""), a.get("callback", ""),
         s.consent_at, " | ".join(s.notes), s.created_at,
     ]
 
