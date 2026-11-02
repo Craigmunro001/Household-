@@ -149,6 +149,16 @@ M = {
         "af": "Is jy tans onder skuldhersiening (debt review) of skuldberading?\n\n{options}",
         "zu": "Ingabe okwamanje usohlelweni lwe-debt review noma lwe-debt counselling?\n\n{options}",
     },
+    "not_fit": {
+        "en": "Thank you for being so open, {name}. Unfortunately our process only starts at around R100\u00a0000 of debt. Below that, the fees would end up costing you more than simply paying the debt off yourself, so it wouldn't be in your interest.\n\nIf your total debt (all loans, cards and accounts together) is actually more than R100\u00a0000, just send me the amount and we'll carry on. Otherwise, I wish you well.",
+        "af": "Dankie dat jy so openhartig was, {name}. Ongelukkig begin ons proses eers by ongeveer R100\u00a0000 skuld. Daaronder sou die fooie jou uiteindelik meer kos as om die skuld bloot self af te betaal, so dit sou nie in jou belang wees nie.\n\nAs jou totale skuld (alle lenings, kaarte en rekeninge saam) eintlik meer as R100\u00a0000 is, stuur net die bedrag en ons gaan voort. Andersins wens ek jou alles van die beste toe.",
+        "zu": "Ngiyabonga ngokuvuleka, {name}. Ngeshwa inqubo yethu iqala cishe ku-R100\u00a0000 wesikweletu. Ngaphansi kwalokho, izindleko zingaphela zikubiza ngaphezu kokukhokha isikweletu ngokwakho, ngakho ngeke kube yinzuzo kuwe.\n\nUma isamba sezikweletu zakho zonke (zonke izimali ezibolekiwe, amakhadi nama-akhawunti) siwumkhulu kuno-R100\u00a0000, ngithumelele inani futhi siqhubeke. Uma kungenjalo, ngikufisela konke okuhle.",
+    },
+    "not_fit_followup": {
+        "en": "Thanks, {name}. If your total debt turns out to be more than R100\u00a0000, just send me the amount and we'll carry on. I wish you well.",
+        "af": "Dankie, {name}. As jou totale skuld meer as R100\u00a0000 blyk te wees, stuur net die bedrag en ons gaan voort. Ek wens jou alles van die beste toe.",
+        "zu": "Ngiyabonga, {name}. Uma isamba sezikweletu zakho siba ngaphezu kuka-R100\u00a0000, ngithumelele inani futhi siqhubeke. Ngikufisela konke okuhle.",
+    },
     "ask_marital": {
         "en": "Thanks. Are you married? If so, is it in community of property or out of community of property?\n\n{options}",
         "af": "Dankie. Is jy getroud? Indien wel, is dit binne gemeenskap van goedere of buite gemeenskap van goedere?\n\n{options}",

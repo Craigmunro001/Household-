@@ -16,6 +16,7 @@ from .content import (
 SAST = timezone(timedelta(hours=2))
 STEPS = ["lang", "consent", "name", "debt", "marital", "province", "review", "callback"]
 MAX_FAILS = 3
+MIN_DEBT_BAND = "0-100000"  # Pinnacle does not take cases under R100 000
 
 
 @dataclass
@@ -243,10 +244,10 @@ def assess(s):
     """Triage for the consultant only. Never shown to, or used to turn away, the prospect.
 
     DRAFT rules; refine with real outcomes. Under debt review needs the consultant to
-    explain next steps first; very low debt may not justify the process.
+    explain next steps first; 
     """
     a = s.answers
-    if a.get("review") == "yes" or a.get("debt_band") == "0-100000":
+    if a.get("review") == "yes":
         return "unsure"
     return "likely"
 
@@ -296,6 +297,10 @@ def handle(s, text, now, llm=None, fees=None, kind="text", bands=BANDS):
         return out
 
     if s.status == "distress":
+        return out
+
+    if s.status == "not_fit":
+        _after_not_fit(s, t, out, now, llm, fees, bands)
         return out
 
     if s.status == "completed":
@@ -392,6 +397,8 @@ def _answer_step(s, t, out, now, llm, fees, bands):
         s.fails = 0
         if step == "callback":
             _finish(s, out, now, fees)
+        elif step == "debt" and s.answers["debt_band"] == MIN_DEBT_BAND:
+            _not_fit(s, out)
         else:
             s.step = next_step(step)
             out.messages.append(ask(s, s.step, bands))
@@ -420,6 +427,35 @@ def _answer_step(s, t, out, now, llm, fees, bands):
         out.messages.append(ask(s, "consent", bands))
         return
     out.messages.append(prefix + ask(s, step, bands))
+
+
+def _not_fit(s, out):
+    """Below the minimum debt the fees cost more than the debt: say so kindly and stop. No consultant call."""
+    s.status = "not_fit"
+    s.qualification = "not_fit"
+    s.notes.append("Debt under R100 000 - not a fit, no consultant call")
+    out.messages.append(tr("not_fit", s.lang, name=s.name))
+    out.events.append("not_fit")
+
+
+def _after_not_fit(s, t, out, now, llm, fees, bands):
+    """Let them correct the amount (it was only a rough estimate); otherwise answer questions politely."""
+    amount = parse_amount(t)
+    band = band_for_amount(amount, bands) if amount else None
+    if band and band != MIN_DEBT_BAND:
+        s.status, s.step, s.fails = "active", "marital", 0
+        s.answers["debt_band"], s.answers["debt_amount_stated"] = band, amount
+        s.qualification = ""
+        s.notes.append("Corrected debt amount to over R100 000")
+        out.messages.append(ask(s, "marital", bands))
+        return
+    if looks_like_question(t):
+        ans, gap = _faq_or_cost(s, t, llm, fees)
+        s.notes.append(("Asked: " if ans and not gap else "UNANSWERED: ") + t[:200])
+        if ans:
+            out.messages.append(ans)
+            return
+    out.messages.append(tr("not_fit_followup", s.lang, name=s.name))
 
 
 def _finish(s, out, now, fees):

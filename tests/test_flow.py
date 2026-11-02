@@ -304,3 +304,41 @@ def test_mid_flow_language_switch_changes_next_question_too():
     s = Session(phone="1", step="review", lang="en", name="Craig")
     r = handle(s, "Wat is skuldhersiening en hoe werk dit eintlik", NIGHT, llm=FakeLLM("Antwoord."))
     assert s.lang == "af" and "skuldhersiening" in r.messages[0].lower() and "1. Ja" in r.messages[0]
+
+
+def test_debt_under_100k_is_politely_declined_without_more_questions_or_alert():
+    s = Session(phone="1")
+    r = run(s, "hi", "1", "yes", "craig", "about 80 000")
+    last = r[-1]
+    assert s.status == "not_fit" and last.events == ["not_fit"]
+    assert "R100 000" in last.messages[0] and "marital" not in s.answers
+    assert "Which province" not in last.messages[0] and "married" not in last.messages[0]
+    assert "not_fit" not in notify.SUBJECTS  # no consultant email for these
+
+
+def test_not_fit_lead_can_correct_the_amount_and_continue():
+    s = Session(phone="1")
+    run(s, "hi", "1", "yes", "craig", "1")
+    assert s.status == "not_fit"
+    r = handle(s, "sorry I added it up again, it's about R135 000", NIGHT)
+    assert s.status == "active" and s.answers["debt_band"] == "120000-150000" and s.step == "marital"
+    assert "married" in r.messages[0].lower()
+
+
+def test_not_fit_lead_gets_followup_not_silence():
+    s = Session(phone="1")
+    run(s, "hi", "1", "yes", "craig", "1")
+    r = handle(s, "ok thanks", NIGHT)
+    assert "send me the amount" in r.messages[0]
+
+
+def test_exactly_100k_is_not_declined():
+    s = Session(phone="1")
+    run(s, "hi", "1", "yes", "craig", "100000")
+    assert s.status == "active" and s.step == "marital"
+
+
+def test_not_fit_afrikaans():
+    s = Session(phone="1")
+    r = run(s, "hi", "2", "ja", "pieter", "r60k")
+    assert "begin ons proses" in r[-1].messages[0]

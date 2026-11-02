@@ -67,6 +67,9 @@ A: We help South Africans who are overwhelmed by debt. We specialise in voluntar
 ## Q: Can I go to prison because of my debt?
 A: No. Owing money is a civil matter, not a crime, so nobody goes to prison simply because they can't pay their debts. What does matter is being completely honest throughout the process, because hiding assets or giving false information is a different matter and can be an offence. Your consultant will go through this with you. [DRAFT-VERIFY]
 
+## Q: Why can't you help if my debt is under R100 000? What is the minimum debt?
+A: Our process starts at around R100 000 of total debt. Below that, the fees would end up costing you more than simply paying the debt off yourself, so it wouldn't be in your interest. If your total debt is more than R100 000, there may well be a possibility, and your consultant would assess it. [From Craig, 2 Nov]
+
 ## Q: Do I have to decide anything now?
 A: No. All I'm doing is arranging a call. Any decisions are made later, with your consultant, once you understand your options.
 

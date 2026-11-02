@@ -27,8 +27,14 @@
 6. Native check: Afrikaans (Craig) and isiZulu (someone else) of all client-facing text.
 7. Go live: Meta WhatsApp app + number (coexistence), Google service account, Railway deploy (see README). Own-number test, then small pilot.
 
+## Business rules confirmed by Craig (2 Nov)
+- Fees are quoted as monthly instalments; never financed; upfront ~once every 2 years.
+- Pinnacle does not take debt under R100 000 (fees would exceed the debt). Bot declines kindly, asks them to correct the amount if it is actually higher, no consultant call, no alert email. Lead still logged in the Sheet as not_fit.
+- Over R100 000 "might be a possibility": consultant assesses.
+
 ## Open decisions for Craig
-- Do you take on very small debts (e.g. R2 500)? What should the bot say?
+- Under-R100k wording is a draft: David to approve. Should the bot point them to a free alternative (e.g. NCR / a registered debt counsellor)? That is advice, so only with approval.
+- Marketing: put "debt over R100 000" in the ad copy so you stop paying for leads that can't be served.
 - WellTech payroll deductions: Craig says fees are never financed, so the bot never mentions finance/loans. Confirm WellTech is out of scope for the bot, and what the employer answer should be.
 - Triage rule (LIKELY/UNSURE) is a placeholder: under debt review or debt under R100k = UNSURE.
 - Keep or remove the first-name question (not one of the five).
