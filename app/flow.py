@@ -10,7 +10,7 @@ from datetime import datetime, timedelta, timezone
 
 from .content import (
     AGENT_PHRASES, COST_PHRASES, DISTRESS_PHRASES, NO_WORDS, OPTIONS, REQUEST_STARTS, START_WORDS, STOP_PHRASES,
-    TERMS, YES_WORDS, money, options_text, tr,
+    TERMS, WHEN, YES_WORDS, money, options_text, tr,
 )
 
 SAST = timezone(timedelta(hours=2))
@@ -278,6 +278,18 @@ def in_business_hours(now):
     return local.weekday() < 5 and 8 <= local.hour < 17
 
 
+def next_available(now, lang):
+    """When the team is next back, in words: this morning / tomorrow / Monday."""
+    local = now.astimezone(SAST)
+    if local.weekday() < 5 and local.hour < 8:
+        key = "today"
+    elif local.weekday() in (0, 1, 2, 3, 6):  # Mon-Thu, Sun: the next day is a working day
+        key = "tomorrow"
+    else:                                       # Fri after hours, Saturday
+        key = "monday"
+    return WHEN[key][lang]
+
+
 # ---------------------------------------------------------------- engine
 def handle(s, text, now, llm=None, pricebook=None, kind="text"):
     iso = now.astimezone(SAST).isoformat(timespec="seconds")
@@ -310,10 +322,25 @@ def handle(s, text, now, llm=None, pricebook=None, kind="text"):
         out.messages += msgs
         out.events.append("distress")
         return out
-    if s.step != "new" and wants_agent(t):
+    if s.step != "new" and s.status != "not_fit" and wants_agent(t):
+        where = "after completing the questions" if s.status == "completed" else f"at step '{s.step}'"
+        when = next_available(now, s.lang)
+        if not in_business_hours(now) and not s.answers.get("agent_after_hours"):
+            # Team is resting: keep helping instead of going silent, and promise a call-back when they are back.
+            s.answers["agent_after_hours"] = True
+            s.notes.append(f"Asked for a person {where} after hours - bot continuing; consultant to call {when}")
+            msg = tr("agent_after_hours", s.lang, when=when)
+            if s.status == "completed":
+                s.answers["awaiting_callback"] = True
+                msg += "\n\n" + tr("agent_after_hours_time", s.lang)
+            else:
+                msg += "\n\n" + ask(s, s.step)
+            out.messages.append(msg)
+            out.events.append("person_requested")
+            return out
         s.status = "handover"
-        s.notes.append(f"Asked for a person at step '{s.step}'")
-        out.messages.append(tr("handover", s.lang))
+        s.notes.append(f"Asked for a person {where}")
+        out.messages.append(tr("handover" if in_business_hours(now) else "handover_after_hours", s.lang, when=when))
         out.events.append("handover")
         return out
 
@@ -339,6 +366,12 @@ def handle(s, text, now, llm=None, pricebook=None, kind="text"):
 
 def _after_completion(s, t, out, llm, pb):
     is_q = looks_like_question(t)
+    if s.answers.pop("awaiting_callback", False) and not is_q and len(t) >= 2:
+        s.answers["callback_raw"] = s.answers["callback"] = t[:200]
+        s.notes.append(f"Call time updated to: {t[:100]}")
+        out.messages.append(tr("callback_updated", s.lang, name=s.name, callback=t[:200]))
+        out.events.append("callback_updated")
+        return
     if is_q or len(norm(t).split()) >= 4:  # a real message, not just "ok" / "thanks"
         ans, gap = _faq_or_cost(s, t, llm, pb)
         s.notes.append(("Asked: " if ans and not gap else "UNANSWERED: ") + t[:200])
@@ -501,7 +534,7 @@ def _after_not_fit(s, t, out, llm, pb):
 
 
 def _finish(s, out, now):
-    s.status = "completed"
+    s.status, s.step = "completed", "done"
     s.qualification = assess(s)
     after = "" if in_business_hours(now) else tr("after_hours", s.lang)
     out.messages.append(tr("done", s.lang, name=s.name, callback=s.answers["callback_raw"], after=after))

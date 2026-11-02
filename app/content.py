@@ -78,12 +78,22 @@ REQUEST_STARTS = [
     "ngicela ungitshele", "ngifuna ukwazi",
 ]
 
+WHEN = {  # when the team is next available, by language
+    "today": {"en": "08:00 this morning", "af": "08:00 vanoggend", "zu": "ngo-08:00 ekuseni"},
+    "tomorrow": {"en": "tomorrow", "af": "môre", "zu": "kusasa"},
+    "monday": {"en": "Monday", "af": "Maandag", "zu": "ngoMsombuluko"},
+}
+
 STOP_PHRASES = ["stop", "unsubscribe", "opt out", "optout", "hou op", "yeka", "yima"]
 
 AGENT_PHRASES = [
     "agent", "human", "real person", "speak to a person", "speak to someone", "talk to a person",
     "talk to someone", "speak to a human", "praat met iemand", "regte mens", "praat met 'n mens",
     "ngifuna ukukhuluma nomuntu", "khuluma nomuntu", "umuntu langempela",
+    "want a person", "need a person", "want a human", "need a human", "real human", "someone real",
+    "want to speak to someone", "want to talk to someone", "need to speak to someone", "need to talk to someone",
+    "speak with someone", "talk with someone", "speak to a consultant", "talk to a consultant", "speak to an agent",
+    "met iemand praat", "met 'n mens praat", "wil met iemand", "ngifuna umuntu", "ngifuna ukukhuluma nomeluleki",
 ]
 
 DISTRESS_PHRASES = [
@@ -174,6 +184,26 @@ M = {
         "en": "I can give you a rough monthly estimate once I know where you are, roughly what you owe in total, and over how long you'd like to pay. Just a few quick questions.",
         "af": "Ek kan jou 'n ruwe maandelikse skatting gee sodra ek weet waar jy is, ongeveer wat jy altesaam skuld, en oor hoe lank jy wil betaal. Net 'n paar vinnige vrae.",
         "zu": "Ngingakunikeza isilinganiso senyanga uma ngazi ukuthi uhlala kuphi, ukuthi ukweleta malini ngokuphelele, nokuthi ufuna ukukhokha isikhathi esingakanani. Imibuzo embalwa nje.",
+    },
+    "agent_after_hours": {
+        "en": "I've noted that you'd like to speak to a person. Our team is resting until {when} so that they can give you the best possible service. Please carry on with me in the meantime: I can answer your questions and help you through the rest. As soon as a consultant is available {when}, they'll call you back.",
+        "af": "Ek het genoteer dat jy met 'n persoon wil praat. Ons span rus tot {when} sodat hulle jou die allerbeste diens kan gee. Gaan asseblief intussen voort met my: ek kan jou vrae beantwoord en jou deur die res help. Sodra 'n konsultant {when} beskikbaar is, sal hulle jou terugbel.",
+        "zu": "Ngiyabona ukuthi ufuna ukukhuluma nomuntu. Iqembu lethu liphumule kuze kube {when} ukuze likunike insizakalo engcono kakhulu. Sicela uqhubeke nami okwamanje: ngingaphendula imibuzo yakho futhi ngikusize ngokusele. Lapho nje umeluleki etholakala {when}, uzokubuyisela ucingo.",
+    },
+    "agent_after_hours_time": {
+        "en": "What time would suit you?",
+        "af": "Watter tyd sal jou pas?",
+        "zu": "Yisiphi isikhathi esikulungele?",
+    },
+    "handover_after_hours": {
+        "en": "No problem. I've passed this on, and a consultant will contact you {when}.",
+        "af": "Geen probleem nie. Ek het dit deurgegee, en 'n konsultant sal jou {when} kontak.",
+        "zu": "Ayikho inkinga. Ngikudlulisile lokhu, futhi umeluleki uzokuthinta {when}.",
+    },
+    "callback_updated": {
+        "en": "Done, {name}. A consultant will call you: {callback}.",
+        "af": "Reg so, {name}. 'n Konsultant sal jou bel: {callback}.",
+        "zu": "Kulungile, {name}. Umeluleki uzokushayela ucingo: {callback}.",
     },
     "ask_marital": {
         "en": "Thanks. Are you married? If so, is it in community of property or out of community of property?\n\n{options}",

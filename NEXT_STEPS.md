@@ -22,6 +22,11 @@
 - Under R100 000: kindly declined. R100 000-R120 000 and over R500 000: no figure, consultant works it out.
 - Open points flagged to Craig: bracket edges (exactly R140 000 goes to the HIGHER bracket); firm described as "debt-review firm" in the pasted spec (wrong word for a VSE business, and "debt review" is a regulated activity); FAQ conflict on whether cars/property can be sold; email address not collected (WhatsApp number only) - decide.
 
+## After-hours handover (3 Nov) - DONE
+- If a lead asks for a person outside Mon-Fri 08:00-17:00 SAST, the bot says the team is resting until tomorrow/Monday/08:00 this morning, keeps helping and carries on with the questions (or asks what time suits if already completed, then updates the call time). A second request hands over for real with the return time. In business hours it hands over immediately as before. Consultant gets an email either way (different subjects).
+- chat.py has --at <SAST time> to test after-hours behaviour.
+- STILL TO DO (call-time handling): accept a bare "2" as 2pm; store the call time as a real date ("Tue 3 Nov, 15:00") for the consultant; never confirm a Saturday/Sunday/after-hours call time (offer the next slot).
+
 ## Next steps, in order
 1. Craig: the ~50 questions and answers, in batches of 10-15 (best source: real lead questions).
 2. Craig: trust facts (attorney firm and how to verify, company details/address/website, registrations) for "is this a scam?".

@@ -229,11 +229,63 @@ def test_distress_afrikaans_and_zulu():
         assert "distress" in handle(s, phrase, NIGHT).events
 
 
-def test_ask_for_person_hands_over():
+def test_ask_for_person_in_business_hours_hands_over_and_goes_silent():
     s = Session(phone="1")
-    r = run(s, "hi", "1", "yes", "craig", "can I speak to a person")
+    r = run(s, "hi", "1", "yes", "craig", "can I speak to a person", now=DAY)
     assert s.status == "handover" and r[-1].events == ["handover"]
-    assert run(s, "hello")[0].messages == []
+    assert run(s, "hello", now=DAY)[0].messages == []
+
+
+def test_ask_for_person_after_hours_keeps_helping_and_continues_the_flow():
+    s = Session(phone="1")
+    r = run(s, "hi", "1", "yes", "craig", "can I speak to a person")[-1]
+    assert s.status == "active" and r.events == ["person_requested"] and s.step == "province"
+    msg = r.messages[0]
+    assert "resting until tomorrow" in msg and "call you back" in msg and "Which province" in msg
+    r2 = handle(s, "4", NIGHT, pricebook=PB)  # the conversation just carries on
+    assert s.answers["province"] == "KZN" and "Roughly how much" in r2.messages[0]
+
+
+def test_second_request_for_a_person_after_hours_hands_over_with_return_time():
+    s = Session(phone="1")
+    run(s, "hi", "1", "yes", "craig", "I want a human")
+    r = handle(s, "no I really want a person", NIGHT, pricebook=PB)
+    assert s.status == "handover" and r.events == ["handover"] and "tomorrow" in r.messages[0]
+
+
+def test_friday_night_and_saturday_say_monday_not_tomorrow():
+    FRI = datetime(2026, 11, 6, 20, 0, tzinfo=timezone.utc)   # Fri 22:00 SAST
+    s = Session(phone="1")
+    run(s, "hi", "1", "yes", "craig", now=FRI)
+    r = handle(s, "agent please", FRI, pricebook=PB)
+    assert "until Monday" in r.messages[0] and "tomorrow" not in r.messages[0]
+
+
+def test_early_weekday_morning_says_08_00_this_morning():
+    EARLY = datetime(2026, 11, 3, 3, 0, tzinfo=timezone.utc)  # Tue 05:00 SAST
+    assert flow.next_available(EARLY, "en") == "08:00 this morning"
+
+
+def test_person_requested_after_completion_asks_for_a_time_and_updates_it():
+    s, _ = full_chat()
+    r = handle(s, "I want to speak to a person", NIGHT, pricebook=PB)
+    assert "What time would suit you?" in r.messages[0] and r.events == ["person_requested"]
+    r = handle(s, "Thursday at 10am", NIGHT, pricebook=PB)
+    assert s.answers["callback"] == "Thursday at 10am" and r.events == ["callback_updated"]
+    assert "Thursday at 10am" in r.messages[0]
+
+
+def test_person_request_in_afrikaans_after_hours():
+    s = Session(phone="1")
+    r = run(s, "hi", "2", "ja", "pieter", "ek wil met 'n regte mens praat")[-1]
+    assert "Ons span rus tot môre" in r.messages[0]
+
+
+def test_not_fit_lead_asking_for_a_person_is_not_promised_a_call():
+    s = Session(phone="1")
+    run(s, "hi", "1", "yes", "craig", "3", "60k")
+    r = handle(s, "I want to speak to a person", NIGHT, pricebook=PB)
+    assert "call you back" not in r.messages[0] and s.status == "not_fit"
 
 
 def test_three_misunderstood_answers_hand_over():
