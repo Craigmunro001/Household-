@@ -35,7 +35,7 @@ YES = {"1": "yes", "2": "ja", "3": "yebo"}
 
 def full_chat(lang="1", province="3", debt="250000", term="1", **kw):
     s = Session(phone="27820000000")
-    replies = run(s, "hi", lang, YES[lang], "craig", province, debt, "2", "2", term, "2", "2", "tomorrow after 2pm", **kw)
+    replies = run(s, "hi", lang, YES[lang], "craig", province, debt, "2", "2", term, "2", "2", "tomorrow after 2pm", "1", **kw)
     return s, replies
 
 
@@ -178,7 +178,7 @@ def test_cost_question_after_estimate_restates_the_same_figure():
 
 def test_cost_question_for_out_of_range_debt_never_quotes_and_flags_consultant():
     s = Session(phone="1")
-    run(s, "hi", "1", "yes", "craig", "3", "800000", "2", "2", "2", "2", "tomorrow at 10am")
+    run(s, "hi", "1", "yes", "craig", "3", "800000", "2", "2", "2", "2", "tomorrow at 10am", "1")
     assert s.status == "completed"
     r = handle(s, "how much will I pay?", NIGHT, llm=FakeLLM("Your consultant confirms. [GAP]"), pricebook=PB)
     assert "R" not in r.messages[0] and any("COST" in n for n in s.notes)
@@ -521,7 +521,7 @@ def test_misread_vehicle_question_is_corrected_by_asking_it_again():
 
 def test_lead_who_continues_gets_the_normal_estimate_and_is_flagged_for_the_consultant():
     s = Session(phone="27820000000")
-    run(s, "hi", "1", "yes", "craig", "3", "250000", "1", "yes", "2", "1", "2", "2", "tomorrow after 2pm")  # home yes, warned, continue, no vehicle, 25m, married in community... review no
+    run(s, "hi", "1", "yes", "craig", "3", "250000", "1", "yes", "2", "1", "2", "2", "tomorrow after 2pm", "1")  # home yes, warned, continue, no vehicle, 25m, married in community... review no
     assert s.status == "completed" and s.answers["estimate"]["monthly"] == 4788.86
     assert s.qualification == "unsure" and set(s.answers["asset_ack"]) == {"home"}
     subject, body = notify.build("completed", s)
@@ -580,7 +580,7 @@ def test_paid_off_vehicle_never_promises_a_plan_or_mentions_transferring_it():
 def test_paid_off_vehicle_is_flagged_for_the_consultant():
     from app.leads import COLUMNS, lead_row
     s = Session(phone="27820000000")
-    run(s, "hi", "1", "yes", "craig", "3", "250000", "2", "3", "1", "2", "2", "tomorrow after 2pm")
+    run(s, "hi", "1", "yes", "craig", "3", "250000", "2", "3", "1", "2", "2", "tomorrow after 2pm", "1")
     assert s.status == "completed" and s.answers["vehicle"] == "paid_off"
     assert any("paid-off vehicle" in n for n in s.notes)
     assert dict(zip(COLUMNS, lead_row(s)))["Vehicle"] == "paid off"
@@ -639,7 +639,7 @@ def test_an_explicit_change_of_mind_after_declining_does_resume(again):
     assert s.status == "active" and s.step == "vehicle"
 
 
-# ------------------------------------------------------------ call-back time: real slots, clarifying prompts, out-of-hours flagged
+# ------------------------------------------------------------ call-back time: guided, never asks the same thing twice
 def at_callback(*answers, now=NIGHT, lang="1"):
     """A lead who has answered everything up to the call-time question (Tue 23:00 SAST, so tomorrow = Wed 4 Nov)."""
     s = Session(phone="1")
@@ -648,10 +648,15 @@ def at_callback(*answers, now=NIGHT, lang="1"):
     return s, [handle(s, a, now, pricebook=PB) for a in answers]
 
 
-def test_callback_question_offers_two_real_slots_and_another_day():
+def last(r):
+    return r[-1].messages[0]
+
+
+def test_callback_question_offers_two_real_slots_another_day_and_let_the_consultant_choose():
     s, _ = at_callback()
     msg = flow.ask(s, "callback")
-    assert "1. tomorrow (Wed 4 Nov), 08:00" in msg and "2. tomorrow (Wed 4 Nov), 10:00" in msg and "3. Another day or time" in msg
+    assert "1. tomorrow (Wed 4 Nov), 08:00" in msg and "2. tomorrow (Wed 4 Nov), 10:00" in msg
+    assert "3. Another day or time" in msg and "4. Let my consultant suggest a time" in msg
 
 
 def test_friday_night_offers_monday_slots_not_a_saturday():
@@ -662,102 +667,172 @@ def test_friday_night_offers_monday_slots_not_a_saturday():
 
 
 @pytest.mark.parametrize("pick,label", [("1", "Wed 4 Nov, 08:00"), ("2", "Wed 4 Nov, 10:00")])
-def test_picking_an_offered_slot_books_it(pick, label):
+def test_picking_an_offered_slot_books_it_straight_away(pick, label):
     s, r = at_callback(pick)
     assert s.status == "completed" and s.answers["callback"] == label and s.answers["callback_in_hours"] is True
-    assert label in r[-1].messages[0] and "flagged" not in r[-1].messages[0]
+    assert label in last(r) and "flagged" not in last(r)
 
 
-@pytest.mark.parametrize("bare", ["10", "9am", "2", "8"])
-def test_a_bare_time_is_never_guessed_the_options_are_shown_again(bare):
-    s, r = at_callback(bare) if bare not in ("1", "2") else (None, None)
-    if bare == "2":  # "2" is option 2 (10:00), not 2pm
-        s, r = at_callback("2")
-        assert s.answers["callback"] == "Wed 4 Nov, 10:00"
-        return
-    assert s.status == "active" and s.step == "callback"
-    msg = r[-1].messages[0]
-    assert "make sure I get the time exactly right" in msg and "1. tomorrow" in msg and "3. Another day or time" in msg
-
-
-def test_day_and_time_typed_freely_is_understood():
-    for typed, label in (("Friday at 4pm", "Fri 6 Nov, 16:00"), ("tomorrow after 2pm", "Wed 4 Nov, after 14:00"),
-                         ("08h00 tomorrow", "Wed 4 Nov, 08:00"), ("Monday 14:30", "Mon 9 Nov, 14:30"),
-                         ("Wednesday morning", "Wed 4 Nov, morning")):
-        s, r = at_callback(typed)
-        assert s.status == "completed" and s.answers["callback"] == label, typed
-
-
-def test_another_day_option_asks_for_day_and_time_and_explains_out_of_hours_requests():
+def test_another_day_walks_through_day_then_time_with_numbered_picks():
     s, r = at_callback("3")
-    msg = r[-1].messages[0]
-    assert s.status == "active" and "Which day and time" in msg and "evening or a Saturday" in msg
-    r = handle(s, "Thursday 11am", NIGHT, pricebook=PB)
-    assert s.status == "completed" and s.answers["callback"] == "Thu 5 Nov, 11:00"
+    assert "Which day suits you?" in last(r) and "1. Tomorrow (Wed 4 Nov)" in last(r) and "2. Thu 5 Nov" in last(r)
+    assert "4. Another day" in last(r)
+    r = [handle(s, "2", NIGHT, pricebook=PB)]
+    assert "Thu 5 Nov, got it. What time suits you?" in last(r) and "3. 12:00" in last(r) and "6. A different time" in last(r)
+    r = [handle(s, "2", NIGHT, pricebook=PB)]
+    assert s.status == "completed" and s.answers["callback"] == "Thu 5 Nov, 10:00"
 
 
-def test_can_we_do_a_saturday_is_understood_asks_the_time_then_flags_it_for_the_consultant():
+@pytest.mark.parametrize("bare,shown", [("10", "10:00"), ("9am", "09:00"), ("14:30", "14:30"), ("10 30", "10:30"), ("10.30", "10:30")])
+def test_a_bare_time_is_repeated_back_and_only_the_day_is_asked(bare, shown):
+    s, r = at_callback(bare)
+    msg = last(r)
+    assert s.status == "active" and f"{shown}, got it." in msg and "Which day suits you?" in msg
+    assert "1. Tomorrow (Wed 4 Nov)" in msg and "make sure I get the time" not in msg
+
+
+def test_a_bare_time_then_a_day_pick_books_that_time_on_that_day():
+    s, _ = at_callback("10", "2")
+    assert s.status == "completed" and s.answers["callback"] == "Thu 5 Nov, 10:00"
+
+
+def test_a_bare_day_is_repeated_back_and_only_the_time_is_asked_then_a_typed_time_books_it():
+    s, r = at_callback("tomorrow")
+    assert "Tomorrow (Wed 4 Nov), got it. What time suits you?" in last(r) and "5. 16:00" in last(r)
+    handle(s, "10:30", NIGHT, pricebook=PB)
+    assert s.status == "completed" and s.answers["callback"] == "Wed 4 Nov, 10:30"
+
+
+def test_a_freely_typed_day_and_time_is_repeated_back_for_confirmation_before_booking():
+    s, r = at_callback("10:30 on the 5th")
+    assert s.status == "active" and s.answers["cb_stage"] == "confirm"
+    assert "Just to confirm: Thu 5 Nov, 10:30. Is that right?" in last(r)
+    handle(s, "1", NIGHT, pricebook=PB)
+    assert s.status == "completed" and s.answers["callback"] == "Thu 5 Nov, 10:30"
+
+
+def test_saying_no_at_the_confirmation_restarts_gently_with_the_day_picks():
+    s, r = at_callback("Friday at 4pm", "2")
+    assert s.status == "active" and "Which day suits you?" in last(r) and s.answers.get("cb_stage") == "day"
+
+
+@pytest.mark.parametrize("typed,label", [
+    ("Friday at 4pm", "Fri 6 Nov, 16:00"), ("tomorrow after 2pm", "Wed 4 Nov, after 14:00"), ("08h00 tomorrow", "Wed 4 Nov, 08:00"),
+    ("Monday 14:30", "Mon 9 Nov, 14:30"), ("Wednesday morning", "Wed 4 Nov, morning"), ("5 Nov 10am", "Thu 5 Nov, 10:00"),
+    ("05/11 at 10:30", "Thu 5 Nov, 10:30"), ("the 5th at 10", "Thu 5 Nov, 10:00"), ("nov 6 at 2pm", "Fri 6 Nov, 14:00"),
+])
+def test_many_ways_of_writing_a_date_and_time_all_land_on_the_right_confirmation(typed, label):
+    s, r = at_callback(typed, "1")
+    assert s.status == "completed" and s.answers["callback"] == label, typed
+
+
+def test_the_confusing_message_is_not_guessed_it_triggers_the_two_step_walkthrough():
+    s, r = at_callback("10 and 30th of the 5th")
+    msg = last(r)
+    assert s.status == "active" and "two quick steps" in msg and "Which day suits you?" in msg
+
+
+def test_can_we_do_a_saturday_is_understood_asks_the_time_with_a_note_then_flags_it():
     s, r = at_callback("can we do it on a Saturday?")
-    assert s.status == "active" and "Sat 7 Nov" in r[-1].messages[0] and "What time suits you?" in r[-1].messages[0]
-    assert "flag it for your consultant" in r[-1].messages[0]
-    r = handle(s, "10am", NIGHT, pricebook=PB)
+    msg = last(r)
+    assert s.status == "active" and "Sat 7 Nov, got it. What time suits you?" in msg and "flag it for your consultant" in msg
+    r = [handle(s, "2", NIGHT, pricebook=PB)]
     assert s.status == "completed" and s.answers["callback"] == "Sat 7 Nov, 10:00" and s.answers["callback_in_hours"] is False
-    msg = r.messages[0]
-    assert "Sat 7 Nov, 10:00" in msg and "outside our standard calling hours" in msg and "will confirm" in msg
-    assert "preferred time" in msg and "will call you" not in msg
-    assert "we can do" not in msg.lower() and "guarantee" not in msg.lower()
+    msg = last(r)
+    assert "I've noted Sat 7 Nov, 10:00 as your preferred time" in msg and "outside our standard calling hours" in msg
+    assert "will call you" not in msg and "guarantee" not in msg.lower()
     assert any("OUTSIDE standard hours" in n for n in s.notes)
+
+
+def test_a_typed_weekend_time_is_confirmed_with_a_note_and_then_flagged_never_promised():
+    s, r = at_callback("Saturday 10am")
+    assert "Just to confirm: Sat 7 Nov, 10:00." in last(r) and "your consultant will confirm it" in last(r)
+    r = [handle(s, "yes", NIGHT, pricebook=PB)]
+    assert s.answers["callback_in_hours"] is False and "preferred time" in last(r) and "will call you" not in last(r)
 
 
 @pytest.mark.parametrize("typed", ["Sunday evening", "Saturday morning", "tomorrow at 7pm", "tomorrow at 6am"])
 def test_out_of_hours_requests_are_accepted_but_flagged_never_promised(typed):
-    s, r = at_callback(typed)
+    s, r = at_callback(typed, "1")
     assert s.status == "completed" and s.answers["callback_in_hours"] is False
-    assert "outside our standard calling hours" in r[-1].messages[0]
+    assert "outside our standard calling hours" in last(r) and "will call you" not in last(r)
 
 
 def test_in_hours_request_is_not_flagged():
-    s, r = at_callback("Friday at 4pm")
-    assert s.answers["callback_in_hours"] is True and "outside our standard" not in r[-1].messages[0]
+    s, r = at_callback("Friday at 4pm", "1")
+    assert s.answers["callback_in_hours"] is True and "outside our standard" not in last(r) and "will call you" in last(r)
 
 
-def test_a_time_in_the_past_prompts_with_the_options():
+def test_a_time_that_has_already_passed_is_explained_and_the_day_is_asked():
     s, r = at_callback("today at 9am")
-    assert s.status == "active" and "make sure I get the time exactly right" in r[-1].messages[0]
+    assert "That time has already passed" in last(r) and "Which day suits you?" in last(r)
 
 
-def test_unclear_call_time_never_loops_forever():
-    s, r = at_callback("whenever", "dunno really")
-    assert s.status == "completed" and s.answers["callback_in_hours"] is False
-    assert "to be confirmed" in "".join(n for n in s.notes) or any("not understood" in n for n in s.notes)
-    assert "(consultant to confirm)" in s.answers["callback"]
+def test_consultant_suggest_a_time_option_and_phrases():
+    for typed in ("4", "you choose", "whenever", "any time is fine"):
+        s, r = at_callback(typed)
+        assert s.status == "completed" and s.answers["callback_flexible"] is True, typed
+        assert "be in touch to agree a time" in last(r)
 
 
-def test_question_at_the_call_time_step_is_answered_and_the_question_repeated():
-    s, r = at_callback("is the call free?")
-    assert s.status == "active" and "1. tomorrow" in r[-1].messages[0] and any("UNANSWERED" in n or "Asked" in n for n in s.notes)
+def test_failing_to_understand_never_repeats_the_same_message_and_ends_with_the_consultant_choosing():
+    s, r = at_callback("gibberish here", "more gibberish", "still nonsense")
+    msgs = [x.messages[0] for x in r]
+    assert len(set(msgs)) == 3                                    # three different messages, no repeats
+    assert "two quick steps" in msgs[0] and "ask your consultant to suggest a time" in msgs[1]
+    assert s.status == "completed" and "(consultant to confirm)" in s.answers["callback"]
 
 
-def test_afrikaans_call_time():
+def test_second_failure_offers_the_consultant_and_saying_yes_finishes_gracefully():
+    s, r = at_callback("blah blah", "blah blah blah", "1")
+    assert s.status == "completed" and s.answers["callback_flexible"] is True
+
+
+def test_second_failure_then_no_returns_to_the_normal_options():
+    s, r = at_callback("blah blah", "blah blah blah", "2")
+    assert s.status == "active" and "1. tomorrow (Wed 4 Nov), 08:00" in last(r)
+
+
+def test_question_mid_booking_is_answered_then_the_current_step_is_shown_again():
+    s, r = at_callback("3", "is the call free?")
+    assert "Which day suits you?" in last(r) and s.status == "active"
+    assert any("UNANSWERED" in n or "Asked" in n for n in s.notes)
+
+
+def test_typing_a_new_request_instead_of_answering_the_confirmation_just_works():
+    s, r = at_callback("Friday at 4pm", "actually Monday at 9am", "1")
+    assert s.status == "completed" and s.answers["callback"] == "Mon 9 Nov, 09:00"
+
+
+def test_afrikaans_call_time_journey():
     s = Session(phone="1")
     run(s, "hi", "2", "ja", "pieter", "3", "250000", "2", "2", "1", "2", "2")
-    assert "1. môre (Wo 4 Nov), 08:00" in flow.ask(s, "callback")
-    handle(s, "Vrydag om 4nm", NIGHT, pricebook=PB)
-    assert s.answers["callback"] == "Vr 6 Nov, 16:00"
+    assert "1. môre (Wo 4 Nov), 08:00" in flow.ask(s, "callback") and "4. Laat my konsultant 'n tyd voorstel" in flow.ask(s, "callback")
+    r = handle(s, "10", NIGHT, pricebook=PB)
+    assert "10:00, reg so." in r.messages[0] and "Watter dag pas jou?" in r.messages[0]
+    handle(s, "2", NIGHT, pricebook=PB)
+    assert s.answers["callback"] == "Do 5 Nov, 10:00"  # second pick = Thursday, in Afrikaans
 
 
-def test_zulu_call_time_options():
+def test_zulu_call_time_options_and_confirmation():
     s = Session(phone="1")
     run(s, "hi", "3", "yebo", "thandi", "3", "250000", "2", "2", "1", "2", "2")
     assert "1. kusasa (Lwesithathu 4 Nov), 08:00" in flow.ask(s, "callback")
+    r = handle(s, "Lwesihlanu 4pm", NIGHT, pricebook=PB)
+    assert "Ukuqinisekisa nje" in r.messages[0]
 
 
 def test_lead_record_and_alert_show_the_exact_call_time_and_flag_out_of_hours():
     from app.leads import COLUMNS, lead_row
-    s, _ = at_callback("Saturday morning")
+    s, _ = at_callback("Saturday morning", "1")
     assert dict(zip(COLUMNS, lead_row(s)))["Callback preference"] == "Sat 7 Nov, morning"
-    s2, _ = at_callback("Friday at 4pm")
+    s2, _ = at_callback("Friday at 4pm", "1")
     assert dict(zip(COLUMNS, lead_row(s2)))["Callback preference"] == "Fri 6 Nov, 16:00"
+
+
+def test_the_callback_state_is_cleaned_up_after_booking():
+    s, _ = at_callback("10", "2")
+    assert not any(k in s.answers for k in flow.CB_KEYS)
 
 
 # ------------------------------------------------------------ friendlier wording and the progress count
@@ -796,13 +871,3 @@ def test_friendly_wording_exists_in_all_three_languages():
     from app.content import LEADS
     for step, by_lang in LEADS.items():
         assert set(by_lang) == {"en", "af", "zu"}, step
-
-
-def test_flagged_times_are_never_phrased_as_a_confirmed_call_in_any_language():
-    for lang, choice in (("1", "yes"), ("2", "ja"), ("3", "yebo")):
-        s = Session(phone="1")
-        run(s, "hi", lang, choice, "x", "3", "250000", "2", "2", "1", "2", "2")
-        r = handle(s, "Saturday 10am", NIGHT, pricebook=PB)
-        assert s.answers["callback_in_hours"] is False and "Sat 7" in r.messages[0] or "Sa 7" in r.messages[0] or "Mgqibelo 7" in r.messages[0]
-        if lang == "1":
-            assert "will call you" not in r.messages[0]

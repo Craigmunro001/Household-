@@ -299,25 +299,72 @@ M = {
         "af": "Dankie, {name}! Dis alles wat ek nodig het. Ek het {callback} as jou voorkeurtyd genoteer. Dit is buite ons gewone belure (Maandag–Vrydag, 08:00–17:00), so ek het dit vir jou konsultant gemerk, wat dit sal bevestig of die naaste tyd sal voorstel wat werk.\n\nHulle sal jou situasie behoorlik deurgaan en jou opsies verduidelik. As jy intussen 'n vraag het, vra my gerus hier.",
         "zu": "Ngiyabonga, {name}! Yilokho kuphela engikudingayo. Ngiqophe {callback} njengesikhathi osithandayo. Lokho kungaphandle kwamahora ethu avamile okushaya ucingo (uMsombuluko–uLwesihlanu, 08:00–17:00), ngakho ngikumake kumeluleki wakho, ozoqinisekisa noma aphakamise isikhathi esiseduze esisebenzayo.\n\nUzohlaziya isimo sakho kahle futhi akuchazele izinketho zakho. Uma unemibuzo okwamanje, ngibuze lapha.",
     },
-    "callback_other": {
-        "en": "No problem! Which day and time would suit you best? For example \"Friday at 4pm\". If you need something outside our normal hours (Mon–Fri, 08:00–17:00), like an evening or a Saturday, just say so and I'll pass the request to your consultant to confirm.",
-        "af": "Geen probleem nie! Watter dag en tyd sal jou die beste pas? Byvoorbeeld \"Vrydag om 4nm\". As jy iets buite ons gewone ure nodig het (Maandag–Vrydag, 08:00–17:00), soos 'n aand of Saterdag, sê net so en ek gee die versoek aan jou konsultant om te bevestig.",
-        "zu": "Ayikho inkinga! Yisiphi usuku nesikhathi esikulungele kakhulu? Isibonelo \"Lwesihlanu ngo-4 ntambama\". Uma udinga okuthile ngaphandle kwamahora ethu avamile (uMsombuluko–uLwesihlanu, 08:00–17:00), njengakusihlwa noma ngoMgqibelo, ngitshele nje futhi ngizodlulisela isicelo sakho kumeluleki wakho ukuze aqinisekise.",
+    "cb_confirm": {
+        "en": "Just to confirm: {label}. Is that right?\n\n1. Yes, that's right\n2. No, change it{note}",
+        "af": "Net om te bevestig: {label}. Is dit reg?\n\n1. Ja, dis reg\n2. Nee, verander dit{note}",
+        "zu": "Ukuqinisekisa nje: {label}. Kulungile?\n\n1. Yebo, kulungile\n2. Cha, shintsha{note}",
     },
-    "callback_need_time": {
-        "en": "{day}, got it. What time suits you? (Something like \"10am\" or \"after 2pm\".){note}",
-        "af": "{day}, reg so. Watter tyd pas jou? (Iets soos \"10vm\" of \"na 2nm\".){note}",
-        "zu": "{day}, kulungile. Yisiphi isikhathi esikulungele? (Okufana no-\"10 ekuseni\" noma \"ngemva kwe-2 ntambama\".){note}",
+    "cb_confirm_note": {
+        "en": "\n\n(That's outside our standard hours, so your consultant will confirm it.)",
+        "af": "\n\n(Dit is buite ons gewone ure, so jou konsultant sal dit bevestig.)",
+        "zu": "\n\n(Lokhu kungaphandle kwamahora ethu avamile, ngakho umeluleki wakho uzokuqinisekisa.)",
     },
+    "cb_intro_guided": {
+        "en": "I want to get this exactly right for you, so let's do it in two quick steps. ",
+        "af": "Ek wil dit presies reg kry vir jou, so kom ons doen dit in twee vinnige stappe. ",
+        "zu": "Ngifuna ukuyithola ngqo kuwe, ngakho masiyenze ngezinyathelo ezimbili ezisheshayo. ",
+    },
+    "cb_intro_time": {
+        "en": "{time}, got it. ",
+        "af": "{time}, reg so. ",
+        "zu": "{time}, kulungile. ",
+    },
+    "cb_intro_past": {
+        "en": "That time has already passed, so let's pick another. ",
+        "af": "Daardie tyd het reeds verby gegaan, so kom ons kies 'n ander een. ",
+        "zu": "Lesosikhathi sesidlulile, ngakho masikhethe esinye. ",
+    },
+    "cb_ask_day": {
+        "en": "{intro}Which day suits you?\n\n{options}",
+        "af": "{intro}Watter dag pas jou?\n\n{options}",
+        "zu": "{intro}Yisiphi usuku olukulungele?\n\n{options}",
+    },
+    "cb_ask_time": {
+        "en": "{day}, got it. What time suits you?\n\n{options}\n\nOr just type a time, like \"10:30\".{note}",
+        "af": "{day}, reg so. Watter tyd pas jou?\n\n{options}\n\nOf tik net 'n tyd, soos \"10:30\".{note}",
+        "zu": "{day}, kulungile. Yisiphi isikhathi esikulungele?\n\n{options}\n\nNoma bhala nje isikhathi, njengo \"10:30\".{note}",
+    },
+    "cb_day_other": {
+        "en": "No problem! Type the day, like \"Friday\" or \"12 Nov\".",
+        "af": "Geen probleem nie! Tik die dag, soos \"Vrydag\" of \"12 Nov\".",
+        "zu": "Ayikho inkinga! Bhala usuku, njengo \"Lwesihlanu\" noma \"12 Nov\".",
+    },
+    "cb_time_other": {
+        "en": "No problem! Type the time you'd like, like \"10:30\" or \"after 2pm\".",
+        "af": "Geen probleem nie! Tik die tyd wat jy wil hê, soos \"10:30\" of \"na 2nm\".",
+        "zu": "Ayikho inkinga! Bhala isikhathi osifunayo, njengo \"10:30\" noma \"ngemva kwe-2 ntambama\".",
+    },
+    "cb_suggest": {
+        "en": "No stress! Would you like me to ask your consultant to suggest a time that works?\n\n1. Yes please\n2. No, let me try again",
+        "af": "Geen stres nie! Wil jy hê ek moet jou konsultant vra om 'n tyd voor te stel wat werk?\n\n1. Ja asseblief\n2. Nee, laat ek weer probeer",
+        "zu": "Awukho umdlandla! Ungathanda ukuthi ngicele umeluleki wakho aphakamise isikhathi esisebenzayo?\n\n1. Yebo ngicela\n2. Cha, ake ngizame futhi",
+    },
+    "callback_flexible": {
+        "en": "Consultant to suggest a time",
+        "af": "Konsultant stel 'n tyd voor",
+        "zu": "Umeluleki aphakamise isikhathi",
+    },
+    "done_flexible": {
+        "en": "Thank you, {name}! That's everything I need. A consultant will be in touch to agree a time with you.\n\nThey'll go through your situation properly and explain your options. If you have a question in the meantime, ask me here.",
+        "af": "Dankie, {name}! Dis alles wat ek nodig het. 'n Konsultant sal met jou in verbinding tree om 'n tyd te ooreenkom.\n\nHulle sal jou situasie behoorlik deurgaan en jou opsies verduidelik. As jy intussen 'n vraag het, vra my gerus hier.",
+        "zu": "Ngiyabonga, {name}! Yilokho kuphela engikudingayo. Umeluleki uzokuthinta ukuvumelana ngesikhathi.\n\nUzohlaziya isimo sakho kahle futhi akuchazele izinketho zakho. Uma unemibuzo okwamanje, ngibuze lapha.",
+    },
+    "opt_another_day": {"en": "Another day", "af": "'n Ander dag", "zu": "Elinye usuku"},
+    "opt_other_time": {"en": "A different time", "af": "'n Ander tyd", "zu": "Esinye isikhathi"},
     "callback_weekend_note": {
         "en": " Our standard hours are Mon–Fri, 08:00–17:00, so I'll flag it for your consultant to confirm.",
         "af": " Ons gewone ure is Maandag–Vrydag, 08:00–17:00, so ek sal dit vir jou konsultant merk om te bevestig.",
         "zu": " Amahora ethu avamile uMsombuluko–uLwesihlanu, 08:00–17:00, ngakho ngizokumaka kumeluleki wakho ukuze aqinisekise.",
-    },
-    "callback_prompt": {
-        "en": "Let me make sure I get the time exactly right for you. Which of these suits you?",
-        "af": "Laat ek seker maak ek kry die tyd presies reg vir jou. Watter een pas jou?",
-        "zu": "Ake ngiqinisekise ukuthi ngithola isikhathi ngqo. Yiphi ekulungele?",
     },
     "callback_outside": {
         "en": " That's outside our standard calling hours (Mon–Fri, 08:00–17:00), so I've flagged it for your consultant, who will confirm or suggest the nearest time that works.",
@@ -340,9 +387,9 @@ M = {
         "zu": "Ingabe usushadile? Uma kunjalo, ngabe ukuhlanganyela kwempahla (in community of property) noma ngaphandle kokuhlanganyela (out of community of property)?\n\n{options}",
     },
     "ask_callback": {
-        "en": "When suits you best for a call from a consultant? Our calling hours are Mon–Fri, 08:00–17:00.\n\n1. {d}, 08:00\n2. {d}, 10:00\n3. Another day or time\n\nOr just type a day and time, like \"Friday at 2pm\".",
-        "af": "Wanneer pas dit jou die beste vir 'n oproep van 'n konsultant? Ons bel Maandag tot Vrydag, 08:00–17:00.\n\n1. {d}, 08:00\n2. {d}, 10:00\n3. 'n Ander dag of tyd\n\nOf tik net 'n dag en tyd, soos \"Vrydag om 2nm\".",
-        "zu": "Ukhululeka nini ukuthi umeluleki akushayele ucingo? Sishaya ngoMsombuluko kuya eLwesihlanu, 08:00–17:00.\n\n1. {d}, 08:00\n2. {d}, 10:00\n3. Elinye usuku noma isikhathi\n\nNoma bhala nje usuku nesikhathi, njengo \"Lwesihlanu ngo-2 ntambama\".",
+        "en": "When suits you best for a call from a consultant? Our calling hours are Mon–Fri, 08:00–17:00.\n\n1. {d}, 08:00\n2. {d}, 10:00\n3. Another day or time\n4. Let my consultant suggest a time\n\nOr just type a day and time, like \"Friday at 2pm\".",
+        "af": "Wanneer pas dit jou die beste vir 'n oproep van 'n konsultant? Ons bel Maandag tot Vrydag, 08:00–17:00.\n\n1. {d}, 08:00\n2. {d}, 10:00\n3. 'n Ander dag of tyd\n4. Laat my konsultant 'n tyd voorstel\n\nOf tik net 'n dag en tyd, soos \"Vrydag om 2nm\".",
+        "zu": "Ukhululeka nini ukuthi umeluleki akushayele ucingo? Sishaya ngoMsombuluko kuya eLwesihlanu, 08:00–17:00.\n\n1. {d}, 08:00\n2. {d}, 10:00\n3. Elinye usuku noma isikhathi\n4. Mayibe umeluleki wami aphakamise isikhathi\n\nNoma bhala nje usuku nesikhathi, njengo \"Lwesihlanu ngo-2 ntambama\".",
     },
     "done": {
         "en": "Thank you, {name}! That's everything I need. A consultant will call you: {callback}.{after}\n\nThey'll go through your situation properly and explain your options. If you have a question in the meantime, ask me here.",

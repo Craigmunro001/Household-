@@ -6,7 +6,7 @@ helps understand free-text answers and answer general questions from the approve
 """
 import re
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 
 from . import callback as cb
 from .pricing import load_pricebook
@@ -654,7 +654,9 @@ def _after_not_fit(s, t, out, llm, pb):
 def _finish(s, out, now):
     s.status, s.step = "completed", "done"
     s.qualification = assess(s)
-    if s.answers.get("callback_in_hours", True):
+    if s.answers.get("callback_flexible"):
+        out.messages.append(tr("done_flexible", s.lang, name=s.name))
+    elif s.answers.get("callback_in_hours", True):
         out.messages.append(tr("done", s.lang, name=s.name, callback=s.answers["callback"], after=""))
     else:  # outside standard hours: a preferred time, never a promise
         out.messages.append(tr("done_flagged", s.lang, name=s.name, callback=s.answers["callback"]))
@@ -678,40 +680,158 @@ def _record_callback(s, parsed, raw, now):
     return in_hours
 
 
+CB_KEYS = ("cb_stage", "cb_day", "cb_time", "cb_confirm", "cb_attempts")
+
+
+def _cb_reset(s):
+    for k in CB_KEYS:
+        s.answers.pop(k, None)
+
+
+def _cb_day_options(s, now):
+    picks = cb.day_picks(now)
+    lines = [f"{i}. {_upper_first(cb.day_label(d, now, s.lang))}" for i, d in enumerate(picks, 1)]
+    return "\n".join(lines + [f"{len(picks) + 1}. {tr('opt_another_day', s.lang)}"]), picks
+
+
+def _cb_time_options(s):
+    lines = [f"{i}. {cb.clock(h)}" for i, h in enumerate(cb.TIME_PICKS, 1)]
+    return "\n".join(lines + [f"{len(cb.TIME_PICKS) + 1}. {tr('opt_other_time', s.lang)}"])
+
+
+def _cb_ask_day(s, out, now, intro=""):
+    s.answers["cb_stage"] = "day"
+    options, _ = _cb_day_options(s, now)
+    out.messages.append(tr("cb_ask_day", s.lang, intro=intro, options=options))
+
+
+def _cb_ask_time(s, out, now, day):
+    s.answers["cb_stage"], s.answers["cb_day"] = "time", day.isoformat()
+    note = tr("callback_weekend_note", s.lang) if day.weekday() >= 5 else ""
+    out.messages.append(tr("cb_ask_time", s.lang, day=_upper_first(cb.day_label(day, now, s.lang)),
+                           options=_cb_time_options(s), note=note))
+
+
+def _cb_current_prompt(s, now):
+    """The question for whatever stage the lead is at (used after answering a side question)."""
+    stage, a = s.answers.get("cb_stage"), s.answers
+    if stage == "day":
+        return tr("cb_ask_day", s.lang, intro="", options=_cb_day_options(s, now)[0])
+    if stage == "time" and a.get("cb_day"):
+        d = datetime.fromisoformat(a["cb_day"]).date()
+        return tr("cb_ask_time", s.lang, day=_upper_first(cb.day_label(d, now, s.lang)), options=_cb_time_options(s), note="")
+    if stage == "suggest":
+        return tr("cb_suggest", s.lang)
+    return ask(s, "callback")
+
+
+def _cb_confirm(s, out, parsed, raw):
+    s.answers["cb_stage"] = "confirm"
+    s.answers["cb_confirm"] = {"day": parsed.day.isoformat(), "hour": parsed.hour, "minute": parsed.minute,
+                               "period": parsed.period, "after": parsed.after, "raw": raw[:200]}
+    note = "" if cb.in_standard_hours(parsed) else tr("cb_confirm_note", s.lang)
+    out.messages.append(tr("cb_confirm", s.lang, label=cb.label(parsed, s.lang), note=note))
+
+
+def _cb_flexible(s, out, now):
+    _cb_reset(s)
+    s.answers.update(callback=tr("callback_flexible", s.lang), callback_raw="consultant to suggest", callback_in_hours=True,
+                     callback_flexible=True)
+    s.notes.append("Lead asked the consultant to suggest a call time")
+    _finish(s, out, now)
+
+
+def _cb_book(s, out, now, parsed, raw):
+    _cb_reset(s)
+    _record_callback(s, parsed, raw, now)
+    s.fails = 0
+    _finish(s, out, now)
+
+
 def _answer_callback(s, t, out, now, llm, pb):
-    n = norm(t)
-    stage, pending = s.answers.get("callback_stage"), s.answers.get("callback_day")
-    pending_day = datetime.fromisoformat(pending).date() if pending else None
+    """Booking the call. Never asks the same thing twice: it repeats back what it understood and asks only
+    for what is missing, narrows day then time with numbered picks, confirms typed times, and always offers
+    a way out (let the consultant suggest a time)."""
+    a, n = s.answers, norm(t)
+    stage = a.get("cb_stage")
+    day = datetime.fromisoformat(a["cb_day"]).date() if a.get("cb_day") else None
+    tm = tuple(a["cb_time"]) if a.get("cb_time") else None
+    yes, no = n == "1" or n in YES_WORDS, n == "2" or n in NO_WORDS
 
-    if not pending and stage != "other" and n in ("1", "2"):  # the two slots we offered
-        _record_callback(s, cb.slot(cb.next_working_day(now), 8 if n == "1" else 10), t, now)
-        s.fails = 0
-        _finish(s, out, now)
-        return
-    if not pending and (n == "3" or has_phrase(t, cb.OTHER_DAY_PHRASES)):
-        s.answers["callback_stage"] = "other"
-        out.messages.append(tr("callback_other", s.lang))
-        return
+    if has_phrase(t, cb.FLEXIBLE_PHRASES) or (stage is None and n == "4"):
+        return _cb_flexible(s, out, now)
 
-    parsed = cb.parse_callback(t, now, s.lang, pending_day)
+    if stage == "suggest":
+        if yes:
+            return _cb_flexible(s, out, now)
+        if no:
+            _cb_reset(s)
+            out.messages.append(ask(s, "callback"))
+            return
+    elif stage == "confirm":
+        c = a["cb_confirm"]
+        if yes:
+            parsed = cb.Parsed("slot", datetime.fromisoformat(c["day"]).date(), c["hour"], c["minute"], c["period"], c["after"])
+            return _cb_book(s, out, now, parsed, c["raw"])
+        if no:
+            _cb_reset(s)
+            return _cb_ask_day(s, out, now)
+        a.pop("cb_confirm", None)
+        a.pop("cb_stage", None)  # they typed something new: treat it as a new request
+        stage = None
+    elif stage == "day" and n.isdigit():
+        picks = cb.day_picks(now)
+        i = int(n)
+        if 1 <= i <= len(picks):
+            if tm:
+                return _cb_book(s, out, now, cb.Parsed("slot", picks[i - 1], tm[0], tm[1]), f"{picks[i - 1]} {tm}")
+            return _cb_ask_time(s, out, now, picks[i - 1])
+        if i == len(picks) + 1:
+            out.messages.append(tr("cb_day_other", s.lang))
+            return
+    elif stage == "time" and n.isdigit() and day:
+        i = int(n)
+        if 1 <= i <= len(cb.TIME_PICKS):
+            return _cb_book(s, out, now, cb.Parsed("slot", day, cb.TIME_PICKS[i - 1], 0), f"{day} {cb.TIME_PICKS[i - 1]}:00")
+        if i == len(cb.TIME_PICKS) + 1:
+            out.messages.append(tr("cb_time_other", s.lang))
+            return
+    elif stage is None and n in ("1", "2"):  # the two slots we offered up front
+        return _cb_book(s, out, now, cb.slot(cb.next_working_day(now), 8 if n == "1" else 10), t)
+    elif stage is None and (n == "3" or has_phrase(t, cb.OTHER_DAY_PHRASES)):
+        return _cb_ask_day(s, out, now)
+
+    typed = cb.parse_callback(t, now, s.lang)                 # what the text says on its own
+    parsed = cb.parse_callback(t, now, s.lang, day, tm)       # ... combined with what we already know
     if parsed.kind == "slot":
         s.fails = 0
-        _record_callback(s, parsed, t, now)
-        _finish(s, out, now)
-    elif parsed.kind == "day_only":
-        s.answers["callback_day"] = parsed.day.isoformat()
-        note = tr("callback_weekend_note", s.lang) if parsed.day.weekday() >= 5 else ""
-        out.messages.append(tr("callback_need_time", s.lang, day=_upper_first(cb.day_label(parsed.day, now, s.lang)), note=note))
-    elif parsed.kind in ("time_only", "past"):  # e.g. a bare "10": show the options instead of guessing
-        s.answers.pop("callback_day", None)
-        out.messages.append(tr("callback_prompt", s.lang) + "\n\n" + ask(s, "callback"))
-    elif looks_like_question(t):
-        _answer_question(s, t, out, llm, "callback", pb)
-    else:
-        s.fails += 1
-        if s.fails >= 2 or stage == "other":  # don't loop: take their words and let the consultant confirm
-            s.answers.update(callback=tr("callback_unclear", s.lang, raw=t[:100]), callback_raw=t[:200], callback_in_hours=False)
-            s.notes.append(f"Callback request not understood, taken as typed: {t[:100]} - consultant to confirm")
-            _finish(s, out, now)
-        else:
-            out.messages.append(tr("reask", s.lang) + ask(s, "callback"))
+        if typed.day is not None and typed.kind == "slot":    # a full day+time typed freely: repeat it back first
+            return _cb_confirm(s, out, parsed, t)
+        return _cb_book(s, out, now, parsed, t)               # the day came from a pick, so the typed time is enough
+    if parsed.kind == "day_only":
+        return _cb_ask_time(s, out, now, parsed.day)
+    if parsed.kind == "time_only":
+        a["cb_time"] = [parsed.hour, parsed.minute]
+        shown = cb.PERIOD_WORDS[parsed.period][s.lang] if parsed.period else cb.clock(parsed.hour, parsed.minute)
+        return _cb_ask_day(s, out, now, tr("cb_intro_time", s.lang, time=shown))
+    if parsed.kind == "past":
+        a.pop("cb_time", None)
+        return _cb_ask_day(s, out, now, tr("cb_intro_past", s.lang))
+
+    # --- could not make sense of it
+    if looks_like_question(t):
+        answer, gap = _faq_or_cost(s, t, llm, pb)
+        s.notes.append(("Asked: " if answer and not gap else "UNANSWERED: ") + t[:200])
+        out.messages.append((answer or tr("faq_fallback", s.lang).strip()) + "\n\n" + _cb_current_prompt(s, now))
+        return
+    a["cb_attempts"] = a.get("cb_attempts", 0) + 1
+    if a["cb_attempts"] == 1:                                  # 1st: walk them through it in two easy steps
+        return _cb_ask_day(s, out, now, tr("cb_intro_guided", s.lang))
+    if a["cb_attempts"] == 2:                                  # 2nd: offer to take the decision off their hands
+        a["cb_stage"] = "suggest"
+        out.messages.append(tr("cb_suggest", s.lang))
+        return
+    _cb_reset(s)                                               # 3rd: take their words and let the consultant sort it out
+    a.update(callback=tr("callback_unclear", s.lang, raw=t[:100]), callback_raw=t[:200], callback_in_hours=False)
+    s.notes.append(f"Callback request not understood, taken as typed: {t[:100]} - consultant to confirm")
+    _finish(s, out, now)

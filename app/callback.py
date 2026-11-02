@@ -34,6 +34,15 @@ WEEKDAYS = {  # keyword -> Monday=0
     **{w: 5 for w in ("saturday", "sat", "saterdag", "umgqibelo", "mgqibelo")},
     **{w: 6 for w in ("sunday", "sun", "sondag", "usonto", "sonto")},
 }
+MONTHS = {
+    **{m: i + 1 for i, names in enumerate([("jan", "january", "januarie"), ("feb", "february", "februarie"), ("mar", "march", "maart", "mrt"),
+       ("apr", "april"), ("may", "mei"), ("jun", "june", "junie"), ("jul", "july", "julie"), ("aug", "august", "augustus"),
+       ("sep", "sept", "september"), ("oct", "october", "oktober", "okt"), ("nov", "november"), ("dec", "december", "desember", "des")])
+       for m in names},
+}
+_MONTH_RE = "|".join(sorted(MONTHS, key=len, reverse=True))
+FLEXIBLE_PHRASES = ["consultant suggest", "you choose", "you decide", "any time", "anytime", "whenever", "doesnt matter", "doesn't matter",
+                    "suggest a time", "kies jy", "enige tyd", "maak nie saak", "ngaso sonke isikhathi"]
 TODAY_WORDS = {"today", "vandag", "namuhla"}
 TOMORROW_WORDS = {"en": {"tomorrow", "tomorow", "tommorow", "tommorrow"}}
 PERIODS = {
@@ -104,6 +113,9 @@ def _find_time(t, day_present):
     if m:
         h, mi = int(m.group(1)), int(m.group(2))
         return (_hour_from_text(h, m.group(3), True), mi) if h <= 23 and mi < 60 else None
+    m = re.search(r"\b(\d{1,2})\s+(00|15|30|45)\b", t)
+    if m and int(m.group(1)) <= 23:
+        return (_hour_from_text(int(m.group(1)), None), int(m.group(2)))
     m = re.search(r"\b(\d{1,2})\s*(am|pm|nm|vm)\b", t)
     if m:
         h = int(m.group(1))
@@ -124,13 +136,50 @@ def _find_time(t, day_present):
     return None
 
 
-def parse_callback(text, now, lang="en", pending_day=None):
+def _extract_dates(t, today):
+    """Dates written as '5 Nov', 'nov 5', '5th of November', '05/11' or just 'the 5th'.
+    -> (list of distinct dates, text with the date parts removed). Several different dates = ambiguous."""
+    found, rest = [], t
+
+    def add(day, month):
+        try:
+            d = date(today.year, month, day) if month else date(today.year, today.month, day)
+        except ValueError:
+            return
+        if d < today:  # already gone: next occurrence
+            try:
+                d = date(today.year + (1 if month else 0), month or (today.month % 12) + 1, day) if month else \
+                    date(today.year + (today.month == 12), (today.month % 12) + 1, day)
+            except ValueError:
+                return
+        found.append(d)
+
+    for rx, order in ((rf"\b(\d{{1,2}})\s*(?:st|nd|rd|th)?\s*(?:of\s+|van\s+)?({_MONTH_RE})\b", "dm"),
+                      (rf"\b({_MONTH_RE})\s+(\d{{1,2}})\b", "md"),
+                      (r"\b(\d{1,2})\s*[/-]\s*(\d{1,2})\b", "dm")):
+        for m in list(re.finditer(rx, rest)):
+            a, b = m.group(1), m.group(2)
+            day, month = (int(a), MONTHS.get(b) or int(b)) if order == "dm" else (int(b), MONTHS[a])
+            if 1 <= day <= 31 and 1 <= month <= 12:
+                add(day, month)
+            rest = rest.replace(m.group(0), " ")
+    for m in list(re.finditer(r"\b(\d{1,2})\s*(?:st|nd|rd|th)\b", rest)):
+        if 1 <= int(m.group(1)) <= 31:
+            add(int(m.group(1)), None)
+        rest = rest.replace(m.group(0), " ")
+    return sorted(set(found)), rest
+
+
+def parse_callback(text, now, lang="en", pending_day=None, pending_time=None):
     """Understand a free-text call-back request. A slot needs BOTH a day and a time (or part of day)."""
     t = _clean(text)
-    words = set(re.findall(r"[a-z]+", t))
     today = local(now).date()
+    dates, t = _extract_dates(t, today)
+    if len(dates) > 1:
+        return Parsed("none")  # two different dates in one message: too ambiguous to guess
+    words = set(re.findall(r"[a-z]+", t))
 
-    day = pending_day
+    day = dates[0] if dates else pending_day
     if words & TODAY_WORDS:
         day = today
     elif words & (TOMORROW_WORDS["en"] | ({"more"} if lang == "af" else set())) or "kusasa" in words:
@@ -143,7 +192,7 @@ def parse_callback(text, now, lang="en", pending_day=None):
 
     period = next((p for p, kws in PERIODS.items() if words & set(kws)), None)
     after = bool(words & {"after", "from", "na", "ngemva"})
-    tm = _find_time(t, day is not None)
+    tm = _find_time(t, day is not None) or pending_time
 
     if isinstance(day, tuple):  # resolve weekday name to the next such date
         target = today + timedelta(days=(day[1] - today.weekday()) % 7)
@@ -154,7 +203,8 @@ def parse_callback(text, now, lang="en", pending_day=None):
     if tm is None and period is None:
         return Parsed("day_only", day) if day else Parsed("none")
     if day is None:
-        return Parsed("time_only")
+        h, mi = tm if tm else (PERIOD_HOURS[period], 0)
+        return Parsed("time_only", None, h, mi, period if not tm else None, after)
 
     hour, minute = tm if tm else (PERIOD_HOURS[period], 0)
     start = datetime(day.year, day.month, day.day, hour, minute, tzinfo=SAST)
@@ -177,3 +227,21 @@ def label(p, lang="en"):
         return f"{base}, {PERIOD_WORDS[p.period][lang]}"
     clock = f"{p.hour:02d}:{p.minute:02d}"
     return f"{base}, {AFTER[lang]} {clock}" if p.after else f"{base}, {clock}"
+
+
+TIME_PICKS = (8, 10, 12, 14, 16)
+
+
+def day_picks(now, count=3):
+    """The next few working days, starting tomorrow (or Monday)."""
+    days, d = [], next_working_day(now)
+    while len(days) < count:
+        days.append(d)
+        d += timedelta(days=1)
+        while d.weekday() >= 5:
+            d += timedelta(days=1)
+    return days
+
+
+def clock(hour, minute=0):
+    return f"{hour:02d}:{minute:02d}"
