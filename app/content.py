@@ -294,6 +294,11 @@ M = {
         "af": "Dankie, {name}. Antwoord CONTINUE (voortgaan) as jy wil voortgaan, of sê my as ek jou verkeerd verstaan het (byvoorbeeld jou voertuig is heeltemal afbetaal). Ek wens jou alles van die beste toe.",
         "zu": "Ngiyabonga, {name}. Phendula ngo-CONTINUE (qhubeka) uma ufuna ukuqhubeka, noma ungitshele uma ngingakuqondanga kahle (isibonelo isithuthi sakho sikhokhiwe sonke). Ngikufisela konke okuhle.",
     },
+    "done_flagged": {
+        "en": "Thank you, {name}! That's everything I need. I've noted {callback} as your preferred time. That's outside our standard calling hours (Mon–Fri, 08:00–17:00), so I've flagged it for your consultant, who will confirm it or suggest the nearest time that works.\n\nThey'll go through your situation properly and explain your options. If you have a question in the meantime, ask me here.",
+        "af": "Dankie, {name}! Dis alles wat ek nodig het. Ek het {callback} as jou voorkeurtyd genoteer. Dit is buite ons gewone belure (Maandag–Vrydag, 08:00–17:00), so ek het dit vir jou konsultant gemerk, wat dit sal bevestig of die naaste tyd sal voorstel wat werk.\n\nHulle sal jou situasie behoorlik deurgaan en jou opsies verduidelik. As jy intussen 'n vraag het, vra my gerus hier.",
+        "zu": "Ngiyabonga, {name}! Yilokho kuphela engikudingayo. Ngiqophe {callback} njengesikhathi osithandayo. Lokho kungaphandle kwamahora ethu avamile okushaya ucingo (uMsombuluko–uLwesihlanu, 08:00–17:00), ngakho ngikumake kumeluleki wakho, ozoqinisekisa noma aphakamise isikhathi esiseduze esisebenzayo.\n\nUzohlaziya isimo sakho kahle futhi akuchazele izinketho zakho. Uma unemibuzo okwamanje, ngibuze lapha.",
+    },
     "callback_other": {
         "en": "No problem! Which day and time would suit you best? For example \"Friday at 4pm\". If you need something outside our normal hours (Mon–Fri, 08:00–17:00), like an evening or a Saturday, just say so and I'll pass the request to your consultant to confirm.",
         "af": "Geen probleem nie! Watter dag en tyd sal jou die beste pas? Byvoorbeeld \"Vrydag om 4nm\". As jy iets buite ons gewone ure nodig het (Maandag–Vrydag, 08:00–17:00), soos 'n aand of Saterdag, sê net so en ek gee die versoek aan jou konsultant om te bevestig.",

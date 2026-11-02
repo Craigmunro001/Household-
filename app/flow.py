@@ -654,8 +654,10 @@ def _after_not_fit(s, t, out, llm, pb):
 def _finish(s, out, now):
     s.status, s.step = "completed", "done"
     s.qualification = assess(s)
-    after = "" if s.answers.get("callback_in_hours", True) else tr("callback_outside", s.lang)
-    out.messages.append(tr("done", s.lang, name=s.name, callback=s.answers["callback"], after=after))
+    if s.answers.get("callback_in_hours", True):
+        out.messages.append(tr("done", s.lang, name=s.name, callback=s.answers["callback"], after=""))
+    else:  # outside standard hours: a preferred time, never a promise
+        out.messages.append(tr("done_flagged", s.lang, name=s.name, callback=s.answers["callback"]))
     out.events.append("completed")
 
 

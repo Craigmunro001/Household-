@@ -704,6 +704,7 @@ def test_can_we_do_a_saturday_is_understood_asks_the_time_then_flags_it_for_the_
     assert s.status == "completed" and s.answers["callback"] == "Sat 7 Nov, 10:00" and s.answers["callback_in_hours"] is False
     msg = r.messages[0]
     assert "Sat 7 Nov, 10:00" in msg and "outside our standard calling hours" in msg and "will confirm" in msg
+    assert "preferred time" in msg and "will call you" not in msg
     assert "we can do" not in msg.lower() and "guarantee" not in msg.lower()
     assert any("OUTSIDE standard hours" in n for n in s.notes)
 
@@ -795,3 +796,13 @@ def test_friendly_wording_exists_in_all_three_languages():
     from app.content import LEADS
     for step, by_lang in LEADS.items():
         assert set(by_lang) == {"en", "af", "zu"}, step
+
+
+def test_flagged_times_are_never_phrased_as_a_confirmed_call_in_any_language():
+    for lang, choice in (("1", "yes"), ("2", "ja"), ("3", "yebo")):
+        s = Session(phone="1")
+        run(s, "hi", lang, choice, "x", "3", "250000", "2", "2", "1", "2", "2")
+        r = handle(s, "Saturday 10am", NIGHT, pricebook=PB)
+        assert s.answers["callback_in_hours"] is False and "Sat 7" in r.messages[0] or "Sa 7" in r.messages[0] or "Mgqibelo 7" in r.messages[0]
+        if lang == "1":
+            assert "will call you" not in r.messages[0]
