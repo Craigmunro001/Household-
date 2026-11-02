@@ -7,7 +7,7 @@ from app.flow import Session, handle, parse_amount, parse_choice
 
 NIGHT = datetime(2026, 11, 3, 21, 0, tzinfo=timezone.utc)   # Tue 23:00 SAST
 DAY = datetime(2026, 11, 3, 8, 0, tzinfo=timezone.utc)      # Tue 10:00 SAST
-FEES = {"150000-200000": {"min": 15000, "max": 20000}}
+FEES = {"150000-200000": {"monthly_min": 1500, "monthly_max": 2000, "months": 24}}
 
 
 def run(session, *texts, now=NIGHT, fees=None, llm=None):
@@ -54,7 +54,7 @@ def test_no_fee_quoted_when_not_configured():
 def test_fee_quoted_only_from_config_and_marked_as_estimate():
     _, replies = full_chat("1", fees=FEES)
     msg = replies[-1].messages[0]
-    assert "R15 000" in msg and "R20 000" in msg and "estimate" in msg
+    assert "R1 500" in msg and "R2 000" in msg and "per month over 24 months" in msg and "estimate" in msg
 
 
 def test_after_hours_note():
@@ -237,7 +237,7 @@ def test_spouse_mentioned_after_saying_not_married_is_flagged():
 def test_cost_question_answered_from_fee_table_not_ai():
     s = Session(phone="1", step="province", lang="en", name="Craig", answers={"debt_band": "150000-200000"})
     r = handle(s, "how much will this cost me?", NIGHT, llm=FakeLLM("AI says R999"), fees=FEES)
-    assert "R15 000" in r.messages[0] and "R20 000" in r.messages[0] and "999" not in r.messages[0]
+    assert "R1 500" in r.messages[0] and "R2 000" in r.messages[0] and "999" not in r.messages[0]
     assert "estimate" in r.messages[0]
 
 
@@ -250,7 +250,7 @@ def test_cost_question_without_fee_table_never_quotes():
 def test_cost_question_after_completion_uses_fee_table():
     s, _ = full_chat("1")
     r = handle(s, "What are your fees?", NIGHT, llm=None, fees=FEES)
-    assert "R15 000" in r.messages[0]
+    assert "R1 500" in r.messages[0]
 
 
 def test_request_phrased_as_statement_is_treated_as_a_question():
@@ -260,7 +260,7 @@ def test_request_phrased_as_statement_is_treated_as_a_question():
     assert "consultant confirms" in r.messages[0] and "details are with our team" not in r.messages[0]
     assert any(n.startswith("UNANSWERED") for n in s.notes)
     r = handle(s, msg, NIGHT, llm=None, fees=FEES)  # fee table filled in, band 150-200k
-    assert "R15 000" in r.messages[0]
+    assert "R1 500" in r.messages[0]
 
 
 def test_short_acknowledgement_after_completion_gets_canned_reply():

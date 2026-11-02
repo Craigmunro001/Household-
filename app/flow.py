@@ -228,13 +228,15 @@ def clean_name(text):
 
 
 def fee_range(s, fees, lang):
+    """Monthly-instalment wording from config/fees.yaml. Empty string if the band has no approved figures."""
     if not fees:
         return ""
     entry = fees.get(s.answers.get("debt_band", ""))
-    if not entry or not entry.get("min") or not entry.get("max"):
+    if not entry or not entry.get("monthly_min") or not entry.get("monthly_max"):
         return ""
-    rng = tr("range", lang, min=rand(entry["min"]), max=rand(entry["max"]))
-    return tr("fee_line", lang, range=rng)
+    rng = tr("range", lang, min=rand(entry["monthly_min"]), max=rand(entry["monthly_max"]))
+    term = tr("term", lang, months=entry["months"]) if entry.get("months") else ""
+    return tr("fee_line", lang, range=rng, term=term)
 
 
 def assess(s):

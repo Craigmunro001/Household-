@@ -170,9 +170,14 @@ M = {
         "zu": "Ngiyabonga, {name}! Yilokho kuphela engikudingayo. Umeluleki uzokushayela ucingo: {callback}.{fee}{after}\n\nUzohlaziya isimo sakho kahle futhi akuchazele izinketho zakho. Uma unemibuzo okwamanje, ngibuze lapha.",
     },
     "fee_line": {
-        "en": " Based on what you've told me, our fees for matters like yours are typically {range}. This is only an estimate; your consultant will confirm it after a proper assessment.",
-        "af": " Gebaseer op wat jy my vertel het, is ons fooie vir sake soos joune gewoonlik {range}. Dit is net 'n skatting; jou konsultant sal dit bevestig ná 'n behoorlike assessering.",
-        "zu": " Ngokusekelwe kulokho ongitshele khona, izindleko zethu zezindaba ezifana nezakho ngokuvamile ziyi-{range}. Lokhu kuyisilinganiso nje; umeluleki wakho uzokuqinisekisa ngemva kokuhlola ngokufanele.",
+        "en": " Based on what you've told me, our fee for matters like yours is typically {range} per month{term}. This is an estimate only; your consultant will confirm it after a proper assessment.",
+        "af": " Gebaseer op wat jy my vertel het, is ons fooi vir sake soos joune gewoonlik {range} per maand{term}. Dit is net 'n skatting; jou konsultant sal dit bevestig ná 'n behoorlike assessering.",
+        "zu": " Ngokusekelwe kulokho ongitshele khona, izindleko zethu zezindaba ezifana nezakho ngokuvamile ziyi-{range} ngenyanga{term}. Lokhu kuyisilinganiso nje; umeluleki wakho uzokuqinisekisa ngemva kokuhlola ngokufanele.",
+    },
+    "term": {
+        "en": " over {months} months",
+        "af": " oor {months} maande",
+        "zu": " ezinyangeni ezingu-{months}",
     },
     "range": {
         "en": "between {min} and {max}",

@@ -47,7 +47,13 @@ A: I'm Pinnacle's virtual assistant, an AI, so not a person. I take your details
 A: Yes. Your details are only used to assess how we can help you, they're handled in line with POPIA, and only our team sees them. You can type STOP at any time to opt out.
 
 ## Q: How much does it cost?
-A: It depends on your circumstances, so your consultant confirms the cost after a proper assessment of your situation. I can't give you a figure myself, and I don't want to guess. [Fee wording with amounts is added by the system from config/fees.yaml once approved.]
+A: Our fee is paid in monthly instalments, and the amount depends on your circumstances, so your consultant confirms it after a proper assessment. I can't give you a figure myself unless one has been approved for your situation, and I don't want to guess. [Fee wording with amounts is added by the system from config/fees.yaml once approved.]
+
+## Q: Can I pay in instalments? Do I have to pay everything upfront?
+A: Yes. The fee is normally paid in monthly instalments, and that is how we quote it. If you'd prefer to pay in one go, your consultant can discuss that with you. [From Craig, 2 Nov]
+
+## Q: Is it a loan? Do I have to take out finance or a loan to pay you?
+A: No. You don't take a loan or finance to pay us. The fee is simply paid in instalments directly to us. [From Craig, 2 Nov]
 
 ## Q: When will someone call me?
 A: A consultant will phone you at the time you choose. Our consultants work Monday to Friday, 08:00 to 17:00, so if you message after hours you'll hear from us at the first suitable time.

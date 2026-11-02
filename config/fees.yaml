@@ -1,8 +1,8 @@
-# Indicative fee range quoted to the prospect, per debt band.
-# Leave a band as null and the bot will NOT quote a fee for it - it just says a
-# consultant will confirm. Fill these in once you've settled the sliding scale.
-# Format:  "<band key>": {min: 15000, max: 20000}
-# Band keys are "<from>-<to>" in rand, "500000+" for the open-ended top band.
+# Indicative fee quoted to the prospect, per debt band. Pinnacle quotes fees as MONTHLY INSTALMENTS.
+# Leave a band as null and the bot will NOT quote a fee for it - it just says a consultant will confirm.
+# Format:
+#   "<band key>": {monthly_min: 1500, monthly_max: 2000, months: 24}
+# `months` (the term) is optional. Band keys are "<from>-<to>" in rand, "500000+" for the open-ended top band.
 "0-100000": null
 "100000-120000": null
 "120000-150000": null
