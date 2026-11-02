@@ -98,13 +98,13 @@ A: Yes. Whether or not it's bonded, a home would be sold by the trustee, usually
 A: A vehicle that's fully paid off is a different situation, and your consultant will talk you through the options for it. [From Craig, 3 Nov. Deliberately gives no promise and no detail: see NEXT_STEPS legal note]
 
 ## Q: Is this a scam? Are you legitimate? Can I trust you?
-A: Fair question. Pinnacle Debt Solutions has been helping South Africans with their debt since 2016. We were on East Coast Radio in KwaZulu-Natal for 3 years, on Vuma FM in KwaZulu-Natal for over a year, and on Hot FM in Gauteng for 2 years. Nothing is paid or signed in this chat, and I will never ask for your banking details. Your consultant can share our company documents with you on the call. [From Craig, 3 Nov. The live bot answers this with fixed wording in app/content.py; keep the two consistent]
+A: Fair question. Pinnacle Debt Solutions has been helping South Africans with their debt since 2016. We've advertised on East Coast Radio in KwaZulu-Natal for 3 years, on Vuma FM in KwaZulu-Natal for over a year, and on Hot FM in Gauteng for 2 years. Nothing is paid or signed in this chat, and I will never ask for your banking details. Your consultant can share our company documents with you on the call. [From Craig, 3 Nov. The live bot answers this with fixed wording in app/content.py; keep the two consistent]
 
 ## Q: How long have you been in business?
 A: Pinnacle Debt Solutions has been around since 2016. [From Craig, 3 Nov]
 
-## Q: Where have I heard of you? Were you on the radio?
-A: You may have heard us on the radio: we were on East Coast Radio in KwaZulu-Natal for 3 years, on Vuma FM in KwaZulu-Natal for over a year, and on Hot FM in Gauteng for 2 years. [From Craig, 3 Nov. Factual only: do not imply the stations endorse us]
+## Q: Where have I heard of you? Do you advertise on the radio?
+A: You may have heard our adverts on the radio: we've advertised on East Coast Radio in KwaZulu-Natal for 3 years, on Vuma FM in KwaZulu-Natal for over a year, and on Hot FM in Gauteng for 2 years. [From Craig, 3 Nov: confirmed this is radio ADVERTISING. Keep it factual; never imply the stations endorse us]
 
 ## Q: Who is your attorney? Which law firm? Can I speak to them?
 A: I can't share names in this chat. Your consultant will explain how the legal side works on the call and can share our company documents with you. [From Craig, 3 Nov: no attorney or personal names in the chat]

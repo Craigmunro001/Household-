@@ -1027,3 +1027,13 @@ def test_all_three_radio_stations_appear_in_every_language_and_in_the_ai_knowled
         assert "East Coast Radio" in msg and "Vuma FM" in msg and "Hot FM" in msg, lang
     prompt = faq_for_prompt(pathlib.Path("knowledge/faq.md").read_text())
     assert prompt.count("Vuma FM") == 2   # the scam answer and the "where have I heard of you" answer
+
+
+def test_the_radio_history_is_worded_as_advertising_in_every_language():
+    en = flow.trust_text("en")
+    assert "We've advertised on East Coast Radio" in en and "were on" not in en and "endorse" not in en
+    assert "geadverteer" in flow.trust_text("af") and "sakhangisa" in flow.trust_text("zu")
+    import pathlib
+    from app.llm import faq_for_prompt
+    prompt = faq_for_prompt(pathlib.Path("knowledge/faq.md").read_text())
+    assert "advertised on East Coast Radio" in prompt and "we were on East Coast" not in prompt

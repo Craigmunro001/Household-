@@ -55,11 +55,11 @@
 
 ## Trust ("is this a scam?") - DONE (3 Nov), decisions by Craig
 - NO attorney or personal names anywhere in the chat; only company documents may be shared (via the consultant on the call). Optional: Craig may share the CK number: set COMPANY_REG_NUMBER in app/content.py and it is appended to the answer automatically.
-- Facts the bot may state (from Craig): in business since 2016; on East Coast Radio (KZN) for 3 years; on Vuma FM (KZN) for over a year; on Hot FM (Gauteng) for 2 years. Worded factually; it must not imply the stations endorse Pinnacle.
+- Facts the bot may state (from Craig): in business since 2016; advertised on East Coast Radio (KZN) for 3 years, Vuma FM (KZN) for over a year, Hot FM (Gauteng) for 2 years. Worded factually; it must not imply the stations endorse Pinnacle.
 - "Is this a scam / are you legit / can I trust you / who are you" gets a FIXED approved answer (not the AI) in EN/AF/ZU, at any stage of the chat, ending with "type AGENT". No registrations, regulators or approvals are claimed.
 - "Am I speaking to a real person / are you a bot?" gets a FIXED honest answer (it is an AI) and is no longer mistaken for a request to speak to someone (this was a bug).
 - The AI now sees only clean Q&A text (no internal notes, names or tags) and is told never to name any attorney, firm or staff member.
-- Craig to confirm: "we were on East Coast Radio / Hot FM" - advertising or a show? Wording is neutral for now. Radio presence is not a regulator's approval; never present it as one.
+- CONFIRMED by Craig (3 Nov): the radio history is ADVERTISING (East Coast Radio 3 yrs, Hot FM 2 yrs, Vuma FM just over 1 yr). Wording: "we've advertised on ...". It shows an established business; it is not a regulator's approval or the stations' endorsement and must never be presented as one.
 
 ## Next steps, in order
 1. Craig: the ~50 questions and answers, in batches of 10-15 (best source: real lead questions).
