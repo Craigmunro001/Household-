@@ -547,9 +547,9 @@ def _answer_step(s, t, out, now, llm, pb):
     elif step == "consent":
         n = norm(t)
         words = n.split()
-        if n in YES_WORDS or (words and words[0] in YES_WORDS):
+        if n == "1" or n in YES_WORDS or (words and words[0] in YES_WORDS):
             s.consent_at, ok = s.updated_at, True
-        elif n in NO_WORDS:
+        elif n == "2" or n in NO_WORDS:
             s.status = "opted_out"
             out.messages.append(tr("declined", s.lang))
             out.events.append("opted_out")

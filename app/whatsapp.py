@@ -66,6 +66,7 @@ _SHORTS = {
                 "unsure": ("Married, not sure", "Getroud, nie seker", "Ngishadile, angazi")},
 }
 SHORT = {
+    "Yes, let's go!": "Yes, let's go!", "Ja, kom ons gaan!": "Ja, kom ons gaan!", "Yebo, masiqale!": "Yebo, masiqale!",
     "Let my consultant suggest a time": "Consultant picks", "Laat my konsultant 'n tyd voorstel": "Konsultant kies",
     "Mayibe umeluleki wami aphakamise isikhathi": "Umeluleki akhethe",
     "No, let me try again": "No, try again", "Nee, laat ek weer probeer": "Nee, probeer weer", "Cha, ake ngizame futhi": "Cha, zama futhi",

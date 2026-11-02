@@ -163,3 +163,20 @@ def test_if_whatsapp_rejects_the_buttons_the_same_words_go_out_as_plain_text():
     text = tr("ask_review", "en", options=options_text("review", "en"))
     asyncio.run(make_client(handler).send("27820000000", text, "en"))
     assert [b["type"] for b in sent] == ["interactive", "text"] and sent[1]["text"]["body"] == text
+
+
+@pytest.mark.parametrize("lang,yes,no", [("1", "1", "2"), ("2", "1", "2"), ("3", "1", "2")])
+def test_consent_is_a_yes_no_button_pair_and_both_taps_and_typing_work(lang, yes, no):
+    for tap, expect in ((yes, "name"), ("yes", "name"), ("ja", "name"), ("yebo", "name")):
+        s = Session(phone="1")
+        handle(s, "hi", NIGHT, pricebook=PB)
+        handle(s, lang, NIGHT, pricebook=PB)
+        r = handle(s, tap, NIGHT, pricebook=PB)
+        assert s.step == expect and s.consent_at, (lang, tap)
+    s = Session(phone="1")
+    handle(s, "hi", NIGHT, pricebook=PB)
+    msgs = handle(s, lang, NIGHT, pricebook=PB).messages
+    p = render(msgs[0], {"1": "en", "2": "af", "3": "zu"}[lang])
+    assert p["interactive"]["type"] == "button" and len(p["interactive"]["action"]["buttons"]) == 2
+    handle(s, no, NIGHT, pricebook=PB)
+    assert s.status == "opted_out" and not s.consent_at
