@@ -134,6 +134,19 @@ DISTRESS_PHRASES = [
     "ukuzibulala", "ngifuna ukufa", "angifuni ukuphila", "ukuzilimaza", "ukuphelisa impilo yami",
 ]
 
+
+LEADS = {  # a friendly line before each question; {name} is the lead's first name
+    "province": {"en": "Lovely to meet you, {name}! 🎉 Let's get you sorted.", "af": "Lekker om jou te ontmoet, {name}! 🎉 Kom ons kry jou reg.",
+                 "zu": "Ngiyajabula ukukwazi, {name}! 🎉 Masikulungise."},
+    "debt": {"en": "Thanks, {name}, we're on our way! 🚀", "af": "Dankie, {name}, ons is op pad! 🚀", "zu": "Ngiyabonga, {name}, sesendleleni! 🚀"},
+    "home": {"en": "Great, thanks! 👍", "af": "Wonderlik, dankie! 👍", "zu": "Kuhle, ngiyabonga! 👍"},
+    "vehicle": {"en": "You're doing brilliantly. 🙌", "af": "Jy doen uitstekend. 🙌", "zu": "Wenza kahle kakhulu. 🙌"},
+    "term": {"en": "Almost there! 😊", "af": "Amper daar! 😊", "zu": "Sesiseduze! 😊"},
+    "marital": {"en": "Just a few more, I promise. 😄", "af": "Net nog 'n paar, belowe. 😄", "zu": "Okumbalwa nje, ngiyakuthembisa. 😄"},
+    "review": {"en": "Nearly done! 🏁", "af": "Amper klaar! 🏁", "zu": "Sesiphelile nje! 🏁"},
+    "callback": {"en": "Last one, promise! 🤞", "af": "Die laaste een, belowe! 🤞", "zu": "Owokugcina, ngiyathembisa! 🤞"},
+}
+
 # ---------------------------------------------------------------- messages
 M = {
     "welcome": {
@@ -177,14 +190,14 @@ M = {
         "zu": "Ngiyabonga, {name}. Uma isamba sezikweletu zakho siba ngaphezu kuka-R100\u00a0000, ngithumelele inani futhi siqhubeke. Ngikufisela konke okuhle.",
     },
     "ask_province": {
-        "en": "Nice to meet you, {name}. Which province are you in?\n\n{options}",
-        "af": "Lekker om jou te ontmoet, {name}. In watter provinsie is jy?\n\n{options}",
-        "zu": "Ngiyajabula ukukwazi, {name}. Uhlala kuliphi isifundazwe?\n\n{options}",
+        "en": "Which province are you in?\n\n{options}",
+        "af": "In watter provinsie is jy?\n\n{options}",
+        "zu": "Uhlala kuliphi isifundazwe?\n\n{options}",
     },
     "ask_debt": {
-        "en": "Thanks. Roughly how much do you owe in total, with all your debts added together (loans, credit cards, accounts, etc.)? Just type an amount, e.g. R250 000.",
-        "af": "Dankie. Ongeveer hoeveel skuld het jy altesaam, met al jou skulde bymekaar (lenings, kredietkaarte, rekeninge, ens.)? Tik net 'n bedrag, bv. R250 000.",
-        "zu": "Ngiyabonga. Ukweleta malini ngokulinganiselwa, uma zonke izikweletu zakho zihlanganiswe (izimali ezibolekiwe, amakhadi, ama-akhawunti, njll.)? Bhala nje inani, isib. R250 000.",
+        "en": "Roughly how much do you owe in total, with all your debts added together (loans, credit cards, accounts, the lot)? A rough number is perfect, just type it, e.g. R250 000.",
+        "af": "Ongeveer hoeveel skuld het jy altesaam, met al jou skulde bymekaar (lenings, kredietkaarte, rekeninge, die hele spul)? 'n Ruwe bedrag is perfek, tik dit net, bv. R250 000.",
+        "zu": "Ukweleta malini ngokulinganiselwa, uma zonke izikweletu zakho zihlanganiswe (izimali ezibolekiwe, amakhadi, ama-akhawunti, konke)? Isilinganiso siyafaneleka, bhala nje inani, isib. R250 000.",
     },
     "ask_term": {
         "en": "Over how long would you like to pay? Our plans run 25 to 36 months.\n\n{options}",
@@ -281,15 +294,50 @@ M = {
         "af": "Dankie, {name}. Antwoord CONTINUE (voortgaan) as jy wil voortgaan, of sê my as ek jou verkeerd verstaan het (byvoorbeeld jou voertuig is heeltemal afbetaal). Ek wens jou alles van die beste toe.",
         "zu": "Ngiyabonga, {name}. Phendula ngo-CONTINUE (qhubeka) uma ufuna ukuqhubeka, noma ungitshele uma ngingakuqondanga kahle (isibonelo isithuthi sakho sikhokhiwe sonke). Ngikufisela konke okuhle.",
     },
+    "callback_other": {
+        "en": "No problem! Which day and time would suit you best? For example \"Friday at 4pm\". If you need something outside our normal hours (Mon–Fri, 08:00–17:00), like an evening or a Saturday, just say so and I'll pass the request to your consultant to confirm.",
+        "af": "Geen probleem nie! Watter dag en tyd sal jou die beste pas? Byvoorbeeld \"Vrydag om 4nm\". As jy iets buite ons gewone ure nodig het (Maandag–Vrydag, 08:00–17:00), soos 'n aand of Saterdag, sê net so en ek gee die versoek aan jou konsultant om te bevestig.",
+        "zu": "Ayikho inkinga! Yisiphi usuku nesikhathi esikulungele kakhulu? Isibonelo \"Lwesihlanu ngo-4 ntambama\". Uma udinga okuthile ngaphandle kwamahora ethu avamile (uMsombuluko–uLwesihlanu, 08:00–17:00), njengakusihlwa noma ngoMgqibelo, ngitshele nje futhi ngizodlulisela isicelo sakho kumeluleki wakho ukuze aqinisekise.",
+    },
+    "callback_need_time": {
+        "en": "{day}, got it. What time suits you? (Something like \"10am\" or \"after 2pm\".){note}",
+        "af": "{day}, reg so. Watter tyd pas jou? (Iets soos \"10vm\" of \"na 2nm\".){note}",
+        "zu": "{day}, kulungile. Yisiphi isikhathi esikulungele? (Okufana no-\"10 ekuseni\" noma \"ngemva kwe-2 ntambama\".){note}",
+    },
+    "callback_weekend_note": {
+        "en": " Our standard hours are Mon–Fri, 08:00–17:00, so I'll flag it for your consultant to confirm.",
+        "af": " Ons gewone ure is Maandag–Vrydag, 08:00–17:00, so ek sal dit vir jou konsultant merk om te bevestig.",
+        "zu": " Amahora ethu avamile uMsombuluko–uLwesihlanu, 08:00–17:00, ngakho ngizokumaka kumeluleki wakho ukuze aqinisekise.",
+    },
+    "callback_prompt": {
+        "en": "Let me make sure I get the time exactly right for you. Which of these suits you?",
+        "af": "Laat ek seker maak ek kry die tyd presies reg vir jou. Watter een pas jou?",
+        "zu": "Ake ngiqinisekise ukuthi ngithola isikhathi ngqo. Yiphi ekulungele?",
+    },
+    "callback_outside": {
+        "en": " That's outside our standard calling hours (Mon–Fri, 08:00–17:00), so I've flagged it for your consultant, who will confirm or suggest the nearest time that works.",
+        "af": " Dit is buite ons gewone belure (Maandag–Vrydag, 08:00–17:00), so ek het dit vir jou konsultant gemerk, wat dit sal bevestig of die naaste tyd sal voorstel wat werk.",
+        "zu": " Lokho kungaphandle kwamahora ethu avamile okushaya ucingo (uMsombuluko–uLwesihlanu, 08:00–17:00), ngakho ngikumake kumeluleki wakho, ozoqinisekisa noma aphakamise isikhathi esiseduze esisebenzayo.",
+    },
+    "callback_unclear": {
+        "en": "Requested: {raw} (consultant to confirm)",
+        "af": "Versoek: {raw} (konsultant om te bevestig)",
+        "zu": "Isicelo: {raw} (umeluleki aqinisekise)",
+    },
+    "progress": {
+        "en": "Only {n} questions left.",
+        "af": "Net {n} vrae oor.",
+        "zu": "Kusele imibuzo engu-{n} kuphela.",
+    },
     "ask_marital": {
-        "en": "Thanks. Are you married? If so, is it in community of property or out of community of property?\n\n{options}",
-        "af": "Dankie. Is jy getroud? Indien wel, is dit binne gemeenskap van goedere of buite gemeenskap van goedere?\n\n{options}",
-        "zu": "Ngiyabonga. Ingabe usushadile? Uma kunjalo, ngabe ukuhlanganyela kwempahla (in community of property) noma ngaphandle kokuhlanganyela (out of community of property)?\n\n{options}",
+        "en": "Are you married? If so, is it in community of property or out of community of property?\n\n{options}",
+        "af": "Is jy getroud? Indien wel, is dit binne gemeenskap van goedere of buite gemeenskap van goedere?\n\n{options}",
+        "zu": "Ingabe usushadile? Uma kunjalo, ngabe ukuhlanganyela kwempahla (in community of property) noma ngaphandle kokuhlanganyela (out of community of property)?\n\n{options}",
     },
     "ask_callback": {
-        "en": "Last one. What time are you available for a call from a consultant? For example \"tomorrow after 2pm\". We call Monday to Friday, 08:00–17:00.",
-        "af": "Laaste een. Op watter tyd is jy beskikbaar vir 'n oproep van 'n konsultant? Byvoorbeeld \"môre na 2nm\". Ons bel Maandag tot Vrydag, 08:00–17:00.",
-        "zu": "Owokugcina. Ukhululeke ngasiphi isikhathi ukuthi umeluleki akushayele ucingo? Isibonelo \"kusasa ntambama\". Sishaya ngoMsombuluko kuya eLwesihlanu, 08:00–17:00.",
+        "en": "When suits you best for a call from a consultant? Our calling hours are Mon–Fri, 08:00–17:00.\n\n1. {d}, 08:00\n2. {d}, 10:00\n3. Another day or time\n\nOr just type a day and time, like \"Friday at 2pm\".",
+        "af": "Wanneer pas dit jou die beste vir 'n oproep van 'n konsultant? Ons bel Maandag tot Vrydag, 08:00–17:00.\n\n1. {d}, 08:00\n2. {d}, 10:00\n3. 'n Ander dag of tyd\n\nOf tik net 'n dag en tyd, soos \"Vrydag om 2nm\".",
+        "zu": "Ukhululeka nini ukuthi umeluleki akushayele ucingo? Sishaya ngoMsombuluko kuya eLwesihlanu, 08:00–17:00.\n\n1. {d}, 08:00\n2. {d}, 10:00\n3. Elinye usuku noma isikhathi\n\nNoma bhala nje usuku nesikhathi, njengo \"Lwesihlanu ngo-2 ntambama\".",
     },
     "done": {
         "en": "Thank you, {name}! That's everything I need. A consultant will call you: {callback}.{after}\n\nThey'll go through your situation properly and explain your options. If you have a question in the meantime, ask me here.",

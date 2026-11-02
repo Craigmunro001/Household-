@@ -8,9 +8,11 @@ import re
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 
+from . import callback as cb
+from .pricing import load_pricebook
 from .content import (
     AGENT_PHRASES, CHANGED_MIND_PHRASES, CORRECTION_WORDS, COST_PHRASES, DISTRESS_PHRASES, NO_WORDS, OPTIONS, REQUEST_STARTS, START_WORDS, STOP_PHRASES,
-    TERMS, WHEN, YES_WORDS, money, options_text, tr,
+    LEADS, TERMS, WHEN, YES_WORDS, money, options_text, tr,
 )
 
 SAST = timezone(timedelta(hours=2))
@@ -205,26 +207,57 @@ def parse_term(text):
 
 
 # ---------------------------------------------------------------- messages
-def ask(s, step):
+QUESTION_ORDER = ["province", "debt", "home", "vehicle", "term", "marital", "review", "callback"]
+_DEFAULT_PB = None
+
+
+def _can_quote(amount, pb):
+    global _DEFAULT_PB
+    if pb is None:
+        _DEFAULT_PB = _DEFAULT_PB or load_pricebook()
+        pb = _DEFAULT_PB
+    return bool(pb and pb.can_quote(amount))
+
+
+def questions_left(s, step, pb=None):
+    """How many questions remain, counting this one (the term question is skipped when we cannot estimate)."""
+    order = list(QUESTION_ORDER)
+    amount = s.answers.get("debt_amount")
+    if amount is not None and not _can_quote(amount, pb):
+        order.remove("term")
+    return len(order) - order.index(step) if step in order else 0
+
+
+def lead_in(s, step, pb=None):
+    parts = [LEADS[step][s.lang].format(name=s.name)]
+    n = questions_left(s, step, pb)
+    if 2 <= n <= 5:
+        parts.append(tr("progress", s.lang, n=n))
+    return " ".join(parts)
+
+
+def ask(s, step, lead=False, pb=None):
+    """The question for a step. lead=True adds the friendly lead-in and progress count (moving forward, not re-asking)."""
     if step == "lang":
         return tr("welcome_all", "en", options=options_text("lang", "en"))
     if step == "consent":
         return tr("consent", s.lang)
     if step == "name":
         return tr("ask_name", s.lang)
-    if step == "debt":
-        return tr("ask_debt", s.lang)
-    if step == "province":
-        return tr("ask_province", s.lang, name=s.name, options=options_text("province", s.lang))
-    if step == "term":
-        return tr("ask_term", s.lang, options=options_text("term", s.lang))
     if step in ("home_ack", "vehicle_ack"):
         return tr(f"ask_{step}", s.lang, name=s.name, options=options_text(step, s.lang))
-    if step in ("marital", "review", "home", "vehicle"):
-        return tr(f"ask_{step}", s.lang, options=options_text(step, s.lang))
-    if step == "callback":
-        return tr("ask_callback", s.lang)
-    raise ValueError(step)
+    if step == "debt":
+        body = tr("ask_debt", s.lang)
+    elif step == "term":
+        body = tr("ask_term", s.lang, options=options_text("term", s.lang))
+    elif step == "callback":
+        now = datetime.fromisoformat(s.updated_at) if s.updated_at else datetime.now(timezone.utc)
+        body = tr("ask_callback", s.lang, d=cb.day_label(cb.next_working_day(now), now, s.lang))
+    elif step in ("province", "marital", "review", "home", "vehicle"):
+        body = tr(f"ask_{step}", s.lang, options=options_text(step, s.lang))
+    else:
+        raise ValueError(step)
+    return f"{lead_in(s, step, pb)} {body}" if lead and step in LEADS else body
 
 
 def next_step(step):
@@ -369,9 +402,17 @@ def handle(s, text, now, llm=None, pricebook=None, kind="text"):
 def _after_completion(s, t, out, llm, pb):
     is_q = looks_like_question(t)
     if s.answers.pop("awaiting_callback", False) and not is_q and len(t) >= 2:
-        s.answers["callback_raw"] = s.answers["callback"] = t[:200]
-        s.notes.append(f"Call time updated to: {t[:100]}")
-        out.messages.append(tr("callback_updated", s.lang, name=s.name, callback=t[:200]))
+        now = datetime.fromisoformat(s.updated_at)
+        parsed = cb.parse_callback(t, now, s.lang)
+        if parsed.kind == "slot":
+            in_hours = _record_callback(s, parsed, t, now)
+            shown = s.answers["callback"] + ("" if in_hours else tr("callback_outside", s.lang))
+        else:
+            s.answers.update(callback=tr("callback_unclear", s.lang, raw=t[:100]), callback_raw=t[:200], callback_in_hours=False)
+            s.notes.append(f"Call time update not understood, taken as typed: {t[:100]} - consultant to confirm")
+            shown = s.answers["callback"]
+        s.notes.append(f"Call time updated to: {s.answers['callback']}")
+        out.messages.append(tr("callback_updated", s.lang, name=s.name, callback=shown))
         out.events.append("callback_updated")
         return
     if is_q or len(norm(t).split()) >= 4:  # a real message, not just "ok" / "thanks"
@@ -424,7 +465,7 @@ def _after_debt(s, out, amount, pb):
                  tr("not_fit", s.lang, name=s.name))
     else:
         s.step = "home"
-        out.messages.append(ask(s, "home"))
+        out.messages.append(ask(s, "home", lead=True, pb=pb))
 
 
 def _after_assets(s, out, pb):
@@ -432,11 +473,11 @@ def _after_assets(s, out, pb):
     amount = s.answers["debt_amount"]
     if pb and pb.can_quote(amount):
         s.step = "term"
-        out.messages.append(ask(s, "term"))
+        out.messages.append(ask(s, "term", lead=True, pb=pb))
     else:
         s.step = "marital"
         s.notes.append("Debt outside estimate range - consultant to work out the figure")
-        out.messages.append(tr("no_figure", s.lang) + "\n\n" + ask(s, "marital"))
+        out.messages.append(tr("no_figure", s.lang) + "\n\n" + ask(s, "marital", lead=True, pb=pb))
 
 
 def _asset_answer(s, out, step, value, pb):
@@ -447,7 +488,7 @@ def _asset_answer(s, out, step, value, pb):
         out.messages.append(ask(s, s.step))
     elif step == "home":
         s.step = "vehicle"
-        out.messages.append(ask(s, "vehicle"))
+        out.messages.append(ask(s, "vehicle", lead=True, pb=pb))
     else:
         _after_assets(s, out, pb)
         if value == "paid_off":  # a different situation: no warning, no promise; the consultant covers the options
@@ -462,7 +503,7 @@ def _accept_asset_risk(s, out, pb, which):
                    "chose to continue - consultant to assess")
     if which == "home":
         s.step = "vehicle"
-        out.messages.append(ask(s, "vehicle"))
+        out.messages.append(ask(s, "vehicle", lead=True, pb=pb))
     else:
         _after_assets(s, out, pb)
 
@@ -470,8 +511,12 @@ def _accept_asset_risk(s, out, pb, which):
 def _answer_step(s, t, out, now, llm, pb):
     step = s.step
 
+    if step == "callback":
+        _answer_callback(s, t, out, now, llm, pb)
+        return
+
     # A genuine question is always answered first, even if it contains words that look like an answer.
-    if step != "callback" and looks_like_question(t):
+    if looks_like_question(t):
         _answer_question(s, t, out, llm, step, pb)
         return
 
@@ -510,16 +555,11 @@ def _answer_step(s, t, out, now, llm, pb):
             figure = estimate_text(s, pb, months)
             if figure:
                 s.fails, s.step = 0, "marital"
-                out.messages += [figure, ask(s, "marital")]
+                out.messages += [figure, ask(s, "marital", lead=True, pb=pb)]
                 return
         elif out_of_range:
             out.messages.append(tr("term_range", s.lang))  # "nothing shorter or longer"; no exceptions offered
             return
-    elif step == "callback":
-        if not ("?" in t and len(t.split()) >= 5) and len(t) >= 2:
-            s.answers["callback_raw"] = t[:200]
-            s.answers["callback"] = (llm.normalise_callback(t, now) if llm else None) or t[:200]
-            ok = True
     else:
         value = parse_choice(step, t) or (llm.classify(step, t, s.lang) if llm else None)
         if value and step in ("home", "vehicle"):
@@ -547,7 +587,7 @@ def _answer_step(s, t, out, now, llm, pb):
             _finish(s, out, now)
         else:
             s.step = next_step(step)
-            out.messages.append(ask(s, s.step))
+            out.messages.append(ask(s, s.step, lead=True, pb=pb))
         return
 
     # --- not an answer: if it's a real message, let the AI/FAQ respond before treating it as a failed answer
@@ -614,6 +654,62 @@ def _after_not_fit(s, t, out, llm, pb):
 def _finish(s, out, now):
     s.status, s.step = "completed", "done"
     s.qualification = assess(s)
-    after = "" if in_business_hours(now) else tr("after_hours", s.lang)
-    out.messages.append(tr("done", s.lang, name=s.name, callback=s.answers["callback_raw"], after=after))
+    after = "" if s.answers.get("callback_in_hours", True) else tr("callback_outside", s.lang)
+    out.messages.append(tr("done", s.lang, name=s.name, callback=s.answers["callback"], after=after))
     out.events.append("completed")
+
+
+def _upper_first(text):
+    return text[:1].upper() + text[1:]
+
+
+def _record_callback(s, parsed, raw, now):
+    """Store the agreed call time. Anything outside standard hours is accepted but flagged: no promise is made."""
+    label = cb.label(parsed, s.lang)
+    in_hours = cb.in_standard_hours(parsed)
+    s.answers.update(callback=label, callback_raw=raw[:200], callback_in_hours=in_hours,
+                     callback_date=parsed.day.isoformat())
+    s.answers.pop("callback_stage", None)
+    s.answers.pop("callback_day", None)
+    if not in_hours:
+        s.notes.append(f"Callback requested OUTSIDE standard hours: {label} - consultant to confirm or suggest nearest time")
+    return in_hours
+
+
+def _answer_callback(s, t, out, now, llm, pb):
+    n = norm(t)
+    stage, pending = s.answers.get("callback_stage"), s.answers.get("callback_day")
+    pending_day = datetime.fromisoformat(pending).date() if pending else None
+
+    if not pending and stage != "other" and n in ("1", "2"):  # the two slots we offered
+        _record_callback(s, cb.slot(cb.next_working_day(now), 8 if n == "1" else 10), t, now)
+        s.fails = 0
+        _finish(s, out, now)
+        return
+    if not pending and (n == "3" or has_phrase(t, cb.OTHER_DAY_PHRASES)):
+        s.answers["callback_stage"] = "other"
+        out.messages.append(tr("callback_other", s.lang))
+        return
+
+    parsed = cb.parse_callback(t, now, s.lang, pending_day)
+    if parsed.kind == "slot":
+        s.fails = 0
+        _record_callback(s, parsed, t, now)
+        _finish(s, out, now)
+    elif parsed.kind == "day_only":
+        s.answers["callback_day"] = parsed.day.isoformat()
+        note = tr("callback_weekend_note", s.lang) if parsed.day.weekday() >= 5 else ""
+        out.messages.append(tr("callback_need_time", s.lang, day=_upper_first(cb.day_label(parsed.day, now, s.lang)), note=note))
+    elif parsed.kind in ("time_only", "past"):  # e.g. a bare "10": show the options instead of guessing
+        s.answers.pop("callback_day", None)
+        out.messages.append(tr("callback_prompt", s.lang) + "\n\n" + ask(s, "callback"))
+    elif looks_like_question(t):
+        _answer_question(s, t, out, llm, "callback", pb)
+    else:
+        s.fails += 1
+        if s.fails >= 2 or stage == "other":  # don't loop: take their words and let the consultant confirm
+            s.answers.update(callback=tr("callback_unclear", s.lang, raw=t[:100]), callback_raw=t[:200], callback_in_hours=False)
+            s.notes.append(f"Callback request not understood, taken as typed: {t[:100]} - consultant to confirm")
+            _finish(s, out, now)
+        else:
+            out.messages.append(tr("reask", s.lang) + ask(s, "callback"))
