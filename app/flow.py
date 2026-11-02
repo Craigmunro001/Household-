@@ -450,6 +450,9 @@ def _asset_answer(s, out, step, value, pb):
         out.messages.append(ask(s, "vehicle"))
     else:
         _after_assets(s, out, pb)
+        if value == "paid_off":  # a different situation: no warning, no promise; the consultant covers the options
+            s.notes.append("Has a fully paid-off vehicle - consultant to discuss options")
+            out.messages[-1] = tr("vehicle_paid_off", s.lang) + "\n\n" + out.messages[-1]
 
 
 def _accept_asset_risk(s, out, pb, which):

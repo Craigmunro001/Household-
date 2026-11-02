@@ -473,8 +473,8 @@ def test_no_home_goes_straight_to_the_vehicle_question_without_a_warning():
 
 def test_financed_vehicle_gets_its_own_warning():
     s, r = asset_chat("2", "1")
-    assert s.step == "vehicle_ack" and "taken back by the bank" in r[-1].messages[0]
-    assert "auction" not in r[-1].messages[0]
+    assert s.step == "vehicle_ack" and "the bank will take it back" in r[-1].messages[0]
+    assert "most likely" not in r[-1].messages[0] and "auction" not in r[-1].messages[0]
 
 
 def test_home_and_vehicle_each_get_their_own_separate_warning():
@@ -559,9 +559,48 @@ def test_lead_record_shows_asset_answers_and_when_each_warning_was_accepted():
     from app.leads import COLUMNS, lead_row
     s, _ = full_chat()
     row = dict(zip(COLUMNS, lead_row(s)))
-    assert row["Owns home"] == "no" and row["Financed vehicle"] == "no" and row["Asset warning accepted"] == ""
+    assert row["Owns home"] == "no" and row["Vehicle"] == "none" and row["Asset warning accepted"] == ""
     s = Session(phone="1")
     run(s, "hi", "1", "yes", "craig", "3", "250000", "1", "yes", "1", "yes")
     row = dict(zip(COLUMNS, lead_row(s)))
-    assert row["Owns home"] == "yes" and row["Financed vehicle"] == "yes"
+    assert row["Owns home"] == "yes" and row["Vehicle"] == "financed"
     assert "home " in row["Asset warning accepted"] and "vehicle " in row["Asset warning accepted"]
+
+
+# ------------------------------------------------------------ a fully paid-off vehicle: no warning, no promise
+@pytest.mark.parametrize("answer", ["3", "it's fully paid off", "I have a car but it is paid up", "freehold", "no finance on it"])
+def test_paid_off_vehicle_gets_no_warning_and_a_neutral_note_then_continues(answer):
+    s, _ = asset_chat("2")
+    r = handle(s, answer, NIGHT, pricebook=PB)
+    assert s.answers["vehicle"] == "paid_off" and s.step == "term" and "asset_ack" not in s.answers
+    msg = r.messages[0]
+    assert "different situation" in msg and "talk you through the options" in msg and "25 to 36 months" in msg
+
+
+def test_paid_off_vehicle_never_promises_a_plan_or_mentions_transferring_it():
+    s, _ = asset_chat("2")
+    msg = handle(s, "3", NIGHT, pricebook=PB).messages[0].lower()
+    for forbidden in ("make a plan", "we can", "transfer", "wife", "spouse", "name", "guarantee", "keep your"):
+        assert forbidden not in msg
+
+
+def test_paid_off_vehicle_is_flagged_for_the_consultant():
+    from app.leads import COLUMNS, lead_row
+    s = Session(phone="27820000000")
+    run(s, "hi", "1", "yes", "craig", "3", "250000", "2", "3", "1", "2", "2", "tomorrow after 2pm")
+    assert s.status == "completed" and s.answers["vehicle"] == "paid_off"
+    assert any("paid-off vehicle" in n for n in s.notes)
+    assert dict(zip(COLUMNS, lead_row(s)))["Vehicle"] == "paid off"
+    assert "Vehicle: fully paid off" in notify.build("completed", s)[1]
+
+
+def test_vehicle_menu_has_three_clear_choices():
+    s, r = asset_chat("2")
+    msg = r[-1].messages[0]
+    assert "1. Yes, a vehicle under finance" in msg and "2. No vehicle" in msg and "3. I have a vehicle, but it's fully paid off" in msg
+
+
+def test_home_owner_who_accepts_the_warning_is_always_asked_about_the_vehicle_next():
+    s, _ = asset_chat("1")
+    r = handle(s, "yes", NIGHT, pricebook=PB)
+    assert s.step == "vehicle" and "vehicle" in r.messages[0]

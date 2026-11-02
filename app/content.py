@@ -35,8 +35,12 @@ OPTIONS = {
     "vehicle": [
         ("yes", {"en": "Yes, a vehicle under finance", "af": "Ja, 'n voertuig onder finansiering", "zu": "Yebo, isithuthi esisakhokhelwa"},
          ["yes", "ja", "yebo", "financed", "under finance", "finance", "instalments", "installments", "still paying", "still owe", "afbetaling", "finansiering"]),
-        ("no", {"en": "No (no vehicle, or it's fully paid off)", "af": "Nee (geen voertuig nie, of dit is heeltemal afbetaal)", "zu": "Cha (asikho isithuthi, noma sikhokhiwe sonke)"},
-         ["no", "nee", "cha", "paid off", "fully paid", "settled", "no vehicle", "no car", "don't have", "dont have", "afbetaal", "geen voertuig", "geen kar", "asikho"]),
+        ("no", {"en": "No vehicle", "af": "Nee, geen voertuig", "zu": "Cha, asikho isithuthi"},
+         ["no", "nee", "cha", "no vehicle", "no car", "don't have", "dont have", "geen voertuig", "geen kar", "asikho"]),
+        ("paid_off", {"en": "I have a vehicle, but it's fully paid off", "af": "Ek het 'n voertuig, maar dit is heeltemal afbetaal",
+                      "zu": "Nginesithuthi, kodwa sikhokhiwe sonke"},
+         ["paid off", "fully paid", "paid up", "settled", "freehold", "own outright", "outright", "no finance", "not financed",
+          "afbetaal", "geen finansiering", "sikhokhiwe"]),
     ],
     "asset_ack": [
         ("yes", {"en": "Yes, I understand and want to continue", "af": "Ja, ek verstaan en wil voortgaan", "zu": "Yebo, ngiyaqonda futhi ngifuna ukuqhubeka"},
@@ -245,9 +249,14 @@ M = {
         "zu": "Ngiyabonga ngokungazisa, {name}. Ngaphambi kokuba siqhubeke, ngifuna ukuqinisekisa ukuthi uyazi ngento ebalulekile. Ku-voluntary surrender of estate, kuqokwa umphathi (trustee) ukuze aphathe impahla yakho egameni labakweletwa, futhi lokho kusho ukuthi indlu yakho izothengiswa, ngokuvamile ngomthengisi esidlangalaleni (auction), ukuze kukhokhelwe ingxenye yezikweletu zakho. Umeluleki wakho uzochaza ngokuqondile ukuthi lokhu kusebenza kanjani kuwe, ukuze kungabikho okukumangazayo.\n\nUfuna ukuqhubeka?\n\n{options}",
     },
     "ask_vehicle_ack": {
-        "en": "Thanks, {name}. Because your vehicle is still under finance, please know that it would most likely be taken back by the bank during the process. Your consultant will explain exactly what this means for you, so there are no surprises.\n\nWould you like to continue?\n\n{options}",
-        "af": "Dankie, {name}. Omdat jou voertuig nog onder finansiering is, weet asseblief dat die bank dit heel waarskynlik gedurende die proses sal terugneem. Jou konsultant sal presies verduidelik wat dit vir jou beteken, sodat daar geen verrassings is nie.\n\nWil jy voortgaan?\n\n{options}",
-        "zu": "Ngiyabonga, {name}. Ngoba isithuthi sakho sisakhokhelwa, sicela wazi ukuthi ibhange lingasithatha kabusha phakathi nenqubo. Umeluleki wakho uzochaza ngokuqondile ukuthi lokhu kusho ini kuwe, ukuze kungabikho okukumangazayo.\n\nUfuna ukuqhubeka?\n\n{options}",
+        "en": "Thanks, {name}. Because your vehicle is still under finance, please know that the bank will take it back during the process. Your consultant will explain exactly what this means for you, so there are no surprises.\n\nWould you like to continue?\n\n{options}",
+        "af": "Dankie, {name}. Omdat jou voertuig nog onder finansiering is, weet asseblief dat die bank dit gedurende die proses sal terugneem. Jou konsultant sal presies verduidelik wat dit vir jou beteken, sodat daar geen verrassings is nie.\n\nWil jy voortgaan?\n\n{options}",
+        "zu": "Ngiyabonga, {name}. Ngoba isithuthi sakho sisakhokhelwa, sicela wazi ukuthi ibhange lizosithatha kabusha phakathi nenqubo. Umeluleki wakho uzochaza ngokuqondile ukuthi lokhu kusho ini kuwe, ukuze kungabikho okukumangazayo.\n\nUfuna ukuqhubeka?\n\n{options}",
+    },
+    "vehicle_paid_off": {
+        "en": "Good to know. A vehicle that's fully paid off is a different situation, and your consultant will talk you through the options for it.",
+        "af": "Goed om te weet. 'n Voertuig wat heeltemal afbetaal is, is 'n ander situasie, en jou konsultant sal die opsies daarvoor met jou deurgaan.",
+        "zu": "Kuhle ukwazi. Isithuthi esikhokhiwe sonke sisimo esihlukile, futhi umeluleki wakho uzokuchazela ngezinketho zaso.",
     },
     "not_fit_assets": {
         "en": "Understood, {name}, and thank you for being open with me. If you change your mind, just reply CONTINUE and we'll carry on. And if I've misunderstood your situation (for example you rent your home, or your vehicle is fully paid off), tell me. Otherwise, I wish you well.",

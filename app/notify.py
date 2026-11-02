@@ -6,6 +6,8 @@ from email.message import EmailMessage
 
 log = logging.getLogger("pinnacle.notify")
 
+VEHICLE_LABEL = {"yes": "under finance", "no": "none", "paid_off": "fully paid off"}
+
 SUBJECTS = {
     "completed": "New qualified lead",
     "handover": "Lead wants a person",
@@ -25,7 +27,7 @@ def build(event, s):
         f"Language: {s.lang}",
         f"Debt stated: R{a['debt_amount']:,}" if a.get("debt_amount") else "Debt stated: n/a",
         f"Estimate shown: R{a['estimate']['monthly']:,.2f}/month over {a['estimate']['months']} months ({a['estimate']['bracket']}, {'Gauteng' if a['estimate']['gauteng'] else 'outside Gauteng'})" if a.get("estimate") else "Estimate shown: none (consultant to quote)",
-        f"Owns a home: {a.get('home', 'n/a')} | Vehicle under finance: {a.get('vehicle', 'n/a')}",
+        f"Owns a home: {a.get('home', 'n/a')} | Vehicle: {VEHICLE_LABEL.get(a.get('vehicle'), 'n/a')}",
         ("Asset warning: " + "; ".join(f"{k} (told it would be {'sold by the trustee, usually at auction' if k == 'home' else 'taken back by the bank'}, chose to continue at {v['at']})" for k, v in a["asset_ack"].items())) if a.get("asset_ack") else "Asset warning: not applicable",
         f"Marital status: {a.get('marital', 'n/a')}",
         f"Province: {a.get('province', 'n/a')}",
