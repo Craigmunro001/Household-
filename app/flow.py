@@ -14,7 +14,7 @@ from .content import (
 )
 
 SAST = timezone(timedelta(hours=2))
-STEPS = ["lang", "consent", "name", "province", "debt", "term", "marital", "review", "callback"]
+STEPS = ["lang", "consent", "name", "province", "debt", "home", "vehicle", "term", "marital", "review", "callback"]
 MAX_FAILS = 3
 DEFAULT_DECLINE_BELOW = 100_000  # Pinnacle does not take cases under R100 000 (the price book can override)
 
@@ -218,7 +218,7 @@ def ask(s, step):
         return tr("ask_province", s.lang, name=s.name, options=options_text("province", s.lang))
     if step == "term":
         return tr("ask_term", s.lang, options=options_text("term", s.lang))
-    if step in ("marital", "review"):
+    if step in ("marital", "review", "home", "vehicle"):
         return tr(f"ask_{step}", s.lang, options=options_text(step, s.lang))
     if step == "callback":
         return tr("ask_callback", s.lang)
@@ -391,7 +391,7 @@ def _faq_or_cost(s, t, llm, pb):
             return restate_estimate(s), False
         amount = s.answers.get("debt_amount")
         can_still_quote = pb and (amount is None or pb.can_quote(amount))
-        if s.status == "active" and can_still_quote and s.step in ("lang", "consent", "name", "province", "debt", "term"):
+        if s.status == "active" and can_still_quote and s.step in ("lang", "consent", "name", "province", "debt", "home", "vehicle", "term"):
             return tr("cost_need_info", s.lang), False
         note = "Asked about COST - consultant should open the call with the fee"
         if note not in s.notes:
@@ -406,22 +406,49 @@ def _answer_question(s, t, out, llm, step, pb):
     out.messages.append((answer or tr("faq_fallback", s.lang).strip()) + "\n\n" + ask(s, step))
 
 
+def _decline(s, out, reason, note, message):
+    s.status, s.qualification = "not_fit", "not_fit"
+    s.answers["not_fit_reason"] = reason
+    s.notes.append(note)
+    out.messages.append(message)
+    out.events.append("not_fit")
+
+
 def _after_debt(s, out, amount, pb):
-    """Debt amount accepted: decline, ask the term (if we can estimate), or hand the figure to a consultant."""
+    """Debt amount accepted: decline if too small, otherwise on to the asset questions."""
     s.answers["debt_amount"] = amount
     if amount < decline_below(pb):
-        s.status = "not_fit"
-        s.qualification = "not_fit"
-        s.notes.append(f"Debt under R{decline_below(pb):,} - not a fit, no consultant call")
-        out.messages.append(tr("not_fit", s.lang, name=s.name))
-        out.events.append("not_fit")
-    elif pb and pb.can_quote(amount):
+        _decline(s, out, "debt", f"Debt under R{decline_below(pb):,} - not a fit, no consultant call",
+                 tr("not_fit", s.lang, name=s.name))
+    else:
+        s.step = "home"
+        out.messages.append(ask(s, "home"))
+
+
+def _after_assets(s, out, pb):
+    """No home and no financed vehicle: ask the term (if we can estimate), or leave the figure to a consultant."""
+    amount = s.answers["debt_amount"]
+    if pb and pb.can_quote(amount):
         s.step = "term"
         out.messages.append(ask(s, "term"))
     else:
         s.step = "marital"
         s.notes.append("Debt outside estimate range - consultant to work out the figure")
         out.messages.append(tr("no_figure", s.lang) + "\n\n" + ask(s, "marital"))
+
+
+def _asset_answer(s, out, step, value, pb):
+    """home / vehicle: a home (bonded or not) or a financed vehicle rules the lead out."""
+    s.answers[step] = value
+    if value == "yes":
+        what = "Owns a home" if step == "home" else "Has a vehicle under finance"
+        _decline(s, out, step, f"{what} - not a fit (assets would be sold/repossessed), no consultant call",
+                 tr("not_fit_assets", s.lang, name=s.name))
+    elif step == "home":
+        s.step = "vehicle"
+        out.messages.append(ask(s, "vehicle"))
+    else:
+        _after_assets(s, out, pb)
 
 
 def _answer_step(s, t, out, now, llm, pb):
@@ -479,6 +506,10 @@ def _answer_step(s, t, out, now, llm, pb):
             ok = True
     else:
         value = parse_choice(step, t) or (llm.classify(step, t, s.lang) if llm else None)
+        if value and step in ("home", "vehicle"):
+            s.fails = 0
+            _asset_answer(s, out, step, value, pb)
+            return
         if value:
             s.answers[step] = value
             ok = True
@@ -517,7 +548,23 @@ def _answer_step(s, t, out, now, llm, pb):
 
 
 def _after_not_fit(s, t, out, llm, pb):
-    """Let them correct the amount (it was only a rough estimate); otherwise answer questions politely."""
+    """Let them correct the answer (the debt amount was only a rough estimate; or they misread an asset question)."""
+    reason = s.answers.get("not_fit_reason", "debt")
+    if reason in ("home", "vehicle"):
+        value = parse_choice(reason, t)
+        if value == "no":
+            s.status, s.fails, s.qualification = "active", 0, ""
+            s.notes.append(f"Corrected '{reason}' answer to no")
+            _asset_answer(s, out, reason, "no", pb)
+            return
+        if looks_like_question(t):
+            ans, gap = _faq_or_cost(s, t, llm, pb)
+            s.notes.append(("Asked: " if ans and not gap else "UNANSWERED: ") + t[:200])
+            if ans:
+                out.messages.append(ans)
+                return
+        out.messages.append(tr("not_fit_assets_followup", s.lang, name=s.name))
+        return
     amount = parse_amount(t)
     if amount and amount >= decline_below(pb):
         s.status, s.fails, s.qualification = "active", 0, ""

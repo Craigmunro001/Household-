@@ -20,7 +20,7 @@ A: It's a formal legal process under the Insolvency Act where, if you can't pay 
 A: No. Debt review keeps you paying your creditors through a restructured monthly payment. Voluntary surrender is a court process where your estate is surrendered to your creditors. Which one fits depends on your full financial picture, and the consultant will explain the options. [DRAFT-VERIFY]
 
 ## Q: Will I lose my house, car or other assets?
-A: In a surrender, assets such as property and vehicles can be sold to pay creditors, although the law protects certain essentials like basic household items and some tools of trade. Exactly what applies to you depends on your situation, and your consultant will go through it with you honestly before you decide anything. [DRAFT-VERIFY]
+A: If you own a home, or have a vehicle that's still under finance, our process isn't suitable for you, because those assets would be sold or repossessed as part of the process. That's why I ask about them first. If you don't have either, your consultant will explain how everything else is treated. [From Craig, 3 Nov; DRAFT-VERIFY wording with David]
 
 ## Q: Will it affect my credit record? Can I get credit again?
 A: Yes, it does affect your credit record and your ability to get credit while the process runs and for a period afterwards. Your consultant will explain what that means for you so there are no surprises. [DRAFT-VERIFY]
@@ -77,7 +77,7 @@ A: You pay one fixed amount every month. It's interest free and the total never 
 A: Paying extra doesn't reduce the total, it shortens the plan. Every extra instalment takes a month off the end. [From Craig, 2 Nov]
 
 ## Q: Are my car and house included in the plan?
-A: No vehicles or property are included in the plan; those are dealt with separately. Your consultant will explain how. [From Craig, 2 Nov. CONFLICT-CHECK: the draft answer above on "Will I lose my house, car or other assets?" says assets can be sold in a surrender. David/Craig must reconcile the two before go-live.]
+A: If you own a home, or have a vehicle that's still under finance, our process isn't suitable for you, because those assets would be sold or repossessed as part of the process. A vehicle that isn't under finance doesn't rule you out, and your consultant will explain how it's treated. [From Craig, 3 Nov; this replaces the 2 Nov "no vehicles or property are included" line. CONFIRM the unfinanced-vehicle point with Craig/David]
 
 ## Q: Who actually handles my plan?
 A: Pinnacle handles the first part of the plan, and then an attorney takes over the collection for the rest. [From Craig, 2 Nov]
@@ -87,6 +87,15 @@ A: Our plans run 25 to 36 months, nothing shorter or longer. [From Craig, 2 Nov.
 
 ## Q: Why does it cost more outside Gauteng?
 A: A matter outside Gauteng needs a correspondent attorney at the Master's Office, and that fee comes out of the estate first, so the monthly amount is higher. [From Craig, 2 Nov. The assistant must not quote the correspondent fee.]
+
+## Q: Why do you ask if I own a home or have a financed vehicle?
+A: Because they decide whether our process is suitable for you. If you own a home, or have a vehicle that's still under finance, those assets would be sold or repossessed as part of the process, and that wouldn't be in your interest. [From Craig, 3 Nov]
+
+## Q: My home is fully paid off, or has no bond. Does that matter?
+A: Unfortunately yes. Whether or not it's bonded, owning a home means our process isn't suitable for you. [From Craig, 3 Nov: "any home, bonded or not"]
+
+## Q: My car is fully paid off. Does that matter?
+A: A vehicle that isn't under finance doesn't rule you out. Your consultant will explain how it's treated. [From Craig, 3 Nov. CONFIRM with Craig/David]
 
 ## Q: Do I have to decide anything now?
 A: No. All I'm doing is arranging a call. Any decisions are made later, with your consultant, once you understand your options.

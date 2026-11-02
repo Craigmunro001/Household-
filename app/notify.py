@@ -25,6 +25,7 @@ def build(event, s):
         f"Language: {s.lang}",
         f"Debt stated: R{a['debt_amount']:,}" if a.get("debt_amount") else "Debt stated: n/a",
         f"Estimate shown: R{a['estimate']['monthly']:,.2f}/month over {a['estimate']['months']} months ({a['estimate']['bracket']}, {'Gauteng' if a['estimate']['gauteng'] else 'outside Gauteng'})" if a.get("estimate") else "Estimate shown: none (consultant to quote)",
+        f"Owns a home: {a.get('home', 'n/a')} | Vehicle under finance: {a.get('vehicle', 'n/a')}",
         f"Marital status: {a.get('marital', 'n/a')}",
         f"Province: {a.get('province', 'n/a')}",
         f"Under debt review: {a.get('review', 'n/a')}",

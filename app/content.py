@@ -26,6 +26,18 @@ OPTIONS = {
         ("af", {"en": "Afrikaans", "af": "Afrikaans", "zu": "Afrikaans"}, ["afrikaans", "afr"]),
         ("zu", {"en": "isiZulu", "af": "isiZulu", "zu": "isiZulu"}, ["zulu", "isizulu", "isi zulu"]),
     ],
+    "home": [
+        ("yes", {"en": "Yes, I own a home", "af": "Ja, ek besit 'n huis", "zu": "Yebo, nginendlu"},
+         ["yes", "ja", "yebo", "own", "i own", "my house", "bonded", "bond", "fully paid", "paid off", "flat", "townhouse", "huis", "indlu"]),
+        ("no", {"en": "No (I rent or live with family)", "af": "Nee (ek huur of woon by familie)", "zu": "Cha (ngiqasha noma ngihlala nomndeni)"},
+         ["no", "nee", "cha", "rent", "renting", "huur", "don't own", "do not own", "dont own", "nie eienaar", "with family", "with my parents", "ngiqasha"]),
+    ],
+    "vehicle": [
+        ("yes", {"en": "Yes, a vehicle under finance", "af": "Ja, 'n voertuig onder finansiering", "zu": "Yebo, isithuthi esisakhokhelwa"},
+         ["yes", "ja", "yebo", "financed", "under finance", "finance", "instalments", "installments", "still paying", "still owe", "afbetaling", "finansiering"]),
+        ("no", {"en": "No (no vehicle, or it's fully paid off)", "af": "Nee (geen voertuig nie, of dit is heeltemal afbetaal)", "zu": "Cha (asikho isithuthi, noma sikhokhiwe sonke)"},
+         ["no", "nee", "cha", "paid off", "fully paid", "settled", "no vehicle", "no car", "don't have", "dont have", "afbetaal", "geen voertuig", "geen kar", "asikho"]),
+    ],
     "review": [
         ("yes", {"en": "Yes", "af": "Ja", "zu": "Yebo"}, ["yes", "ja", "yebo", "i am", "ek is"]),
         ("no", {"en": "No", "af": "Nee", "zu": "Cha"}, ["no", "not", "nee", "cha", "nope"]),
@@ -204,6 +216,26 @@ M = {
         "en": "Done, {name}. A consultant will call you: {callback}.",
         "af": "Reg so, {name}. 'n Konsultant sal jou bel: {callback}.",
         "zu": "Kulungile, {name}. Umeluleki uzokushayela ucingo: {callback}.",
+    },
+    "ask_home": {
+        "en": "Do you own a home (a house, flat or townhouse), whether it's bonded or fully paid off?\n\n{options}",
+        "af": "Besit jy 'n huis (huis, woonstel of dorpshuis), of dit nou 'n verband het of heeltemal afbetaal is?\n\n{options}",
+        "zu": "Ingabe unendlu (indlu, ifulethi noma i-townhouse), noma inebhondi noma ikhokhiwe yonke?\n\n{options}",
+    },
+    "ask_vehicle": {
+        "en": "Do you have a vehicle that is still under finance (a car loan or instalment agreement)?\n\n{options}",
+        "af": "Het jy 'n voertuig wat nog onder finansiering is ('n motorlening of afbetalingskontrak)?\n\n{options}",
+        "zu": "Ingabe unesithuthi esisakhokhelwa ngemali-mboleko (isikweletu semoto noma isivumelwano sezinkokhelo)?\n\n{options}",
+    },
+    "not_fit_assets": {
+        "en": "Thank you for being so open, {name}. Unfortunately our process isn't suitable if you own a home or have a vehicle that is still under finance, because those assets would be sold or repossessed as part of the process, and that wouldn't be in your interest.\n\nIf I've misunderstood (for example you rent your home, or your vehicle is fully paid off), just tell me. Otherwise, I wish you well.",
+        "af": "Dankie dat jy so openhartig was, {name}. Ongelukkig is ons proses nie geskik as jy 'n huis besit of 'n voertuig het wat nog onder finansiering is nie, omdat daardie bates as deel van die proses verkoop of teruggeneem sou word, en dit sou nie in jou belang wees nie.\n\nAs ek jou verkeerd verstaan het (byvoorbeeld jy huur jou huis, of jou voertuig is heeltemal afbetaal), sê net. Andersins wens ek jou alles van die beste toe.",
+        "zu": "Ngiyabonga ngokuvuleka, {name}. Ngeshwa inqubo yethu ayifanele uma unendlu noma unesithuthi esisakhokhelwa, ngoba lezo zinto zingathengiswa noma zibuyiselwe njengengxenye yenqubo, futhi lokho ngeke kube yinzuzo kuwe.\n\nUma ngingakuzwanga kahle (isibonelo uqasha indlu yakho, noma isithuthi sakho sikhokhiwe sonke), ngitshele nje. Uma kungenjalo, ngikufisela konke okuhle.",
+    },
+    "not_fit_assets_followup": {
+        "en": "Thanks, {name}. If your situation is different (for example you rent your home, or your vehicle is fully paid off), just tell me and we'll carry on. I wish you well.",
+        "af": "Dankie, {name}. As jou situasie anders is (byvoorbeeld jy huur jou huis, of jou voertuig is heeltemal afbetaal), sê net en ons gaan voort. Ek wens jou alles van die beste toe.",
+        "zu": "Ngiyabonga, {name}. Uma isimo sakho sihlukile (isibonelo uqasha indlu yakho, noma isithuthi sakho sikhokhiwe sonke), ngitshele nje futhi siqhubeke. Ngikufisela konke okuhle.",
     },
     "ask_marital": {
         "en": "Thanks. Are you married? If so, is it in community of property or out of community of property?\n\n{options}",

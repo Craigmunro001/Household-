@@ -35,7 +35,7 @@ YES = {"1": "yes", "2": "ja", "3": "yebo"}
 
 def full_chat(lang="1", province="3", debt="250000", term="1", **kw):
     s = Session(phone="27820000000")
-    replies = run(s, "hi", lang, YES[lang], "craig", province, debt, term, "2", "2", "tomorrow after 2pm", **kw)
+    replies = run(s, "hi", lang, YES[lang], "craig", province, debt, "2", "2", term, "2", "2", "tomorrow after 2pm", **kw)
     return s, replies
 
 
@@ -54,12 +54,12 @@ def test_happy_path_english_gauteng_25_months():
 
 def test_estimate_message_has_figure_and_mandatory_disclaimer_underneath():
     _, replies = full_chat()
-    msg = replies[6].messages[0]
+    msg = replies[8].messages[0]
     assert "R4,788.86 per month over 25 months" in msg
     assert msg.index("R4,788.86") < msg.index(DISCLAIMER)
     assert "formal quote" in msg
     assert "Which of these best describes" not in msg
-    assert "married" in replies[6].messages[1].lower()
+    assert "married" in replies[8].messages[1].lower()
 
 
 @pytest.mark.parametrize("term,months,monthly", [("1", 25, 4788.86), ("2", 30, 3990.72), ("3", 36, 3325.60), ("36 months", 36, 3325.60)])
@@ -78,7 +78,7 @@ def test_outside_gauteng_uses_the_higher_table():
 def test_other_languages_complete_with_a_figure(lang, marker):
     s, replies = full_chat(lang=lang)
     assert s.status == "completed" and marker in replies[-1].messages[0]
-    assert "R4,788.86" in replies[6].messages[0]
+    assert "R4,788.86" in replies[8].messages[0]
     assert s.lang == ("af" if lang == "2" else "zu")
 
 
@@ -102,7 +102,7 @@ def test_bracket_boundaries(debt, bracket):
 @pytest.mark.parametrize("debt", ["100000", "110 000", "119999", "500001", "R650 000", "1.2m"])
 def test_outside_estimate_range_gets_no_figure_and_no_term_question(debt):
     s = Session(phone="1")
-    r = run(s, "hi", "1", "yes", "craig", "3", debt)
+    r = run(s, "hi", "1", "yes", "craig", "3", debt, "2", "2")
     assert "estimate" not in s.answers and s.step == "marital" and s.status == "active"
     assert "outside the range" in r[-1].messages[0] and "months" not in r[-1].messages[0]
     assert "R" not in r[-1].messages[0].replace("Reply", "").split("\n\n")[0].replace("R250", "")  # no figure quoted
@@ -114,13 +114,13 @@ def test_range_or_several_figures_asks_for_one_total_and_does_not_guess():
     r = run(s, "hi", "1", "yes", "craig", "3", "between 200k and 250k")
     assert s.step == "debt" and "one total figure" in r[-1].messages[0] and "debt_amount" not in s.answers
     r = handle(s, "ok about 230000", NIGHT, pricebook=PB)
-    assert s.step == "term"
+    assert s.step == "home"
 
 
 def test_term_outside_25_to_36_is_refused_without_offering_exceptions():
     for text in ("48 months", "60", "12 months", "5 years"):
         s = Session(phone="1")
-        r = run(s, "hi", "1", "yes", "craig", "3", "250000", text)
+        r = run(s, "hi", "1", "yes", "craig", "3", "250000", "2", "2", text)
         assert s.step == "term" and "estimate" not in s.answers
         assert "25 to 36 months" in r[-1].messages[0]
         assert "exception" not in r[-1].messages[0].lower() and "ask" not in r[-1].messages[0].lower()
@@ -128,7 +128,7 @@ def test_term_outside_25_to_36_is_refused_without_offering_exceptions():
 
 def test_term_26_to_35_not_offered_is_reasked():
     s = Session(phone="1")
-    r = run(s, "hi", "1", "yes", "craig", "3", "250000", "28")
+    r = run(s, "hi", "1", "yes", "craig", "3", "250000", "2", "2", "28")
     assert s.step == "term" and "estimate" not in s.answers and s.fails == 1
 
 
@@ -153,8 +153,8 @@ def test_not_fit_lead_can_correct_the_amount_and_continue_to_the_term_question()
     run(s, "hi", "1", "yes", "craig", "3", "60k")
     assert s.status == "not_fit"
     r = handle(s, "sorry I added it up again, it's about R135 000", NIGHT, pricebook=PB)
-    assert s.status == "active" and s.answers["debt_amount"] == 135000 and s.step == "term"
-    assert "25 to 36 months" in r.messages[0]
+    assert s.status == "active" and s.answers["debt_amount"] == 135000 and s.step == "home"
+    assert "own a home" in r.messages[0]
 
 
 def test_not_fit_lead_gets_followup_not_silence():
@@ -185,7 +185,7 @@ def test_cost_question_after_estimate_restates_the_same_figure():
 
 def test_cost_question_for_out_of_range_debt_never_quotes_and_flags_consultant():
     s = Session(phone="1")
-    run(s, "hi", "1", "yes", "craig", "3", "800000", "2", "2", "tomorrow")
+    run(s, "hi", "1", "yes", "craig", "3", "800000", "2", "2", "2", "2", "tomorrow")
     assert s.status == "completed"
     r = handle(s, "how much will I pay?", NIGHT, llm=FakeLLM("Your consultant confirms. [GAP]"), pricebook=PB)
     assert "R" not in r.messages[0] and any("COST" in n for n in s.notes)
@@ -430,3 +430,90 @@ def test_mid_flow_language_switch_changes_next_question_too():
     s = Session(phone="1", step="review", lang="en", name="Craig")
     r = handle(s, "Wat is skuldhersiening en hoe werk dit eintlik", NIGHT, llm=FakeLLM("Antwoord."))
     assert s.lang == "af" and "skuldhersiening" in r.messages[0].lower() and "1. Ja" in r.messages[0]
+
+
+# ------------------------------------------------------------ assets: a home or a financed vehicle rules the lead out
+def asset_chat(*answers, lang="1"):
+    s = Session(phone="1")
+    return s, run(s, "hi", lang, YES[lang], "craig", "3", "250000", *answers)
+
+
+def test_asks_home_then_vehicle_before_any_figure_is_shown():
+    s, r = asset_chat()
+    assert s.step == "home" and "own a home" in r[-1].messages[0] and "estimate" not in s.answers
+    r = handle(s, "2", NIGHT, pricebook=PB)
+    assert s.step == "vehicle" and "under finance" in r.messages[0] and "estimate" not in s.answers
+    r = handle(s, "2", NIGHT, pricebook=PB)
+    assert s.step == "term" and "25 to 36 months" in r.messages[0]
+
+
+@pytest.mark.parametrize("answer", ["1", "yes", "I own a house", "bonded", "yes it's fully paid off"])
+def test_owning_a_home_declines_bonded_or_not_and_skips_the_vehicle_question(answer):
+    s, r = asset_chat(answer)
+    assert s.status == "not_fit" and s.answers["not_fit_reason"] == "home" and r[-1].events == ["not_fit"]
+    assert "owns a home" not in r[-1].messages[0].lower() and "vehicle" in r[-1].messages[0]
+    assert "vehicle" not in s.answers and "estimate" not in s.answers and "R4" not in r[-1].messages[0]
+
+
+def test_financed_vehicle_declines():
+    s, r = asset_chat("2", "1")
+    assert s.status == "not_fit" and s.answers["not_fit_reason"] == "vehicle" and r[-1].events == ["not_fit"]
+    assert any("vehicle under finance" in n for n in s.notes)
+
+
+@pytest.mark.parametrize("answer", ["2", "no", "I rent", "no I live with my parents"])
+def test_no_home_continues(answer):
+    s, _ = asset_chat(answer)
+    assert s.status == "active" and s.step == "vehicle" and s.answers["home"] == "no"
+
+
+@pytest.mark.parametrize("answer", ["2", "no", "paid off", "I have a car but it is fully paid off", "no vehicle"])
+def test_vehicle_not_under_finance_does_not_disqualify(answer):
+    s, _ = asset_chat("2", answer)
+    assert s.status == "active" and s.step == "term" and s.answers["vehicle"] == "no"
+
+
+def test_asset_decline_sends_no_consultant_alert_and_no_call_promise():
+    s, r = asset_chat("1")
+    assert "not_fit" not in notify.SUBJECTS and "call you" not in r[-1].messages[0]
+
+
+def test_home_decline_can_be_corrected_if_the_lead_misread_the_question():
+    s, _ = asset_chat("1")
+    r = handle(s, "sorry no I rent", NIGHT, pricebook=PB)
+    assert s.status == "active" and s.answers["home"] == "no" and s.step == "vehicle"
+    assert "under finance" in r.messages[0]
+
+
+def test_vehicle_decline_can_be_corrected_if_the_car_is_paid_off():
+    s, _ = asset_chat("2", "1")
+    r = handle(s, "no it's fully paid off", NIGHT, pricebook=PB)
+    assert s.status == "active" and s.answers["vehicle"] == "no" and s.step == "term"
+
+
+def test_asset_decline_otherwise_gets_polite_followup_not_silence():
+    s, _ = asset_chat("1")
+    r = handle(s, "ok thanks", NIGHT, pricebook=PB)
+    assert s.status == "not_fit" and "rent your home" in r.messages[0]
+
+
+def test_asset_decline_afrikaans_and_zulu():
+    s = Session(phone="1")
+    r = run(s, "hi", "2", "ja", "pieter", "3", "250000", "1")
+    assert "nie geskik" in r[-1].messages[0]
+    s = Session(phone="1")
+    r = run(s, "hi", "3", "yebo", "thandi", "3", "250000", "1")
+    assert "ayifanele" in r[-1].messages[0]
+
+
+def test_under_100k_is_still_declined_before_any_asset_question():
+    s = Session(phone="1")
+    r = run(s, "hi", "1", "yes", "craig", "3", "60k")
+    assert s.answers["not_fit_reason"] == "debt" and "own a home" not in r[-1].messages[0]
+
+
+def test_lead_record_shows_asset_answers():
+    from app.leads import COLUMNS, lead_row
+    s, _ = full_chat()
+    row = dict(zip(COLUMNS, lead_row(s)))
+    assert row["Owns home"] == "no" and row["Financed vehicle"] == "no"
