@@ -952,6 +952,7 @@ def test_trust_questions_get_the_fixed_answer_even_if_the_ai_says_something_else
     r = handle(s, q, NIGHT, llm=FakeLLM("AI improvises: we are NCR approved and registered!"), pricebook=PB)
     msg = r.messages[0]
     assert "since 2016" in msg and "East Coast Radio" in msg and "3 years" in msg and "Hot FM" in msg and "2 years" in msg
+    assert "Vuma FM in KwaZulu-Natal for over a year" in msg
     assert "never ask for your banking details" in msg and "company documents" in msg and "type AGENT" in msg
     assert "improvises" not in msg and "Which province" in msg   # and the question carries on
     assert s.fails == 0 and s.step == "province"
@@ -1016,3 +1017,13 @@ def test_no_client_facing_text_contains_an_attorney_name():
     from app import content
     blob = repr(content.M) + pathlib.Path("knowledge/faq.md").read_text().split("## Q:", 1)[1]
     assert "Schoonraad" not in blob
+
+
+def test_all_three_radio_stations_appear_in_every_language_and_in_the_ai_knowledge():
+    import pathlib
+    from app.llm import faq_for_prompt
+    for lang in ("en", "af", "zu"):
+        msg = flow.trust_text(lang)
+        assert "East Coast Radio" in msg and "Vuma FM" in msg and "Hot FM" in msg, lang
+    prompt = faq_for_prompt(pathlib.Path("knowledge/faq.md").read_text())
+    assert prompt.count("Vuma FM") == 2   # the scam answer and the "where have I heard of you" answer
