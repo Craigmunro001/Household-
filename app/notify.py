@@ -3,10 +3,8 @@ import logging
 import smtplib
 from email.message import EmailMessage
 
-from .content import BANDS, band_key, band_label
 
 log = logging.getLogger("pinnacle.notify")
-_BAND_LABELS = {band_key(b): band_label(b, "en") for b in BANDS}
 
 SUBJECTS = {
     "completed": "New qualified lead",
@@ -23,7 +21,8 @@ def build(event, s):
         f"Name: {s.name}",
         f"WhatsApp: +{s.phone}",
         f"Language: {s.lang}",
-        f"Debt: {_BAND_LABELS.get(a.get('debt_band', ''), 'n/a')}",
+        f"Debt stated: R{a['debt_amount']:,}" if a.get("debt_amount") else "Debt stated: n/a",
+        f"Estimate shown: R{a['estimate']['monthly']:,.2f}/month over {a['estimate']['months']} months ({a['estimate']['bracket']}, {'Gauteng' if a['estimate']['gauteng'] else 'outside Gauteng'})" if a.get("estimate") else "Estimate shown: none (consultant to quote)",
         f"Marital status: {a.get('marital', 'n/a')}",
         f"Province: {a.get('province', 'n/a')}",
         f"Under debt review: {a.get('review', 'n/a')}",

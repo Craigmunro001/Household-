@@ -8,9 +8,8 @@ import argparse
 import json
 from datetime import datetime, timezone
 
-import yaml
-
 from app import flow, leads
+from app.pricing import load_pricebook
 from app.config import get_settings
 from app.llm import make_llm
 
@@ -20,7 +19,7 @@ args = ap.parse_args()
 
 settings = get_settings()
 llm = None if args.no_llm else make_llm(settings)
-fees = {k: v for k, v in (yaml.safe_load(open("config/fees.yaml")) or {}).items() if v}
+pricebook = load_pricebook()
 s = flow.Session(phone="27000000000")
 print(f"[simulator] LLM {'ON (' + settings.model + ')' if llm else 'OFF'}. Say hi to start.\n")
 while True:
@@ -30,7 +29,7 @@ while True:
         break
     if text.strip() == "/quit":
         break
-    reply = flow.handle(s, text, datetime.now(timezone.utc), llm, fees)
+    reply = flow.handle(s, text, datetime.now(timezone.utc), llm, pricebook)
     for m in reply.messages:
         print(f"\nbot > {m}\n")
     for e in reply.events:

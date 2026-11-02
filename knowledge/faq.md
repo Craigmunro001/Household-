@@ -70,12 +70,30 @@ A: No. Owing money is a civil matter, not a crime, so nobody goes to prison simp
 ## Q: Why can't you help if my debt is under R100 000? What is the minimum debt?
 A: Our process starts at around R100 000 of total debt. Below that, the fees would end up costing you more than simply paying the debt off yourself, so it wouldn't be in your interest. If your total debt is more than R100 000, there may well be a possibility, and your consultant would assess it. [From Craig, 2 Nov]
 
+## Q: How does the monthly payment work?
+A: You pay one fixed amount every month. It's interest free and the total never grows. [From Craig, 2 Nov; DRAFT-VERIFY wording with David, "never grows" is a strong promise]
+
+## Q: What happens if I pay extra? Can I settle early?
+A: Paying extra doesn't reduce the total, it shortens the plan. Every extra instalment takes a month off the end. [From Craig, 2 Nov]
+
+## Q: Are my car and house included in the plan?
+A: No vehicles or property are included in the plan; those are dealt with separately. Your consultant will explain how. [From Craig, 2 Nov. CONFLICT-CHECK: the draft answer above on "Will I lose my house, car or other assets?" says assets can be sold in a surrender. David/Craig must reconcile the two before go-live.]
+
+## Q: Who actually handles my plan?
+A: Pinnacle handles the first part of the plan, and then an attorney takes over the collection for the rest. [From Craig, 2 Nov]
+
+## Q: Can I pay over 48 or 60 months? Can I pay it off faster than 25 months?
+A: Our plans run 25 to 36 months, nothing shorter or longer. [From Craig, 2 Nov. The assistant must not offer to ask anyone for an exception.]
+
+## Q: Why does it cost more outside Gauteng?
+A: A matter outside Gauteng needs a correspondent attorney at the Master's Office, and that fee comes out of the estate first, so the monthly amount is higher. [From Craig, 2 Nov. The assistant must not quote the correspondent fee.]
+
 ## Q: Do I have to decide anything now?
 A: No. All I'm doing is arranging a call. Any decisions are made later, with your consultant, once you understand your options.
 
 ---
 # NOT YET COVERED (Craig / David to supply: these currently get "your consultant will explain")
-- Cost: the actual fee figures per debt band / is the first call free / payment terms and finance options (WellTech)
+- Is the first call free / is there a deposit or sign-up fee / what happens if I miss an instalment
 - How long does the process take; how long until I can get credit again
 - Qualifying criteria: minimum debt, income, assets, types of debt covered
 - Is Pinnacle registered / how do I know you are legitimate; physical address; reviews

@@ -5,7 +5,7 @@ import logging
 import re
 from pathlib import Path
 
-from .content import BANDS, OPTIONS, band_key, band_label
+from .content import OPTIONS
 
 log = logging.getLogger("pinnacle.llm")
 FAQ_PATH = Path(__file__).resolve().parent.parent / "knowledge" / "faq.md"
@@ -63,11 +63,8 @@ class ClaudeLLM:
             return None  # belt and braces: the model must never quote money
         return text.strip()
 
-    def classify(self, step, text, lang, bands=BANDS):
-        if step == "debt":
-            options = {band_key(b): band_label(b, "en") for b in bands}
-        else:
-            options = {v: labels["en"] for v, labels, _ in OPTIONS[step]}
+    def classify(self, step, text, lang):
+        options = {v: labels["en"] for v, labels, _ in OPTIONS[step]}
         schema = {
             "type": "object",
             "properties": {"choice": {"type": "string", "enum": list(options) + ["none"]}},

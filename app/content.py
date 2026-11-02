@@ -7,34 +7,15 @@ isiZulu text should be read by a native speaker before going live.
 LANGS = ("en", "af", "zu")
 LANG_NAMES = {"en": "English", "af": "Afrikaans", "zu": "isiZulu"}
 
-# Debt bands in rand: (from, to). to=None means open-ended. Placeholders; extend as needed.
-BANDS = [
-    (0, 100_000),
-    (100_000, 120_000),
-    (120_000, 150_000),
-    (150_000, 200_000),
-    (200_000, 300_000),
-    (300_000, 500_000),
-    (500_000, None),
-]
+TERMS = (25, 30, 36)  # plan lengths in months; nothing shorter or longer
 
 
-def band_key(band):
-    lo, hi = band
-    return f"{lo}-{hi}" if hi else f"{lo}+"
+def money(x):
+    return f"R{x:,.2f}"
 
 
-def rand(n):
-    return "R" + f"{n:,}".replace(",", " ")
-
-
-def band_label(band, lang):
-    lo, hi = band
-    if lo == 0:
-        return {"en": f"Under {rand(hi)}", "af": f"Minder as {rand(hi)}", "zu": f"Ngaphansi kuka-{rand(hi)}"}[lang]
-    if hi is None:
-        return {"en": f"{rand(lo)} or more", "af": f"{rand(lo)} of meer", "zu": f"{rand(lo)} noma ngaphezulu"}[lang]
-    return f"{rand(lo)} – {rand(hi)}"
+def term_label(n, lang):
+    return {"en": f"{n} months", "af": f"{n} maande", "zu": f"izinyanga ezingu-{n}"}[lang]
 
 
 # ---------------------------------------------------------------- answer options
@@ -139,11 +120,6 @@ M = {
         "af": "Mooi so, dankie. Wat is jou voornaam?",
         "zu": "Kuhle, ngiyabonga. Ubani igama lakho?",
     },
-    "ask_debt": {
-        "en": "Nice to meet you, {name}. How much debt do you have in rand value, roughly (loans, credit cards, accounts, etc.)? Reply with the number:\n\n{options}\n\nYou can also just type an amount, e.g. R250 000.",
-        "af": "Lekker om jou te ontmoet, {name}. Ongeveer hoeveel skuld het jy altesaam (lenings, kredietkaarte, rekeninge, ens.)? Antwoord met die nommer:\n\n{options}\n\nJy kan ook net 'n bedrag tik, bv. R250 000.",
-        "zu": "Ngiyajabula ukukwazi, {name}. Ngokulinganiselwa, inkokhelo ingakanani yezikweletu zakho zonke (izimali ezibolekiwe, amakhadi, ama-akhawunti, njll.)? Phendula ngenombolo:\n\n{options}\n\nUngabhala nje inani, isib. R250 000.",
-    },
     "ask_review": {
         "en": "Are you currently under debt review or debt counselling?\n\n{options}",
         "af": "Is jy tans onder skuldhersiening (debt review) of skuldberading?\n\n{options}",
@@ -159,15 +135,50 @@ M = {
         "af": "Dankie, {name}. As jou totale skuld meer as R100\u00a0000 blyk te wees, stuur net die bedrag en ons gaan voort. Ek wens jou alles van die beste toe.",
         "zu": "Ngiyabonga, {name}. Uma isamba sezikweletu zakho siba ngaphezu kuka-R100\u00a0000, ngithumelele inani futhi siqhubeke. Ngikufisela konke okuhle.",
     },
+    "ask_province": {
+        "en": "Nice to meet you, {name}. Which province are you in?\n\n{options}",
+        "af": "Lekker om jou te ontmoet, {name}. In watter provinsie is jy?\n\n{options}",
+        "zu": "Ngiyajabula ukukwazi, {name}. Uhlala kuliphi isifundazwe?\n\n{options}",
+    },
+    "ask_debt": {
+        "en": "Thanks. Roughly how much do you owe in total, with all your debts added together (loans, credit cards, accounts, etc.)? Just type an amount, e.g. R250 000.",
+        "af": "Dankie. Ongeveer hoeveel skuld het jy altesaam, met al jou skulde bymekaar (lenings, kredietkaarte, rekeninge, ens.)? Tik net 'n bedrag, bv. R250 000.",
+        "zu": "Ngiyabonga. Ukweleta malini ngokulinganiselwa, uma zonke izikweletu zakho zihlanganiswe (izimali ezibolekiwe, amakhadi, ama-akhawunti, njll.)? Bhala nje inani, isib. R250 000.",
+    },
+    "ask_term": {
+        "en": "Over how long would you like to pay? Our plans run 25 to 36 months.\n\n{options}",
+        "af": "Oor hoe lank wil jy betaal? Ons planne loop 25 tot 36 maande.\n\n{options}",
+        "zu": "Ungathanda ukukhokha isikhathi esingakanani? Amaplani ethu aqhubeka izinyanga ezingu-25 kuya kwezingu-36.\n\n{options}",
+    },
+    "estimate": {
+        "en": "Thanks. A client in a similar position typically pays about {amount} per month over {months} months.\n\nThis is what a client in a similar debt range to yours would typically be paying. It is an estimate based on our standard calculation - your own figure depends on exactly what you owe and where you live, and comes from a formal quote.",
+        "af": "Dankie. 'n Kliënt in 'n soortgelyke posisie betaal gewoonlik ongeveer {amount} per maand oor {months} maande.\n\nDit is wat 'n kliënt met 'n soortgelyke skuldreeks as joune gewoonlik sou betaal. Dit is 'n skatting gebaseer op ons standaardberekening - jou eie bedrag hang af van presies wat jy skuld en waar jy woon, en kom uit 'n formele kwotasie.",
+        "zu": "Ngiyabonga. Ikhasimende esimeni efanayo ngokuvamile likhokha cishe {amount} ngenyanga ezinyangeni ezingu-{months}.\n\nLokhu yilokho ikhasimende elinohlobo lwezikweletu olufanayo nolwakho elivame ukukukhokha. Kuyisilinganiso esisekelwe ekubaleni kwethu okujwayelekile - inani lakho liya ngokuthi ungakanani isikweletu sakho ngempela nokuthi uhlala kuphi, futhi livela kukhotheshini esemthethweni.",
+    },
+    "no_figure": {
+        "en": "Thanks. Your debt is outside the range I can give an estimate for, so a consultant will work out a figure with you on the call.",
+        "af": "Dankie. Jou skuld is buite die reeks waarvoor ek 'n skatting kan gee, so 'n konsultant sal 'n bedrag saam met jou uitwerk tydens die oproep.",
+        "zu": "Ngiyabonga. Isikweletu sakho siphandle kobubanzi engingakwazi ukunikeza isilinganiso ngabo, ngakho umeluleki uzobala inani nawe ngesikhathi socingo.",
+    },
+    "term_range": {
+        "en": "Our plans run 25 to 36 months, nothing shorter or longer. Which would you like: 25, 30 or 36 months?",
+        "af": "Ons planne loop 25 tot 36 maande, nie korter of langer nie. Watter een wil jy hê: 25, 30 of 36 maande?",
+        "zu": "Amaplani ethu aqhubeka izinyanga ezingu-25 kuya kwezingu-36, akukho okufushane noma okude. Ufuna isiphi: izinyanga ezingu-25, 30 noma 36?",
+    },
+    "one_figure": {
+        "en": "Could you give me one total figure, with all your debts added together? A rough amount is fine.",
+        "af": "Kan jy my een totale bedrag gee, met al jou skulde bymekaar getel? 'n Ruwe bedrag is reg.",
+        "zu": "Ungangipha inani elilodwa eliphelele, uma zonke izikweletu zakho zihlanganiswe? Isilinganiso siyafaneleka.",
+    },
+    "cost_need_info": {
+        "en": "I can give you a rough monthly estimate once I know where you are, roughly what you owe in total, and over how long you'd like to pay. Just a few quick questions.",
+        "af": "Ek kan jou 'n ruwe maandelikse skatting gee sodra ek weet waar jy is, ongeveer wat jy altesaam skuld, en oor hoe lank jy wil betaal. Net 'n paar vinnige vrae.",
+        "zu": "Ngingakunikeza isilinganiso senyanga uma ngazi ukuthi uhlala kuphi, ukuthi ukweleta malini ngokuphelele, nokuthi ufuna ukukhokha isikhathi esingakanani. Imibuzo embalwa nje.",
+    },
     "ask_marital": {
         "en": "Thanks. Are you married? If so, is it in community of property or out of community of property?\n\n{options}",
         "af": "Dankie. Is jy getroud? Indien wel, is dit binne gemeenskap van goedere of buite gemeenskap van goedere?\n\n{options}",
         "zu": "Ngiyabonga. Ingabe usushadile? Uma kunjalo, ngabe ukuhlanganyela kwempahla (in community of property) noma ngaphandle kokuhlanganyela (out of community of property)?\n\n{options}",
-    },
-    "ask_province": {
-        "en": "Which province are you in?\n\n{options}",
-        "af": "In watter provinsie is jy?\n\n{options}",
-        "zu": "Uhlala kuliphi isifundazwe?\n\n{options}",
     },
     "ask_callback": {
         "en": "Last one. What time are you available for a call from a consultant? For example \"tomorrow after 2pm\". We call Monday to Friday, 08:00–17:00.",
@@ -175,24 +186,9 @@ M = {
         "zu": "Owokugcina. Ukhululeke ngasiphi isikhathi ukuthi umeluleki akushayele ucingo? Isibonelo \"kusasa ntambama\". Sishaya ngoMsombuluko kuya eLwesihlanu, 08:00–17:00.",
     },
     "done": {
-        "en": "Thank you, {name}! That's everything I need. A consultant will call you: {callback}.{fee}{after}\n\nThey'll go through your situation properly and explain your options. If you have a question in the meantime, ask me here.",
-        "af": "Dankie, {name}! Dis alles wat ek nodig het. 'n Konsultant sal jou bel: {callback}.{fee}{after}\n\nHulle sal jou situasie behoorlik deurgaan en jou opsies verduidelik. As jy intussen 'n vraag het, vra my gerus hier.",
-        "zu": "Ngiyabonga, {name}! Yilokho kuphela engikudingayo. Umeluleki uzokushayela ucingo: {callback}.{fee}{after}\n\nUzohlaziya isimo sakho kahle futhi akuchazele izinketho zakho. Uma unemibuzo okwamanje, ngibuze lapha.",
-    },
-    "fee_line": {
-        "en": " Based on what you've told me, our fee for matters like yours is typically {range} per month{term}. This is an estimate only; your consultant will confirm it after a proper assessment.",
-        "af": " Gebaseer op wat jy my vertel het, is ons fooi vir sake soos joune gewoonlik {range} per maand{term}. Dit is net 'n skatting; jou konsultant sal dit bevestig ná 'n behoorlike assessering.",
-        "zu": " Ngokusekelwe kulokho ongitshele khona, izindleko zethu zezindaba ezifana nezakho ngokuvamile ziyi-{range} ngenyanga{term}. Lokhu kuyisilinganiso nje; umeluleki wakho uzokuqinisekisa ngemva kokuhlola ngokufanele.",
-    },
-    "term": {
-        "en": " over {months} months",
-        "af": " oor {months} maande",
-        "zu": " ezinyangeni ezingu-{months}",
-    },
-    "range": {
-        "en": "between {min} and {max}",
-        "af": "tussen {min} en {max}",
-        "zu": "phakathi kuka-{min} no-{max}",
+        "en": "Thank you, {name}! That's everything I need. A consultant will call you: {callback}.{after}\n\nThey'll go through your situation properly and explain your options. If you have a question in the meantime, ask me here.",
+        "af": "Dankie, {name}! Dis alles wat ek nodig het. 'n Konsultant sal jou bel: {callback}.{after}\n\nHulle sal jou situasie behoorlik deurgaan en jou opsies verduidelik. As jy intussen 'n vraag het, vra my gerus hier.",
+        "zu": "Ngiyabonga, {name}! Yilokho kuphela engikudingayo. Umeluleki uzokushayela ucingo: {callback}.{after}\n\nUzohlaziya isimo sakho kahle futhi akuchazele izinketho zakho. Uma unemibuzo okwamanje, ngibuze lapha.",
     },
     "after_hours": {
         "en": " Our consultants work Mon–Fri 08:00–17:00, so you'll hear from us at the first suitable time.",
@@ -246,9 +242,9 @@ def tr(key, lang, **kw):
     return text.format(**kw) if kw else text
 
 
-def options_text(step, lang, bands=BANDS):
-    if step == "debt":
-        labels = [band_label(b, lang) for b in bands]
+def options_text(step, lang):
+    if step == "term":
+        labels = [term_label(n, lang) for n in TERMS]
     else:
         labels = [labels_by_lang[lang] for _, labels_by_lang, _ in OPTIONS[step]]
     return "\n".join(f"{i}. {lbl}" for i, lbl in enumerate(labels, 1))

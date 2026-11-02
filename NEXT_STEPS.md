@@ -16,26 +16,23 @@
 - OPEN: replies are too long for WhatsApp; split into shorter messages.
 - Not tested live: the real Claude layer (no API key in this environment), real WhatsApp, real Google Sheet.
 
-## Next steps, in order
-1. Craig: fee table. Fees are quoted as MONTHLY INSTALMENTS (never financed; upfront is rare, ~once every 2 years). Need monthly_min / monthly_max per debt band, plus the term in months (and whether there is a deposit/first payment). Goes in config/fees.yaml (schema already updated).
-2. Craig: the ~50 likely questions with answers, in batches of 10-15, any format. Best source: real lead questions from old chats.
-   Claude formats them into knowledge/faq.md.
-3. Craig: trust facts (attorney firm and how to verify, company details/address/website, any registrations) for "is this a scam?".
-4. Claude: callback-time fix (weekend / after-hours check, offer next slot).
-5. David Schoonraad: review every [DRAFT-VERIFY] answer in knowledge/faq.md and the fee wording in app/content.py.
-   Especially: assets/car, credit record, prison, employer finding out (what is published and where), joint estates.
-6. Native check: Afrikaans (Craig) and isiZulu (someone else) of all client-facing text.
-7. Go live: Meta WhatsApp app + number (coexistence), Google service account, Railway deploy (see README). Own-number test, then small pilot.
+## Price book (2 Nov) - DONE
+- config/fees.yaml now holds Craig's generated tables (Gauteng / outside Gauteng x 19 brackets x 25/30/36 months). Arithmetic-checked: every figure = total / months, brackets contiguous, no typos found.
+- Flow is now: language, consent, name, province, debt (exact amount), term (25/30/36), then the estimate with the mandatory disclaimer, then marital, debt review, call time.
+- Under R100 000: kindly declined. R100 000-R120 000 and over R500 000: no figure, consultant works it out.
+- Open points flagged to Craig: bracket edges (exactly R140 000 goes to the HIGHER bracket); firm described as "debt-review firm" in the pasted spec (wrong word for a VSE business, and "debt review" is a regulated activity); FAQ conflict on whether cars/property can be sold; email address not collected (WhatsApp number only) - decide.
 
-## Business rules confirmed by Craig (2 Nov)
-- Fees are quoted as monthly instalments; never financed; upfront ~once every 2 years.
-- Pinnacle does not take debt under R100 000 (fees would exceed the debt). Bot declines kindly, asks them to correct the amount if it is actually higher, no consultant call, no alert email. Lead still logged in the Sheet as not_fit.
-- Over R100 000 "might be a possibility": consultant assesses.
+## Next steps, in order
+1. Craig: the ~50 questions and answers, in batches of 10-15 (best source: real lead questions).
+2. Craig: trust facts (attorney firm and how to verify, company details/address/website, registrations) for "is this a scam?".
+3. Claude: callback-time fix (weekend / after-hours check, offer next slot).
+4. David Schoonraad: review every [DRAFT-VERIFY] and [CONFLICT-CHECK] answer in knowledge/faq.md, the estimate/disclaimer wording and the "interest free / total never grows" claims.
+5. Native check: Afrikaans (Craig) and isiZulu (someone else) of all client-facing text, including the translated disclaimer.
+6. Go live: Meta WhatsApp app + number (coexistence), Google service account, Railway deploy (see README). Own-number test, then small pilot.
 
 ## Open decisions for Craig
 - Under-R100k wording is a draft: David to approve. Should the bot point them to a free alternative (e.g. NCR / a registered debt counsellor)? That is advice, so only with approval.
 - Marketing: put "debt over R100 000" in the ad copy so you stop paying for leads that can't be served.
-- WellTech payroll deductions: Craig says fees are never financed, so the bot never mentions finance/loans. Confirm WellTech is out of scope for the bot, and what the employer answer should be.
-- Triage rule (LIKELY/UNSURE) is a placeholder: under debt review or debt under R100k = UNSURE.
+- Triage rule (LIKELY/UNSURE) is a placeholder: under debt review = UNSURE.
 - Keep or remove the first-name question (not one of the five).
-- Alert emails: who receives them?
+- Alert emails: who receives them? Collect an email address from the lead as well as the WhatsApp number?

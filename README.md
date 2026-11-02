@@ -23,7 +23,7 @@ pytest
 | File | Purpose |
 |---|---|
 | `app/content.py` | Every client-facing message (3 languages), debt bands, answer options |
-| `config/fees.yaml` | Fee range per debt band. **Empty = bot quotes no fee.** Fill in after testing |
+| `config/fees.yaml` | The price book: monthly figure by province group, debt bracket and term (25/30/36). Generated from Pinnacle's quote calculation; regenerate if its settings change |
 | `knowledge/faq.md` | The only facts the AI may use. Needs David's sign-off |
 | `app/flow.py` `assess()` | Lead triage (LIKELY/UNSURE) shown to consultants only |
 
@@ -32,7 +32,8 @@ pytest
 - STOP at any time opts out (only an explicit START brings them back).
 - Self-harm language (EN/AF/ZU) -> helpline numbers sent, bot goes quiet, URGENT email. **Verify the helpline numbers before launch.**
 - "Agent / speak to a person", or 3 misunderstood answers -> bot goes quiet and a consultant is alerted.
-- Fees only ever come from `fees.yaml`; any AI reply containing money amounts is discarded.
+- Figures only ever come from `fees.yaml` (never calculated, never interpolated, never from the AI); any AI reply containing money amounts is discarded. Every figure shown is stored in the lead record.
+- Debt under R100 000 is declined kindly; R100 000 to R120 000 and over R500 000 get no figure (a consultant works it out); terms are 25 to 36 months only.
 - Nobody is auto-rejected: every completed lead goes to a consultant.
 - Webhook signatures are verified; duplicate deliveries are ignored.
 

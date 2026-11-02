@@ -12,9 +12,8 @@ import sys
 from dataclasses import asdict
 from datetime import datetime, timezone
 
-import yaml
-
 from app import flow
+from app.pricing import load_pricebook
 
 STATE = os.environ.get("CHAT_STATE", "data/chat_state.json")
 ap = argparse.ArgumentParser()
@@ -41,9 +40,9 @@ class Stub:
         return None
 
 
-fees = {k: v for k, v in (yaml.safe_load(open("config/fees.yaml")) or {}).items() if v}
+pricebook = load_pricebook()
 if args.text is not None:
-    reply = flow.handle(s, args.text, datetime.now(timezone.utc), Stub(), fees)
+    reply = flow.handle(s, args.text, datetime.now(timezone.utc), Stub(), pricebook)
     for m in reply.messages:
         print(m + "\n")
     if reply.events:

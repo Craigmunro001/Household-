@@ -1,12 +1,55 @@
-# Indicative fee quoted to the prospect, per debt band. Pinnacle quotes fees as MONTHLY INSTALMENTS.
-# Leave a band as null and the bot will NOT quote a fee for it - it just says a consultant will confirm.
-# Format:
-#   "<band key>": {monthly_min: 1500, monthly_max: 2000, months: 24}
-# `months` (the term) is optional. Band keys are "<from>-<to>" in rand, "500000+" for the open-ended top band.
-"0-100000": null
-"100000-120000": null
-"120000-150000": null
-"150000-200000": null
-"200000-300000": null
-"300000-500000": null
-"500000+": null
+# Pinnacle price book: monthly contribution for a voluntary surrender plan, by province group,
+# debt bracket and term. GENERATED from Pinnacle's own quote calculation on 2 November 2026
+# (attorney costs R20,000, correspondent R7,000, 22c minimum dividend, VAT 15%).
+# If those settings change these tables MUST be regenerated. Never edit single figures by hand.
+#
+# Rules (enforced in app/pricing.py and app/flow.py):
+#  - Debt under `decline_below`: kindly declined, no figure, no consultant call.
+#  - Debt between `decline_below` and the first bracket, or above the last bracket: no figure; consultant works it out.
+#  - Bracket match is lower-bound inclusive (exactly R140,000 falls in R140,000-R160,000); the top bracket includes R500,000.
+#  - Terms are 25, 30 or 36 months only. Nothing shorter or longer.
+generated: "2 November 2026"
+decline_below: 100000
+terms: [25, 30, 36]
+
+gauteng:  # [from, to, 25 months, 30 months, 36 months] - monthly contribution in rand
+  - [120000, 140000, 3313.65, 2761.37, 2301.14]
+  - [140000, 160000, 3559.52, 2966.27, 2471.89]
+  - [160000, 180000, 3805.39, 3171.16, 2642.63]
+  - [180000, 200000, 4051.26, 3376.05, 2813.37]
+  - [200000, 220000, 4297.13, 3580.94, 2984.12]
+  - [220000, 240000, 4543.00, 3785.83, 3154.86]
+  - [240000, 260000, 4788.86, 3990.72, 3325.60]
+  - [260000, 280000, 5034.73, 4195.61, 3496.34]
+  - [280000, 300000, 5280.60, 4400.50, 3667.09]
+  - [300000, 320000, 5526.47, 4605.39, 3837.83]
+  - [320000, 340000, 5772.34, 4810.28, 4008.57]
+  - [340000, 360000, 6018.21, 5015.18, 4179.31]
+  - [360000, 380000, 6264.08, 5220.07, 4350.06]
+  - [380000, 400000, 6509.95, 5424.96, 4520.80]
+  - [400000, 420000, 6755.82, 5629.85, 4691.54]
+  - [420000, 440000, 7001.69, 5834.74, 4862.28]
+  - [440000, 460000, 7247.56, 6039.63, 5033.03]
+  - [460000, 480000, 7493.43, 6244.52, 5203.77]
+  - [480000, 500000, 7739.30, 6449.41, 5374.51]
+
+outside_gauteng:  # [from, to, 25 months, 30 months, 36 months] - monthly contribution in rand
+  - [120000, 140000, 3763.48, 3136.23, 2613.53]
+  - [140000, 160000, 4009.35, 3341.12, 2784.27]
+  - [160000, 180000, 4255.22, 3546.01, 2955.01]
+  - [180000, 200000, 4501.09, 3750.90, 3125.75]
+  - [200000, 220000, 4746.96, 3955.80, 3296.50]
+  - [220000, 240000, 4992.82, 4160.69, 3467.24]
+  - [240000, 260000, 5238.69, 4365.58, 3637.98]
+  - [260000, 280000, 5484.56, 4570.47, 3808.72]
+  - [280000, 300000, 5730.43, 4775.36, 3979.47]
+  - [300000, 320000, 5976.30, 4980.25, 4150.21]
+  - [320000, 340000, 6222.17, 5185.14, 4320.95]
+  - [340000, 360000, 6468.04, 5390.03, 4491.69]
+  - [360000, 380000, 6713.91, 5594.92, 4662.44]
+  - [380000, 400000, 6959.78, 5799.82, 4833.18]
+  - [400000, 420000, 7205.65, 6004.71, 5003.92]
+  - [420000, 440000, 7451.52, 6209.60, 5174.67]
+  - [440000, 460000, 7697.39, 6414.49, 5345.41]
+  - [460000, 480000, 7943.26, 6619.38, 5516.15]
+  - [480000, 500000, 8189.13, 6824.27, 5686.89]

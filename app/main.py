@@ -3,12 +3,12 @@ import logging
 from collections import defaultdict
 from datetime import datetime, timezone
 
-import yaml
 from fastapi import BackgroundTasks, FastAPI, HTTPException, Request, Response
 
 from . import flow, leads, notify
 from .config import get_settings
 from .llm import make_llm
+from .pricing import load_pricebook
 from .store import SessionStore
 from .whatsapp import WhatsAppClient, parse_payload, verify_signature
 
@@ -22,20 +22,12 @@ sink = leads.make_sink(settings)
 llm = make_llm(settings)
 wa = WhatsAppClient(settings)
 locks = defaultdict(asyncio.Lock)  # one conversation processed at a time
-
-
-def load_fees():
-    try:
-        with open("config/fees.yaml") as f:
-            raw = yaml.safe_load(f) or {}
-        return {k: v for k, v in raw.items() if v}
-    except FileNotFoundError:
-        return {}
+pricebook = load_pricebook()
 
 
 @app.get("/health")
 def health():
-    return {"ok": True, "llm": bool(llm), "sheet": type(sink).__name__}
+    return {"ok": True, "llm": bool(llm), "sheet": type(sink).__name__, "price_book": pricebook.generated if pricebook else None}
 
 
 @app.get("/webhook")
@@ -67,7 +59,7 @@ async def process(msg):
             await wa.mark_read(msg.msg_id)
             s = store.load(msg.phone)
             reply = await asyncio.to_thread(
-                flow.handle, s, msg.text, datetime.now(timezone.utc), llm, load_fees(), msg.kind
+                flow.handle, s, msg.text, datetime.now(timezone.utc), llm, pricebook, msg.kind
             )
             store.save(s)
             for i, text in enumerate(reply.messages):
