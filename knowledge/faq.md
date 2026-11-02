@@ -97,6 +97,21 @@ A: Yes. Whether or not it's bonded, a home would be sold by the trustee, usually
 ## Q: My car is fully paid off. Does that matter?
 A: A vehicle that's fully paid off is a different situation, and your consultant will talk you through the options for it. [From Craig, 3 Nov. Deliberately gives no promise and no detail: see NEXT_STEPS legal note]
 
+## Q: Is this a scam? Are you legitimate? Can I trust you?
+A: Fair question. Pinnacle Debt Solutions has been helping South Africans with their debt since 2016. We were on East Coast Radio in KwaZulu-Natal for 3 years and on Hot FM in Gauteng for 2 years. Nothing is paid or signed in this chat, and I will never ask for your banking details. Your consultant can share our company documents with you on the call. [From Craig, 3 Nov. The live bot answers this with fixed wording in app/content.py; keep the two consistent]
+
+## Q: How long have you been in business?
+A: Pinnacle Debt Solutions has been around since 2016. [From Craig, 3 Nov]
+
+## Q: Where have I heard of you? Were you on the radio?
+A: You may have heard us on the radio: we were on East Coast Radio in KwaZulu-Natal for 3 years and on Hot FM in Gauteng for 2 years. [From Craig, 3 Nov. Factual only: do not imply the stations endorse us]
+
+## Q: Who is your attorney? Which law firm? Can I speak to them?
+A: I can't share names in this chat. Your consultant will explain how the legal side works on the call and can share our company documents with you. [From Craig, 3 Nov: no attorney or personal names in the chat]
+
+## Q: What is your registration number? Can I see your documents?
+A: Your consultant can share our company documents with you on the call. [From Craig, 3 Nov: company documents only; add the CK number here only if Craig decides to share it]
+
 ## Q: Do I have to decide anything now?
 A: No. All I'm doing is arranging a call. Any decisions are made later, with your consultant, once you understand your options.
 
@@ -105,7 +120,7 @@ A: No. All I'm doing is arranging a call. Any decisions are made later, with you
 - Is the first call free / is there a deposit or sign-up fee / what happens if I miss an instalment
 - How long does the process take; how long until I can get credit again
 - Qualifying criteria: minimum debt, income, assets, types of debt covered
-- Is Pinnacle registered / how do I know you are legitimate; physical address; reviews
+- Physical address; reviews/testimonials (Craig does not want to disclose more than company documents)
 - Sequestration vs VSE; blacklisting; will my employer find out; what about my spouse / co-signers / surety
 - Garnishee orders, judgments, repossessions, court dates already set
 - What documents will I need; what happens at the call

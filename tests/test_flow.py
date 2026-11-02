@@ -939,3 +939,80 @@ def test_change_is_recognised_in_all_three_languages_and_common_phrasings(word):
     assert s.answers.get("awaiting_correction") is None
     handle(s, word, NIGHT, pricebook=PB)
     assert s.answers.get("awaiting_correction") is True
+
+
+# ------------------------------------------------------------ "is this a scam?": fixed approved answer, no names
+TRUST_QUESTIONS = ["is this a scam?", "Are you guys legit", "this sounds like a scam to me", "can I trust you with my information",
+                   "who are you people", "Oh, you guys fucking around. Is this a scam?", "is it fraud?"]
+
+
+@pytest.mark.parametrize("q", TRUST_QUESTIONS)
+def test_trust_questions_get_the_fixed_answer_even_if_the_ai_says_something_else(q):
+    s = Session(phone="1", step="province", lang="en", name="Craig")
+    r = handle(s, q, NIGHT, llm=FakeLLM("AI improvises: we are NCR approved and registered!"), pricebook=PB)
+    msg = r.messages[0]
+    assert "since 2016" in msg and "East Coast Radio" in msg and "3 years" in msg and "Hot FM" in msg and "2 years" in msg
+    assert "never ask for your banking details" in msg and "company documents" in msg and "type AGENT" in msg
+    assert "improvises" not in msg and "Which province" in msg   # and the question carries on
+    assert s.fails == 0 and s.step == "province"
+
+
+def test_the_trust_answer_never_names_an_attorney_claims_a_registration_or_implies_approval():
+    msg = flow.trust_text("en").lower()
+    for forbidden in ("attorney", "david", "schoonraad", "law society", "legal practice", "registered with", "approved", "accredited",
+                      "ncr", "guarantee", "endorse"):
+        assert forbidden not in msg, forbidden
+
+
+def test_the_trust_answer_works_in_every_language_and_at_every_stage():
+    for lang, marker in (("en", "since 2016"), ("af", "sedert 2016"), ("zu", "kusukela ngo-2016")):
+        assert marker in flow.trust_text(lang)
+    s, _ = full_chat()                                    # after completing
+    assert "since 2016" in handle(s, "is this legit?", NIGHT, pricebook=PB).messages[0]
+    s2, _ = at_callback("is this a scam?")                # in the middle of booking a call
+    assert "since 2016" in last(_) and s2.step == "callback"
+    s3 = Session(phone="1")                               # after being declined
+    run(s3, "hi", "1", "yes", "craig", "3", "60k")
+    assert "since 2016" in handle(s3, "is this a scam?", NIGHT, pricebook=PB).messages[0]
+
+
+def test_a_trust_statement_without_a_question_mark_still_gets_the_answer():
+    s = Session(phone="1", step="debt", lang="en", name="Craig")
+    assert "since 2016" in handle(s, "I think you are scammers", NIGHT, pricebook=PB).messages[0]
+
+
+def test_the_ck_number_is_only_added_when_craig_supplies_it(monkeypatch):
+    assert "registration number" not in flow.trust_text("en")
+    monkeypatch.setattr(flow, "COMPANY_REG_NUMBER", "CK2016/123456/23")
+    assert "Our registration number is CK2016/123456/23." in flow.trust_text("en")
+
+
+@pytest.mark.parametrize("q", ["am I speaking to a real person?", "Are you a bot?", "is this AI", "are you human", "is this automated?"])
+def test_asking_what_it_is_gets_an_honest_fixed_answer_and_is_not_treated_as_a_handover(q):
+    s = Session(phone="1", step="province", lang="en", name="Craig")
+    r = handle(s, q, NIGHT, llm=FakeLLM("I am totally human!"), pricebook=PB)
+    msg = r.messages[0]
+    assert "an AI, so not a person" in msg and "type AGENT" in msg and "totally human" not in msg and "since 2016" not in msg
+    assert s.status == "active" and r.events == [] and "Which province" in msg
+
+
+@pytest.mark.parametrize("q", ["I want to speak to a real person", "can I talk to a human please"])
+def test_asking_to_SPEAK_to_a_person_is_still_a_handover_request(q):
+    s = Session(phone="1", step="province", lang="en", name="Craig")
+    assert handle(s, q, DAY, pricebook=PB).events == ["handover"]
+
+
+def test_the_ai_only_ever_sees_clean_approved_answers_no_names_notes_or_tags():
+    import pathlib
+    from app.llm import faq_for_prompt
+    prompt = faq_for_prompt(pathlib.Path("knowledge/faq.md").read_text())
+    assert "## Q: Is this a scam?" in prompt and "since 2016" in prompt
+    for leak in ("David", "Schoonraad", "Craig", "DRAFT", "VERIFY", "CONFLICT", "NOT YET COVERED", "HOW THIS FILE WORKS", "[From", "Claude"):
+        assert leak not in prompt, leak
+
+
+def test_no_client_facing_text_contains_an_attorney_name():
+    import pathlib
+    from app import content
+    blob = repr(content.M) + pathlib.Path("knowledge/faq.md").read_text().split("## Q:", 1)[1]
+    assert "Schoonraad" not in blob

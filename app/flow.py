@@ -11,8 +11,8 @@ from datetime import date, datetime, timedelta, timezone
 from . import callback as cb
 from .pricing import load_pricebook
 from .content import (
-    AGENT_PHRASES, CHANGE_PHRASES, CHANGED_MIND_PHRASES, CORRECTION_WORDS, COST_PHRASES, DISTRESS_PHRASES, NO_WORDS, OPTIONS, REQUEST_STARTS, START_WORDS, STOP_PHRASES,
-    LEADS, M, OPTIONS, TERMS, WHEN, YES_WORDS, money, options_text, tr,
+    AGENT_PHRASES, AI_QUESTION_PHRASES, CHANGE_PHRASES, CHANGED_MIND_PHRASES, CORRECTION_WORDS, COST_PHRASES, DISTRESS_PHRASES, NO_WORDS, OPTIONS, REQUEST_STARTS, START_WORDS, STOP_PHRASES,
+    COMPANY_REG_NUMBER, LEADS, M, OPTIONS, TERMS, TRUST_PHRASES, WHEN, YES_WORDS, money, options_text, tr,
 )
 
 SAST = timezone(timedelta(hours=2))
@@ -132,13 +132,26 @@ def is_cost_question(text):
     return has_phrase(text, COST_PHRASES)
 
 
+def is_ai_question(text):
+    return has_phrase(text, AI_QUESTION_PHRASES)
+
+
+def is_trust_question(text):
+    return has_phrase(text, TRUST_PHRASES)
+
+
+def trust_text(lang):
+    reg = tr("trust_reg", lang, reg=COMPANY_REG_NUMBER) if COMPANY_REG_NUMBER else ""
+    return tr("trust", lang, reg=reg)
+
+
 def looks_like_question(text):
     t = norm(text)
     words = t.split()
     if len(words) < 3:
         return False  # "yes?" / "no?" are answers, not questions
     t = " ".join(words)
-    if is_cost_question(t) or any(t.startswith(r) for r in REQUEST_STARTS):
+    if is_cost_question(t) or is_trust_question(t) or is_ai_question(t) or any(t.startswith(r) for r in REQUEST_STARTS):
         return True
     return "?" in text or words[0] in QUESTION_WORDS
 
@@ -357,7 +370,7 @@ def handle(s, text, now, llm=None, pricebook=None, kind="text"):
         out.messages += msgs
         out.events.append("distress")
         return out
-    if s.step != "new" and s.status != "not_fit" and wants_agent(t):
+    if s.step != "new" and s.status != "not_fit" and wants_agent(t) and not is_ai_question(t):
         where = "after completing the questions" if s.status == "completed" else f"at step '{s.step}'"
         when = next_available(now, s.lang)
         if not in_business_hours(now) and not s.answers.get("agent_after_hours"):
@@ -446,7 +459,12 @@ def _after_completion(s, t, out, llm, pb):
 
 
 def _faq_or_cost(s, t, llm, pb):
-    """Fee questions are answered from the price book (never by the AI); everything else from the FAQ."""
+    """Fee questions come from the price book and "is this a scam?" from approved fixed wording (never the AI);
+    everything else from the FAQ."""
+    if is_ai_question(t):  # honesty about what it is never depends on the AI
+        return tr("am_i_ai", s.lang), False
+    if is_trust_question(t):
+        return trust_text(s.lang), False
     if is_cost_question(t):
         if s.answers.get("estimate"):
             return restate_estimate(s), False

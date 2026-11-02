@@ -118,6 +118,24 @@ CORRECTION_WORDS = ["misunderstood", "mistake", "wrong", "i rent", "renting", "p
 CHANGE_PHRASES = ["change", "wrong", "incorrect", "mistake", "not right", "isnt right", "isn't right", "verander", "fout",
                   "nie reg", "shintsha", "iphutha"]
 
+# Craig's call: no attorney or personal names in the chat; company documents only. Add the CK number here if he decides to share it.
+COMPANY_REG_NUMBER = ""
+
+TRUST_PHRASES = [
+    "scam", "scammer", "scammers", "scamming", "legit", "legitimate", "fraud", "fraudulent", "fake", "is this real", "can i trust",
+    "trust you", "who are you", "who is pinnacle", "who is this", "con artist", "rip off", "ripoff", "are you a con",
+    "bedrog", "bedrieg", "bedrieer", "skelm", "skelms", "swendel", "betroubaar", "wie is julle", "inkohliso", "amanga", "uyisela", "ngithembe",
+]
+
+AI_QUESTION_PHRASES = [  # asking WHAT it is (not asking to speak to someone)
+    "am i speaking to a real person", "am i talking to a real person", "am i speaking to a person", "am i talking to a person",
+    "am i speaking to a human", "am i talking to a human", "are you a real person", "are you a person", "are you human",
+    "are you a human", "are you a bot", "are you a robot", "are you ai", "are you an ai", "is this a bot", "is this a robot",
+    "is this ai", "is this an ai", "is this automated", "is this a real person", "is this a human",
+    "is jy 'n mens", "is jy 'n regte mens", "praat ek met 'n mens", "is jy 'n bot", "is dit 'n robot",
+    "ungumuntu", "ngikhuluma nomuntu na", "uyirobhothi",
+]
+
 STOP_PHRASES = ["stop", "unsubscribe", "opt out", "optout", "hou op", "yeka", "yima"]
 
 AGENT_PHRASES = [
@@ -301,6 +319,21 @@ M = {
         "en": "Thank you, {name}! That's everything I need. I've noted {callback} as your preferred time. That's outside our standard calling hours (Mon–Fri, 08:00–17:00), so I've flagged it for your consultant, who will confirm it or suggest the nearest time that works.\n\nThey'll go through your situation properly and explain your options. If you have a question in the meantime, ask me here.",
         "af": "Dankie, {name}! Dis alles wat ek nodig het. Ek het {callback} as jou voorkeurtyd genoteer. Dit is buite ons gewone belure (Maandag–Vrydag, 08:00–17:00), so ek het dit vir jou konsultant gemerk, wat dit sal bevestig of die naaste tyd sal voorstel wat werk.\n\nHulle sal jou situasie behoorlik deurgaan en jou opsies verduidelik. As jy intussen 'n vraag het, vra my gerus hier.",
         "zu": "Ngiyabonga, {name}! Yilokho kuphela engikudingayo. Ngiqophe {callback} njengesikhathi osithandayo. Lokho kungaphandle kwamahora ethu avamile okushaya ucingo (uMsombuluko–uLwesihlanu, 08:00–17:00), ngakho ngikumake kumeluleki wakho, ozoqinisekisa noma aphakamise isikhathi esiseduze esisebenzayo.\n\nUzohlaziya isimo sakho kahle futhi akuchazele izinketho zakho. Uma unemibuzo okwamanje, ngibuze lapha.",
+    },
+    "am_i_ai": {
+        "en": "I'm Pinnacle's virtual assistant, an AI, so not a person. I take your details so that one of our consultants can phone you. If you'd rather speak to a person straight away, just type AGENT.",
+        "af": "Ek is Pinnacle se virtuele assistent, 'n KI, so nie 'n mens nie. Ek neem jou besonderhede sodat een van ons konsultante jou kan bel. As jy liewer dadelik met 'n mens wil praat, tik net AGENT.",
+        "zu": "Ngingumsizi we-Pinnacle we-virtual, i-AI, ngakho angiyena umuntu. Ngithatha imininingwane yakho ukuze omunye wabeluleki bethu akushayele ucingo. Uma ungathanda ukukhuluma nomuntu manje, bhala nje u-AGENT.",
+    },
+    "trust": {
+        "en": "Fair question, and I'm glad you asked. Pinnacle Debt Solutions has been helping South Africans with their debt since 2016. We were on East Coast Radio in KwaZulu-Natal for 3 years and on Hot FM in Gauteng for 2 years. Nothing is paid or signed in this chat, and I will never ask for your banking details. Your consultant can share our company documents with you on the call, and you can ask them anything before you decide anything.{reg} If you'd like a person now, just type AGENT.",
+        "af": "Goeie vraag, en ek is bly jy het gevra. Pinnacle Debt Solutions help sedert 2016 Suid-Afrikaners met hul skuld. Ons was 3 jaar lank op East Coast Radio in KwaZulu-Natal en 2 jaar op Hot FM in Gauteng. Niks word in hierdie gesprek betaal of onderteken nie, en ek sal nooit vir jou bankbesonderhede vra nie. Jou konsultant kan ons maatskappydokumente tydens die oproep met jou deel, en jy kan hulle enigiets vra voordat jy enigiets besluit.{reg} As jy nou met 'n mens wil praat, tik net AGENT.",
+        "zu": "Umbuzo omuhle, futhi ngiyajabula ngokuthi ubuzile. I-Pinnacle Debt Solutions isiza abantu baseNingizimu Afrika ngezikweletu zabo kusukela ngo-2016. Sabe siku-East Coast Radio eKwaZulu-Natal iminyaka emi-3 nase-Hot FM eGauteng iminyaka emi-2. Akukho okukhokhwayo noma okusayinwayo kule ngxoxo, futhi angiyikukucela imininingwane yakho yasebhange. Umeluleki wakho angabelana nawe ngamadokhumenti enkampani ngesikhathi socingo, futhi ungambuza noma yini ngaphambi kokuba unqume noma yini.{reg} Uma ufuna umuntu manje, bhala nje u-AGENT.",
+    },
+    "trust_reg": {
+        "en": " Our registration number is {reg}.",
+        "af": " Ons registrasienommer is {reg}.",
+        "zu": " Inombolo yethu yokubhalisa ithi {reg}.",
     },
     "recap": {
         "en": "Here's what I've noted, {name}:\n• Province: {province}\n• Debt: about {debt}\n• Home: {home}\n• Vehicle: {vehicle}\n• Married: {marital}\n• Debt review: {review}\n• Call: {callback}\n\nIf anything isn't right, reply CHANGE and I'll flag it for your consultant to fix before they call.",
