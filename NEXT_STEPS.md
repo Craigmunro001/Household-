@@ -61,6 +61,9 @@
 5. Native check: Afrikaans (Craig) and isiZulu (someone else) of all client-facing text, including the translated disclaimer.
 6. Go live: Meta WhatsApp app + number (coexistence), Google service account, Railway deploy (see README). Own-number test, then small pilot.
 
+## Decisions made by Craig
+- Lead under debt review: the bot just carries on to the call booking (no note); the consultant is told via the UNSURE triage and the debt-review line in the Sheet/email. (3 Nov)
+
 ## Open decisions for Craig
 - Under-R100k wording is a draft: David to approve. Should the bot point them to a free alternative (e.g. NCR / a registered debt counsellor)? That is advice, so only with approval.
 - Marketing: put "debt over R100 000" in the ad copy so you stop paying for leads that can't be served.
