@@ -115,6 +115,9 @@ CHANGED_MIND_PHRASES = ["continue", "yes", "yes please", "ja", "ja asseblief", "
 CORRECTION_WORDS = ["misunderstood", "mistake", "wrong", "i rent", "renting", "paid off", "fully paid", "settled", "huur", "afbetaal",
                     "ngiqasha", "i misread", "my bad"]
 
+CHANGE_PHRASES = ["change", "wrong", "incorrect", "mistake", "not right", "isnt right", "isn't right", "verander", "fout",
+                  "nie reg", "shintsha", "iphutha"]
+
 STOP_PHRASES = ["stop", "unsubscribe", "opt out", "optout", "hou op", "yeka", "yima"]
 
 AGENT_PHRASES = [
@@ -298,6 +301,41 @@ M = {
         "en": "Thank you, {name}! That's everything I need. I've noted {callback} as your preferred time. That's outside our standard calling hours (Mon–Fri, 08:00–17:00), so I've flagged it for your consultant, who will confirm it or suggest the nearest time that works.\n\nThey'll go through your situation properly and explain your options. If you have a question in the meantime, ask me here.",
         "af": "Dankie, {name}! Dis alles wat ek nodig het. Ek het {callback} as jou voorkeurtyd genoteer. Dit is buite ons gewone belure (Maandag–Vrydag, 08:00–17:00), so ek het dit vir jou konsultant gemerk, wat dit sal bevestig of die naaste tyd sal voorstel wat werk.\n\nHulle sal jou situasie behoorlik deurgaan en jou opsies verduidelik. As jy intussen 'n vraag het, vra my gerus hier.",
         "zu": "Ngiyabonga, {name}! Yilokho kuphela engikudingayo. Ngiqophe {callback} njengesikhathi osithandayo. Lokho kungaphandle kwamahora ethu avamile okushaya ucingo (uMsombuluko–uLwesihlanu, 08:00–17:00), ngakho ngikumake kumeluleki wakho, ozoqinisekisa noma aphakamise isikhathi esiseduze esisebenzayo.\n\nUzohlaziya isimo sakho kahle futhi akuchazele izinketho zakho. Uma unemibuzo okwamanje, ngibuze lapha.",
+    },
+    "recap": {
+        "en": "Here's what I've noted, {name}:\n• Province: {province}\n• Debt: about {debt}\n• Home: {home}\n• Vehicle: {vehicle}\n• Married: {marital}\n• Debt review: {review}\n• Call: {callback}\n\nIf anything isn't right, reply CHANGE and I'll flag it for your consultant to fix before they call.",
+        "af": "Hier is wat ek genoteer het, {name}:\n• Provinsie: {province}\n• Skuld: ongeveer {debt}\n• Huis: {home}\n• Voertuig: {vehicle}\n• Getroud: {marital}\n• Skuldhersiening: {review}\n• Oproep: {callback}\n\nAs iets nie reg is nie, antwoord CHANGE (verander) en ek sal dit vir jou konsultant merk om reg te maak voor hulle bel.",
+        "zu": "Nanku engikuqophile, {name}:\n• Isifundazwe: {province}\n• Isikweletu: cishe {debt}\n• Indlu: {home}\n• Isithuthi: {vehicle}\n• Umshado: {marital}\n• Debt review: {review}\n• Ucingo: {callback}\n\nUma kukhona okungalungile, phendula ngo-CHANGE (shintsha) futhi ngizokumaka kumeluleki wakho ukuze akulungise ngaphambi kokushaya.",
+    },
+    "recap_home": {
+        "yes": {"en": "Yes, I own a home", "af": "Ja, ek besit 'n huis", "zu": "Yebo, nginendlu"},
+        "no": {"en": "No", "af": "Nee", "zu": "Cha"},
+    },
+    "recap_vehicle": {
+        "yes": {"en": "Under finance", "af": "Onder finansiering", "zu": "Sisakhokhelwa"},
+        "no": {"en": "None", "af": "Geen", "zu": "Asikho"},
+        "paid_off": {"en": "Fully paid off", "af": "Heeltemal afbetaal", "zu": "Sikhokhiwe sonke"},
+    },
+    "recap_marital": {
+        "not_married": {"en": "No", "af": "Nee", "zu": "Cha"},
+        "in_community": {"en": "Yes, in community of property", "af": "Ja, binne gemeenskap van goedere", "zu": "Yebo, in community of property"},
+        "out_of_community": {"en": "Yes, out of community of property", "af": "Ja, buite gemeenskap van goedere", "zu": "Yebo, out of community of property"},
+        "unsure": {"en": "Yes (regime to be confirmed)", "af": "Ja (stelsel moet bevestig word)", "zu": "Yebo (uhlelo luzoqinisekiswa)"},
+    },
+    "recap_review": {
+        "yes": {"en": "Yes", "af": "Ja", "zu": "Yebo"},
+        "no": {"en": "No", "af": "Nee", "zu": "Cha"},
+        "unsure": {"en": "Not sure", "af": "Nie seker nie", "zu": "Angiqiniseki"},
+    },
+    "ask_correction": {
+        "en": "Of course! What would you like to change? Just type it, and I'll pass it straight to your consultant so it's fixed before they call you.",
+        "af": "Natuurlik! Wat wil jy verander? Tik dit net, en ek gee dit direk aan jou konsultant sodat dit reggemaak word voor hulle jou bel.",
+        "zu": "Impela! Ufuna ukushintsha ini? Bhala nje, futhi ngizokudlulisela ngqo kumeluleki wakho ukuze kulungiswe ngaphambi kokuba akushayele.",
+    },
+    "correction_thanks": {
+        "en": "Thank you, I've passed that to your consultant so it's fixed before they call you.",
+        "af": "Dankie, ek het dit aan jou konsultant deurgegee sodat dit reggemaak word voor hulle jou bel.",
+        "zu": "Ngiyabonga, ngikudlulisele kumeluleki wakho ukuze kulungiswe ngaphambi kokuba akushayele.",
     },
     "cb_confirm": {
         "en": "Just to confirm: {label}. Is that right?\n\n1. Yes, that's right\n2. No, change it{note}",

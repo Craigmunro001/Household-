@@ -11,8 +11,8 @@ from datetime import date, datetime, timedelta, timezone
 from . import callback as cb
 from .pricing import load_pricebook
 from .content import (
-    AGENT_PHRASES, CHANGED_MIND_PHRASES, CORRECTION_WORDS, COST_PHRASES, DISTRESS_PHRASES, NO_WORDS, OPTIONS, REQUEST_STARTS, START_WORDS, STOP_PHRASES,
-    LEADS, TERMS, WHEN, YES_WORDS, money, options_text, tr,
+    AGENT_PHRASES, CHANGE_PHRASES, CHANGED_MIND_PHRASES, CORRECTION_WORDS, COST_PHRASES, DISTRESS_PHRASES, NO_WORDS, OPTIONS, REQUEST_STARTS, START_WORDS, STOP_PHRASES,
+    LEADS, M, OPTIONS, TERMS, WHEN, YES_WORDS, money, options_text, tr,
 )
 
 SAST = timezone(timedelta(hours=2))
@@ -401,6 +401,24 @@ def handle(s, text, now, llm=None, pricebook=None, kind="text"):
 
 def _after_completion(s, t, out, llm, pb):
     is_q = looks_like_question(t)
+    if s.answers.pop("awaiting_correction", False) and len(t) >= 2:
+        now = datetime.fromisoformat(s.updated_at)
+        parsed = cb.parse_callback(t, now, s.lang)
+        if parsed.kind == "slot":  # it is a new call time: just apply it
+            in_hours = _record_callback(s, parsed, t, now)
+            shown = s.answers["callback"] + ("" if in_hours else tr("callback_outside", s.lang))
+            s.notes.append(f"Call time changed by lead to: {s.answers['callback']}")
+            out.messages.append(tr("callback_updated", s.lang, name=s.name, callback=shown))
+            out.events.append("callback_updated")
+        else:
+            s.notes.append(f"CORRECTION requested by lead: {t[:300]}")
+            out.messages.append(tr("correction_thanks", s.lang))
+            out.events.append("correction_requested")
+        return
+    if has_phrase(t, CHANGE_PHRASES) and len(norm(t).split()) <= 12 and not s.answers.get("awaiting_callback"):
+        s.answers["awaiting_correction"] = True
+        out.messages.append(tr("ask_correction", s.lang))
+        return
     if s.answers.pop("awaiting_callback", False) and not is_q and len(t) >= 2:
         now = datetime.fromisoformat(s.updated_at)
         parsed = cb.parse_callback(t, now, s.lang)
@@ -651,6 +669,24 @@ def _after_not_fit(s, t, out, llm, pb):
     out.messages.append(tr("not_fit_followup", s.lang, name=s.name))
 
 
+def _option_label(step, value, lang):
+    return next(labels[lang] for v, labels, _ in OPTIONS[step] if v == value)
+
+
+def recap_text(s):
+    """A plain-words read-back of everything noted, so the lead can spot a mistake (and we show we listened)."""
+    a, lang = s.answers, s.lang
+    flexible = a.get("callback_flexible")
+    return tr("recap", lang, name=s.name,
+              province=_option_label("province", a["province"], lang) if a.get("province") else "-",
+              debt=f"R{a['debt_amount']:,}".replace(",", "\u00a0") if a.get("debt_amount") else "-",
+              home=M["recap_home"][a.get("home", "no")][lang],
+              vehicle=M["recap_vehicle"][a.get("vehicle", "no")][lang],
+              marital=M["recap_marital"][a.get("marital", "not_married")][lang],
+              review=M["recap_review"][a.get("review", "unsure")][lang],
+              callback=a.get("callback", "-") if not flexible else tr("callback_flexible", lang))
+
+
 def _finish(s, out, now):
     s.status, s.step = "completed", "done"
     s.qualification = assess(s)
@@ -660,6 +696,7 @@ def _finish(s, out, now):
         out.messages.append(tr("done", s.lang, name=s.name, callback=s.answers["callback"], after=""))
     else:  # outside standard hours: a preferred time, never a promise
         out.messages.append(tr("done_flagged", s.lang, name=s.name, callback=s.answers["callback"]))
+    out.messages.append(recap_text(s))
     out.events.append("completed")
 
 

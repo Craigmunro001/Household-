@@ -871,3 +871,71 @@ def test_friendly_wording_exists_in_all_three_languages():
     from app.content import LEADS
     for step, by_lang in LEADS.items():
         assert set(by_lang) == {"en", "af", "zu"}, step
+
+
+# ------------------------------------------------------------ the recap and the CHANGE flow
+def test_finishing_sends_the_booking_confirmation_then_a_plain_recap():
+    s, r = full_chat()
+    assert len(r[-1].messages) == 2 and r[-1].events == ["completed"]
+    recap = r[-1].messages[1]
+    for line in ("Here's what I've noted, Craig:", "• Province: Gauteng", "• Debt: about R250 000", "• Home: No",
+                 "• Vehicle: None", "• Married: Yes, in community of property", "• Debt review: No", "• Call: Wed 4 Nov, after 14:00",
+                 "reply CHANGE"):
+        assert line in recap, line
+
+
+def test_recap_reports_what_was_actually_said_about_assets():
+    s = Session(phone="1")
+    r = run(s, "hi", "1", "yes", "craig", "2", "180000", "1", "yes", "3", "2", "3", "2", "2")
+    recap = r[-1].messages[1]
+    assert s.status == "completed" and "• Home: Yes, I own a home" in recap and "• Vehicle: Fully paid off" in recap
+    assert "• Province: Free State" in recap and "• Married: Yes, out of community of property" in recap
+
+
+def test_recap_never_repeats_the_fee_figure():
+    _, r = full_chat()
+    assert "R4,788.86" not in r[-1].messages[1] and "per month" not in r[-1].messages[1]
+
+
+def test_recap_when_the_consultant_is_to_suggest_the_time():
+    s = Session(phone="1")
+    r = run(s, "hi", "1", "yes", "craig", "3", "250000", "2", "2", "1", "2", "2", "4")
+    assert "• Call: Consultant to suggest a time" in r[-1].messages[1]
+
+
+def test_recap_in_afrikaans_and_zulu():
+    for lang, choice, marker in (("2", "ja", "Hier is wat ek genoteer het"), ("3", "yebo", "Nanku engikuqophile")):
+        s, r = full_chat(lang=lang)
+        assert marker in r[-1].messages[1]
+
+
+def test_no_recap_for_leads_who_were_declined():
+    s = Session(phone="1")
+    r = run(s, "hi", "1", "yes", "craig", "3", "60k")
+    assert all("Here's what I've noted" not in m for rep in r for m in rep.messages)
+
+
+def test_change_asks_what_to_change_then_flags_it_for_the_consultant():
+    s, _ = full_chat()
+    r = handle(s, "CHANGE", NIGHT, pricebook=PB)
+    assert "What would you like to change?" in r.messages[0] and r.events == []
+    r = handle(s, "I actually own a house, I tapped the wrong button", NIGHT, pricebook=PB)
+    assert r.events == ["correction_requested"] and "passed that to your consultant" in r.messages[0]
+    assert any(n.startswith("CORRECTION requested by lead: I actually own a house") for n in s.notes)
+    subject, body = notify.build("correction_requested", s)
+    assert "correction" in subject.lower() and "I actually own a house" in body
+
+
+def test_change_followed_by_a_new_call_time_just_updates_the_time():
+    s, _ = full_chat()
+    handle(s, "I need to change the time", NIGHT, pricebook=PB)
+    r = handle(s, "Friday at 3pm", NIGHT, pricebook=PB)
+    assert r.events == ["callback_updated"] and s.answers["callback"] == "Fri 6 Nov, 15:00" and "Fri 6 Nov, 15:00" in r.messages[0]
+
+
+@pytest.mark.parametrize("word", ["verander", "this is wrong", "there's a mistake", "shintsha"])
+def test_change_is_recognised_in_all_three_languages_and_common_phrasings(word):
+    s, _ = full_chat()
+    assert s.answers.get("awaiting_correction") is None
+    handle(s, word, NIGHT, pricebook=PB)
+    assert s.answers.get("awaiting_correction") is True

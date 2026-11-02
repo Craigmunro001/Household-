@@ -14,6 +14,7 @@ SUBJECTS = {
     "distress": "URGENT: distressed lead, call personally",
     "person_requested": "Lead asked for a person after hours (bot is continuing, call back next working day)",
     "callback_updated": "Lead changed their call time",
+    "correction_requested": "Lead flagged a correction - fix before calling",
 }
 
 
