@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 
 from .content import (
-    AGENT_PHRASES, CORRECTION_WORDS, COST_PHRASES, DISTRESS_PHRASES, NO_WORDS, OPTIONS, REQUEST_STARTS, START_WORDS, STOP_PHRASES,
+    AGENT_PHRASES, CHANGED_MIND_PHRASES, CORRECTION_WORDS, COST_PHRASES, DISTRESS_PHRASES, NO_WORDS, OPTIONS, REQUEST_STARTS, START_WORDS, STOP_PHRASES,
     TERMS, WHEN, YES_WORDS, money, options_text, tr,
 )
 
@@ -578,7 +578,7 @@ def _after_not_fit(s, t, out, llm, pb):
     reason = s.answers.get("not_fit_reason", "debt")
     if reason == "assets":
         which = s.answers.get("not_fit_asset", "home")
-        if parse_choice("asset_ack", t) == "yes":  # changed their mind
+        if has_phrase(t, CHANGED_MIND_PHRASES):  # changed their mind (explicitly: "ok thanks" does not count)
             s.status, s.fails, s.qualification = "active", 0, ""
             _accept_asset_risk(s, out, pb, which)
             return

@@ -628,3 +628,19 @@ def test_followup_after_a_decline_is_also_tailored():
     run(s, "hi", "1", "yes", "craig", "3", "250000", "1", "2")
     msg = handle(s, "ok thanks", NIGHT, pricebook=PB).messages[0]
     assert "rent your home" in msg and "vehicle is fully paid off" not in msg
+
+
+@pytest.mark.parametrize("polite", ["ok thanks", "okay", "thank you", "alright then", "ok bye"])
+def test_a_polite_acknowledgement_after_declining_does_not_restart_the_process(polite):
+    s = Session(phone="1")
+    run(s, "hi", "1", "yes", "craig", "3", "250000", "1", "2")
+    handle(s, polite, NIGHT, pricebook=PB)
+    assert s.status == "not_fit" and "asset_ack" not in s.answers
+
+
+@pytest.mark.parametrize("again", ["CONTINUE", "yes please", "go ahead", "I've changed my mind, yes"])
+def test_an_explicit_change_of_mind_after_declining_does_resume(again):
+    s = Session(phone="1")
+    run(s, "hi", "1", "yes", "craig", "3", "250000", "1", "2")
+    handle(s, again, NIGHT, pricebook=PB)
+    assert s.status == "active" and s.step == "vehicle"

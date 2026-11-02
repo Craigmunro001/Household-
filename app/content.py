@@ -109,6 +109,9 @@ WHEN = {  # when the team is next available, by language
     "monday": {"en": "Monday", "af": "Maandag", "zu": "ngoMsombuluko"},
 }
 
+CHANGED_MIND_PHRASES = ["continue", "yes", "yes please", "ja", "ja asseblief", "yebo", "go ahead", "carry on", "proceed", "i understand",
+                        "gaan voort", "voortgaan", "qhubeka", "ngiyaqonda"]  # deliberately no bare "ok": "ok thanks" is not a yes
+
 CORRECTION_WORDS = ["misunderstood", "mistake", "wrong", "i rent", "renting", "paid off", "fully paid", "settled", "huur", "afbetaal",
                     "ngiqasha", "i misread", "my bad"]
 
