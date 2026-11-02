@@ -198,10 +198,17 @@ def test_request_phrased_as_statement_is_treated_as_a_question():
 
 
 # ------------------------------------------------------------ consent, safety, handover
-def test_ai_disclosure_and_stop_in_consent():
+def test_consent_says_virtual_assistant_without_hammering_ai_and_keeps_popia_and_stop():
     s = Session(phone="1")
-    r = run(s, "hi", "1")
-    assert "AI" in r[-1].messages[0] and "STOP" in r[-1].messages[0] and "POPIA" in r[-1].messages[0]
+    msg = run(s, "hi", "1")[-1].messages[0]
+    assert "virtual assistant" in msg and "not a person" not in msg and "AI" not in msg
+    assert "STOP" in msg and "POPIA" in msg
+
+
+def test_bot_never_denies_being_an_ai_when_asked_directly():
+    import pathlib
+    faq = pathlib.Path("knowledge/faq.md").read_text()
+    assert "I'm Pinnacle's virtual assistant, an AI, so not a person" in faq
 
 
 def test_consent_declined_stops():

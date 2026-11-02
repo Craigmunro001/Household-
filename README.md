@@ -28,7 +28,7 @@ pytest
 | `app/flow.py` `assess()` | Lead triage (LIKELY/UNSURE) shown to consultants only |
 
 ## Safety built in
-- Opens by saying it is an AI, with a POPIA notice; nothing is asked until the prospect replies YES.
+- Opens as Pinnacle's "virtual assistant" with a POPIA notice; nothing is asked until the prospect replies YES. If asked directly, it always says it is an AI (never claims to be human).
 - STOP at any time opts out (only an explicit START brings them back).
 - Self-harm language (EN/AF/ZU) -> helpline numbers sent, bot goes quiet, URGENT email. **Verify the helpline numbers before launch.**
 - "Agent / speak to a person", or 3 misunderstood answers -> bot goes quiet and a consultant is alerted.

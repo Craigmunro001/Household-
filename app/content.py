@@ -145,9 +145,9 @@ M = {
         "(Reply with a number / Antwoord met 'n nommer / Phendula ngenombolo)"
     ),
     "consent": {
-        "en": "Hi! I'm Pinnacle's virtual assistant (an AI, not a person). I'll ask a few quick questions so one of our consultants can call you at a time that suits you.\n\nYour information is confidential, used only to assess how we can help you, and handled in line with POPIA. You can type STOP at any time.\n\nReply YES to continue.",
-        "af": "Hallo! Ek is Pinnacle se virtuele assistent (KI, nie 'n mens nie). Ek sal jou 'n paar vinnige vrae vra sodat een van ons konsultante jou kan bel op 'n tyd wat jou pas.\n\nJou inligting is vertroulik, word net gebruik om te bepaal hoe ons jou kan help, en word volgens POPIA hanteer. Jy kan enige tyd STOP tik.\n\nAntwoord JA om voort te gaan.",
-        "zu": "Sawubona! NginguMsizi we-Pinnacle osebenza ngobuchwepheshe be-AI, hhayi umuntu. Ngizokubuza imibuzo embalwa ukuze omunye wabeluleki bethu akushayele ucingo ngesikhathi esikulungele.\n\nUlwazi lwakho luyimfihlo, lusetshenziselwa kuphela ukuhlola ukuthi singakusiza kanjani, futhi luphethwe ngokomthetho we-POPIA. Ungabhala u-STOP noma inini.\n\nPhendula ngo-YEBO ukuze siqhubeke.",
+        "en": "Hi! I'm Pinnacle's virtual assistant. I'll ask a few quick questions so one of our consultants can call you at a time that suits you.\n\nYour information is confidential, used only to assess how we can help you, and handled in line with POPIA. You can type STOP at any time.\n\nReply YES to continue.",
+        "af": "Hallo! Ek is Pinnacle se virtuele assistent. Ek sal jou 'n paar vinnige vrae vra sodat een van ons konsultante jou kan bel op 'n tyd wat jou pas.\n\nJou inligting is vertroulik, word net gebruik om te bepaal hoe ons jou kan help, en word volgens POPIA hanteer. Jy kan enige tyd STOP tik.\n\nAntwoord JA om voort te gaan.",
+        "zu": "Sawubona! Ngingumsizi we-Pinnacle we-virtual. Ngizokubuza imibuzo embalwa ukuze omunye wabeluleki bethu akushayele ucingo ngesikhathi esikulungele.\n\nUlwazi lwakho luyimfihlo, lusetshenziselwa kuphela ukuhlola ukuthi singakusiza kanjani, futhi luphethwe ngokomthetho we-POPIA. Ungabhala u-STOP noma inini.\n\nPhendula ngo-YEBO ukuze siqhubeke.",
     },
     "declined": {
         "en": "No problem at all. If you change your mind, just send us a message any time. Take care.",
