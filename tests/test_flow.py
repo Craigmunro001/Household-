@@ -604,3 +604,27 @@ def test_home_owner_who_accepts_the_warning_is_always_asked_about_the_vehicle_ne
     s, _ = asset_chat("1")
     r = handle(s, "yes", NIGHT, pricebook=PB)
     assert s.step == "vehicle" and "vehicle" in r.messages[0]
+
+
+def test_decline_messages_mention_only_the_situation_that_matches_the_declined_question():
+    for lang, choice in (("1", "yes"), ("2", "ja"), ("3", "yebo")):
+        s = Session(phone="1")
+        home = run(s, "hi", lang, choice, "craig", "3", "250000", "1", "2")[-1].messages[0]
+        s = Session(phone="1")
+        veh = run(s, "hi", lang, choice, "craig", "3", "250000", "2", "1", "2")[-1].messages[0]
+        if lang == "1":
+            assert "rent your home" in home and "vehicle is fully paid off" not in home
+            assert "vehicle is fully paid off" in veh and "rent your home" not in veh
+        else:
+            assert home != veh
+
+
+def test_followup_after_a_decline_is_also_tailored():
+    s = Session(phone="1")
+    run(s, "hi", "1", "yes", "craig", "3", "250000", "2", "1", "2")
+    msg = handle(s, "ok thanks", NIGHT, pricebook=PB).messages[0]
+    assert "vehicle is fully paid off" in msg and "rent your home" not in msg
+    s = Session(phone="1")
+    run(s, "hi", "1", "yes", "craig", "3", "250000", "1", "2")
+    msg = handle(s, "ok thanks", NIGHT, pricebook=PB).messages[0]
+    assert "rent your home" in msg and "vehicle is fully paid off" not in msg

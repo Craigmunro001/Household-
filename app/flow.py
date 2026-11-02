@@ -534,7 +534,7 @@ def _answer_step(s, t, out, now, llm, pb):
             else:
                 s.answers["not_fit_asset"] = which
                 _decline(s, out, "assets", f"Warned about their {which}; chose not to continue - no consultant call",
-                         tr("not_fit_assets", s.lang, name=s.name))
+                         tr(f"not_fit_{which}", s.lang, name=s.name))
             return
         if value:
             s.answers[step] = value
@@ -594,7 +594,7 @@ def _after_not_fit(s, t, out, llm, pb):
             if ans:
                 out.messages.append(ans)
                 return
-        out.messages.append(tr("not_fit_assets_followup", s.lang, name=s.name))
+        out.messages.append(tr(f"not_fit_{which}_followup", s.lang, name=s.name))
         return
     amount = parse_amount(t)
     if amount and amount >= decline_below(pb):

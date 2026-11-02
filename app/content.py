@@ -258,15 +258,25 @@ M = {
         "af": "Goed om te weet. 'n Voertuig wat heeltemal afbetaal is, is 'n ander situasie, en jou konsultant sal die opsies daarvoor met jou deurgaan.",
         "zu": "Kuhle ukwazi. Isithuthi esikhokhiwe sonke sisimo esihlukile, futhi umeluleki wakho uzokuchazela ngezinketho zaso.",
     },
-    "not_fit_assets": {
-        "en": "Understood, {name}, and thank you for being open with me. If you change your mind, just reply CONTINUE and we'll carry on. And if I've misunderstood your situation (for example you rent your home, or your vehicle is fully paid off), tell me. Otherwise, I wish you well.",
-        "af": "Verstaan, {name}, en dankie dat jy so openhartig was. As jy van plan verander, antwoord net CONTINUE (voortgaan) en ons gaan voort. En as ek jou situasie verkeerd verstaan het (byvoorbeeld jy huur jou huis, of jou voertuig is heeltemal afbetaal), sê net. Andersins wens ek jou alles van die beste toe.",
-        "zu": "Ngiyaqonda, {name}, futhi ngiyabonga ngokuvuleka kimi. Uma ushintsha umqondo, phendula nje ngo-CONTINUE (qhubeka) futhi siqhubeke. Futhi uma ngingasiqondanga kahle isimo sakho (isibonelo uqasha indlu yakho, noma isithuthi sakho sikhokhiwe sonke), ngitshele. Uma kungenjalo, ngikufisela konke okuhle.",
+    "not_fit_home": {
+        "en": "Understood, {name}, and thank you for being open with me. If you change your mind, just reply CONTINUE and we'll carry on. And if I've misunderstood (for example you rent your home), just tell me. Otherwise, I wish you well.",
+        "af": "Verstaan, {name}, en dankie dat jy so openhartig was. As jy van plan verander, antwoord net CONTINUE (voortgaan) en ons gaan voort. En as ek jou verkeerd verstaan het (byvoorbeeld jy huur jou huis), sê net. Andersins wens ek jou alles van die beste toe.",
+        "zu": "Ngiyaqonda, {name}, futhi ngiyabonga ngokuvuleka kimi. Uma ushintsha umqondo, phendula nje ngo-CONTINUE (qhubeka) futhi siqhubeke. Futhi uma ngingakuqondanga kahle (isibonelo uqasha indlu yakho), ngitshele nje. Uma kungenjalo, ngikufisela konke okuhle.",
     },
-    "not_fit_assets_followup": {
-        "en": "Thanks, {name}. Reply CONTINUE if you'd like to carry on, or tell me if I've misunderstood your situation. I wish you well.",
-        "af": "Dankie, {name}. Antwoord CONTINUE (voortgaan) as jy wil voortgaan, of sê my as ek jou situasie verkeerd verstaan het. Ek wens jou alles van die beste toe.",
-        "zu": "Ngiyabonga, {name}. Phendula ngo-CONTINUE (qhubeka) uma ufuna ukuqhubeka, noma ungitshele uma ngingasiqondanga kahle isimo sakho. Ngikufisela konke okuhle.",
+    "not_fit_vehicle": {
+        "en": "Understood, {name}, and thank you for being open with me. If you change your mind, just reply CONTINUE and we'll carry on. And if I've misunderstood (for example your vehicle is fully paid off), just tell me. Otherwise, I wish you well.",
+        "af": "Verstaan, {name}, en dankie dat jy so openhartig was. As jy van plan verander, antwoord net CONTINUE (voortgaan) en ons gaan voort. En as ek jou verkeerd verstaan het (byvoorbeeld jou voertuig is heeltemal afbetaal), sê net. Andersins wens ek jou alles van die beste toe.",
+        "zu": "Ngiyaqonda, {name}, futhi ngiyabonga ngokuvuleka kimi. Uma ushintsha umqondo, phendula nje ngo-CONTINUE (qhubeka) futhi siqhubeke. Futhi uma ngingakuqondanga kahle (isibonelo isithuthi sakho sikhokhiwe sonke), ngitshele nje. Uma kungenjalo, ngikufisela konke okuhle.",
+    },
+    "not_fit_home_followup": {
+        "en": "Thanks, {name}. Reply CONTINUE if you'd like to carry on, or tell me if I've misunderstood (for example you rent your home). I wish you well.",
+        "af": "Dankie, {name}. Antwoord CONTINUE (voortgaan) as jy wil voortgaan, of sê my as ek jou verkeerd verstaan het (byvoorbeeld jy huur jou huis). Ek wens jou alles van die beste toe.",
+        "zu": "Ngiyabonga, {name}. Phendula ngo-CONTINUE (qhubeka) uma ufuna ukuqhubeka, noma ungitshele uma ngingakuqondanga kahle (isibonelo uqasha indlu yakho). Ngikufisela konke okuhle.",
+    },
+    "not_fit_vehicle_followup": {
+        "en": "Thanks, {name}. Reply CONTINUE if you'd like to carry on, or tell me if I've misunderstood (for example your vehicle is fully paid off). I wish you well.",
+        "af": "Dankie, {name}. Antwoord CONTINUE (voortgaan) as jy wil voortgaan, of sê my as ek jou verkeerd verstaan het (byvoorbeeld jou voertuig is heeltemal afbetaal). Ek wens jou alles van die beste toe.",
+        "zu": "Ngiyabonga, {name}. Phendula ngo-CONTINUE (qhubeka) uma ufuna ukuqhubeka, noma ungitshele uma ngingakuqondanga kahle (isibonelo isithuthi sakho sikhokhiwe sonke). Ngikufisela konke okuhle.",
     },
     "ask_marital": {
         "en": "Thanks. Are you married? If so, is it in community of property or out of community of property?\n\n{options}",
