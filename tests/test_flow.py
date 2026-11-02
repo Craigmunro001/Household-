@@ -1037,3 +1037,11 @@ def test_the_radio_history_is_worded_as_advertising_in_every_language():
     from app.llm import faq_for_prompt
     prompt = faq_for_prompt(pathlib.Path("knowledge/faq.md").read_text())
     assert "advertised on East Coast Radio" in prompt and "we were on East Coast" not in prompt
+
+
+@pytest.mark.parametrize("q", ["where have I heard of you guys?", "I think I heard you on the radio", "how long have you been in business?",
+                               "have you been around long?", "Waar het ek van julle gehoor?", "hoe lank is julle al in besigheid"])
+def test_how_established_are_you_questions_get_the_same_fixed_credibility_answer(q):
+    s = Session(phone="1", step="province", lang="en", name="Craig")
+    r = handle(s, q, NIGHT, llm=FakeLLM(None), pricebook=PB)
+    assert "since 2016" in r.messages[0] or "sedert 2016" in r.messages[0] or "advertised" in r.messages[0] or "geadverteer" in r.messages[0], q

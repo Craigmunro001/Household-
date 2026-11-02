@@ -125,6 +125,10 @@ TRUST_PHRASES = [
     "scam", "scammer", "scammers", "scamming", "legit", "legitimate", "fraud", "fraudulent", "fake", "is this real", "can i trust",
     "trust you", "who are you", "who is pinnacle", "who is this", "con artist", "rip off", "ripoff", "are you a con",
     "bedrog", "bedrieg", "bedrieer", "skelm", "skelms", "swendel", "betroubaar", "wie is julle", "inkohliso", "amanga", "uyisela", "ngithembe",
+    # "how do I know you're established?" questions: the same answer covers them
+    "heard of you", "heard about you", "heard of pinnacle", "seen you", "on the radio", "radio station", "how long have you been",
+    "been in business", "been around", "how long are you in business", "van julle gehoor", "op die radio", "hoe lank is julle",
+    "ngikuzwile ku-radio", "ku-radio", "nikhona isikhathi esingakanani",
 ]
 
 AI_QUESTION_PHRASES = [  # asking WHAT it is (not asking to speak to someone)
