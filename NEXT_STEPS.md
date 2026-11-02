@@ -38,6 +38,14 @@
 - chat.py has --at <SAST time> to test after-hours behaviour.
 - STILL TO DO (call-time handling): accept a bare "2" as 2pm; store the call time as a real date ("Tue 3 Nov, 15:00") for the consultant; never confirm a Saturday/Sunday/after-hours call time (offer the next slot).
 
+## Call-back time + friendlier wording (3 Nov) - DONE
+- Call-time question offers: 1) next working day 08:00, 2) next working day 10:00, 3) another day or time; or type a day+time in EN/AF/ZU ("Friday at 4pm", "tomorrow after 2pm", "Dinsdag om 3nm"). Stored as an exact label ("Wed 4 Nov, 10:00") in the Sheet and email.
+- A bare time ("10", "9am") never gets guessed: the options are shown again. A day with no time asks for the time.
+- Saturday / Sunday / evening / before 08:00 requests ARE accepted but recorded as a *preferred time* and flagged ("OUTSIDE standard hours") for the consultant to confirm or suggest the nearest time. The bot never promises an out-of-hours call.
+- Every question has a friendly lead-in using the lead's name, and "Only N questions left." appears from 5 down (term question counted only when we can estimate).
+- Afrikaans/isiZulu lead-ins and call-time wording are drafts for native speakers to check.
+- Known polish: after a bare "10" the options message repeats its opening sentence.
+
 ## Next steps, in order
 1. Craig: the ~50 questions and answers, in batches of 10-15 (best source: real lead questions).
 2. Craig: trust facts (attorney firm and how to verify, company details/address/website, registrations) for "is this a scam?".
