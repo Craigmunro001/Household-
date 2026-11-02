@@ -15,7 +15,7 @@ from app import main  # noqa: E402
 sent = []
 
 
-async def fake_send(to, body):
+async def fake_send(to, body, lang="en"):
     sent.append((to, body))
 
 
@@ -23,7 +23,7 @@ async def fake_read(msg_id):
     pass
 
 
-main.wa.send_text = fake_send
+main.wa.send = fake_send
 main.wa.mark_read = fake_read
 main.sink = type("S", (), {"upsert": lambda self, s: None})()
 client = TestClient(main.app)

@@ -65,7 +65,7 @@ async def process(msg):
             for i, text in enumerate(reply.messages):
                 if i:
                     await asyncio.sleep(settings.human_delay)
-                await wa.send_text(msg.phone, text)
+                await wa.send(msg.phone, text, s.lang)
             if s.consent_at or reply.events:
                 await asyncio.to_thread(sink.upsert, s)
             for event in reply.events:

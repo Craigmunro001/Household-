@@ -46,6 +46,13 @@
 - Afrikaans/isiZulu lead-ins and call-time wording are drafts for native speakers to check.
 - Known polish: after a bare "10" the options message repeats its opening sentence.
 
+## Recap + WhatsApp buttons (3 Nov) - DONE
+- End of chat: confirmation message, then a plain recap (province, debt, home, vehicle, married, debt review, call time; never the fee figure). "Reply CHANGE" -> asks what to fix and flags it to the consultant (email subject "Lead flagged a correction"); a new call time typed after CHANGE is applied directly.
+- WhatsApp buttons: numbered options become reply buttons (2-3 short options) or a list (4-10) automatically; the option NUMBER is the id so a tap = typing that number (no flow changes). Long labels use curated short titles; full wording goes in list row descriptions. If WhatsApp rejects an interactive message the same words are sent as text. Typing always still works.
+- Limits used (confirmed from Meta's developer docs on 3 Nov): buttons max 3, title 20, body 1024; lists max 10 rows, row title 24, description 72, button label 20, body 4096.
+- NOT TESTED LIVE: real WhatsApp delivery of buttons/lists (no credentials in this environment). Interactive replies only work inside the 24h customer-service window, which is always true for replies.
+- chat.py --wa shows how a lead sees each message.
+
 ## Next steps, in order
 1. Craig: the ~50 questions and answers, in batches of 10-15 (best source: real lead questions).
 2. Craig: trust facts (attorney firm and how to verify, company details/address/website, registrations) for "is this a scam?".

@@ -13,6 +13,7 @@ from dataclasses import asdict
 from datetime import datetime, timezone
 
 from app import flow
+from app.whatsapp import describe, render
 from app.pricing import load_pricebook
 
 STATE = os.environ.get("CHAT_STATE", "data/chat_state.json")
@@ -21,6 +22,7 @@ ap.add_argument("text", nargs="?")
 ap.add_argument("--faq")
 ap.add_argument("--reset", action="store_true")
 ap.add_argument("--show", action="store_true")
+ap.add_argument("--wa", action="store_true", help="show messages as WhatsApp buttons/lists, as the lead would see them")
 ap.add_argument("--at", help="pretend it is this SAST time, e.g. 2026-11-02T21:00")
 args = ap.parse_args()
 
@@ -46,7 +48,7 @@ if args.text is not None:
     now = datetime.fromisoformat(args.at).replace(tzinfo=flow.SAST) if args.at else datetime.now(timezone.utc)
     reply = flow.handle(s, args.text, now, Stub(), pricebook)
     for m in reply.messages:
-        print(m + "\n")
+        print((describe(render(m, s.lang)) if args.wa else m) + "\n")
     if reply.events:
         print(f"[events: {reply.events}]")
     json.dump(asdict(s), open(STATE, "w"))
