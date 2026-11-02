@@ -61,6 +61,9 @@
 - The AI now sees only clean Q&A text (no internal notes, names or tags) and is told never to name any attorney, firm or staff member.
 - CONFIRMED by Craig (3 Nov): the radio history is ADVERTISING (East Coast Radio 3 yrs, Hot FM 2 yrs, Vuma FM just over 1 yr). Wording: "we've advertised on ...". It shows an established business; it is not a regulator's approval or the stations' endorsement and must never be presented as one.
 
+## FAQ batch 1 (Craig, 3 Nov)
+- Q1 "Why is this better than debt review?" -> loaded as "the main differences" (debt review can tie you in 7+ years; you keep paying interest, sometimes lowered; the debt review flag stays until the whole process is completed). Framed as differences, not "better", with the balancing line that voluntary surrender has its own consequences. David to approve: comparative claims about a regulated alternative (Consumer Protection Act / advertising rules). Added follow-up "I'm under debt review, should I cancel?" -> the bot never advises cancelling or stopping payments.
+
 ## Next steps, in order
 1. Craig: the ~50 questions and answers, in batches of 10-15 (best source: real lead questions).
 2. Craig: trust facts (attorney firm and how to verify, company details/address/website, registrations) for "is this a scam?".

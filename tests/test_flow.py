@@ -1045,3 +1045,14 @@ def test_how_established_are_you_questions_get_the_same_fixed_credibility_answer
     s = Session(phone="1", step="province", lang="en", name="Craig")
     r = handle(s, q, NIGHT, llm=FakeLLM(None), pricebook=PB)
     assert "since 2016" in r.messages[0] or "sedert 2016" in r.messages[0] or "advertised" in r.messages[0] or "geadverteer" in r.messages[0], q
+
+
+def test_the_debt_review_comparison_is_in_the_ai_knowledge_with_craigs_three_facts_and_no_claim_of_better():
+    import pathlib
+    from app.llm import FAQ_SYSTEM, faq_for_prompt
+    prompt = faq_for_prompt(pathlib.Path("knowledge/faq.md").read_text())
+    entry = prompt.split("## Q: Why is this better than debt review?")[1].split("## Q:")[0]
+    assert "7 years or more" in entry and "interest" in entry and "sometimes lowered" in entry and "flag" in entry
+    assert "I can't tell you it's better" in entry and "go through both honestly" in entry
+    assert "better\" than debt review" in FAQ_SYSTEM  # the AI is told never to claim it
+    assert "## Q: I'm under debt review. Should I cancel it?" in prompt and "please don't cancel anything" in prompt
