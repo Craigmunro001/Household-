@@ -168,6 +168,12 @@ ALL_DEBTS_PHRASES = [  # "does it cover all my debts? what about a school or doc
     "al my skulde", "alle skulde", "elke skuld", "watter skulde", "dokter", "skoolgeld",
     "zonke izikweletu", "isikweletu sonke", "udokotela", "imali yesikole",
 ]
+EXCLUSION_PHRASES = [  # "what about SARS / maintenance / fines / municipal? which debts are excluded?"
+    "sars", "tax", "maintenance", "child support", "traffic fine", "traffic fines", "fines", "municipal", "municipality", "rates and taxes",
+    "excluded", "exclusions", "exclude", "not included", "not covered", "which debts are not", "debts not covered", "left out",
+    "onderhoud", "belasting", "verkeersboete", "boetes", "munisipale", "munisipaliteit", "uitgesluit",
+    "intela", "ukondliwa kwengane", "izinhlawulo", "kuhlanganisiwe",
+]
 QUESTIONISH = ["do you", "does it", "does this", "will it", "will you", "what about", "are all", "is every", "is it", "can you",
                "doen julle", "sluit dit", "dek dit", "ingesluit", "ingesluit?", "ingaba", "kufakiwe"]
 
@@ -366,9 +372,14 @@ M = {
         "zu": "Ngingumsizi we-Pinnacle we-virtual, i-AI, ngakho angiyena umuntu. Ngithatha imininingwane yakho ukuze omunye wabeluleki bethu akushayele ucingo. Uma ungathanda ukukhuluma nomuntu manje, bhala nje u-AGENT.",
     },
     "all_debts": {
-        "en": "Yes, all your debts are included. We work from your credit report and your bank statements to find them. Anything that isn't on your credit report, like a school or a doctor, you'll need to tell us about so it can be included too. It's important that every debt is declared, and your consultant will go through it with you.",
-        "af": "Ja, al jou skulde word ingesluit. Ons werk van jou kredietverslag en jou bankstate af om hulle te vind. Enigiets wat nie op jou kredietverslag is nie, soos 'n skool of 'n dokter, sal jy vir ons moet sê sodat dit ook ingesluit kan word. Dit is belangrik dat elke skuld verklaar word, en jou konsultant sal dit saam met jou deurgaan.",
-        "zu": "Yebo, zonke izikweletu zakho ziyafakwa. Sisebenza ngombiko wakho wezikweletu (credit report) namabhange akho (bank statements) ukuze sizithole. Noma yini engekho embikweni wakho wezikweletu, njengesikole noma udokotela, kuzomele usitshele ngayo ukuze nayo ifakwe. Kubalulekile ukuthi zonke izikweletu zibikwe, futhi umeluleki wakho uzodlula nawe kukho.",
+        "en": "Yes, all your debts are included in the process, although a few types of debt are treated differently, and your consultant will go through those with you. We work from your credit report and your bank statements to find your debts. Anything that isn't on your credit report, like a school or a doctor, you'll need to tell us about so it can be included too. It's important that every debt is declared.",
+        "af": "Ja, al jou skulde word by die proses ingesluit, hoewel 'n paar soorte skuld anders hanteer word, en jou konsultant sal dit saam met jou deurgaan. Ons werk van jou kredietverslag en jou bankstate af om jou skulde te vind. Enigiets wat nie op jou kredietverslag is nie, soos 'n skool of 'n dokter, sal jy vir ons moet sê sodat dit ook ingesluit kan word. Dit is belangrik dat elke skuld verklaar word.",
+        "zu": "Yebo, zonke izikweletu zakho ziyafakwa enqubweni, nakuba ezinye izinhlobo zezikweletu ziphathwa ngokuhlukile, futhi umeluleki wakho uzodlula nawe kuzo. Sisebenza ngombiko wakho wezikweletu (credit report) namabhange akho (bank statements) ukuze sithole izikweletu zakho. Noma yini engekho embikweni wakho wezikweletu, njengesikole noma udokotela, kuzomele usitshele ngayo ukuze nayo ifakwe. Kubalulekile ukuthi zonke izikweletu zibikwe.",
+    },
+    "exclusions": {
+        "en": "Some types of debt are treated differently in this process. Your consultant will go through exactly which ones, and how they apply to you, on the call.",
+        "af": "Sommige soorte skuld word in hierdie proses anders hanteer. Jou konsultant sal tydens die oproep presies met jou deurgaan watter een en hoe dit op jou van toepassing is.",
+        "zu": "Ezinye izinhlobo zezikweletu ziphathwa ngokuhlukile kule nqubo. Umeluleki wakho uzodlula nawe ngqo ukuthi yiziphi nokuthi zisebenza kanjani kuwe, ngesikhathi socingo.",
     },
     "summons": {
         "en": "Yes, it does work with us. Having a summons or a judgment doesn't stop you from applying. With debt review, an account that has already received a court summons can't be included in the plan. Your consultant will go through your accounts with you, including any summonses or judgments, so please have the details ready for the call.",

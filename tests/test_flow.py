@@ -1292,13 +1292,14 @@ def test_all_debts_questions_get_the_fixed_answer(q):
     s = Session(phone="1", step="province", lang="en", name="Craig")
     r = handle(s, q, NIGHT, llm=FakeLLM("AI says: everything is wiped, that is that."), pricebook=PB)
     msg = r.messages[0]
-    assert "Yes, all your debts are included" in msg and "wiped" not in msg and "Which province" in msg
+    assert "Yes, all your debts are included in the process" in msg and "wiped" not in msg and "Which province" in msg
 
 
 def test_all_debts_answer_content_has_no_overpromise():
     from app.content import tr as translate
     msg = translate("all_debts", "en")
-    for needed in ("credit report", "bank statements", "a school or a doctor", "you'll need to tell us", "declared", "consultant will go through it"):
+    for needed in ("credit report", "bank statements", "a school or a doctor", "you'll need to tell us", "declared",
+                   "a few types of debt are treated differently", "your consultant will go through those with you"):
         assert needed in msg, needed
     for forbidden in ("paid off", "that is that", "wiped", "written off", "debt free", "guarantee", "discharged", "100%", "Act"):
         assert forbidden not in msg, forbidden
@@ -1324,3 +1325,37 @@ def test_documents_and_all_debts_entries_are_in_the_ai_knowledge():
     prompt = faq_for_prompt(pathlib.Path("knowledge/faq.md").read_text())
     assert "## Q: Does this cover all my debts?" in prompt and "## Q: What documents do I need?" in prompt
     assert "that is that" not in prompt
+
+
+# ------------------------------------------------------------ exclusions: never listed, never explained
+EXCLUSION_QUESTIONS = ["what about my SARS debt?", "does it cover child maintenance?", "are traffic fines included", "what about my municipal bill?",
+                       "which debts are excluded?", "will my tax debt be included", "Wat van my onderhoud?"]
+
+
+@pytest.mark.parametrize("q", EXCLUSION_QUESTIONS)
+def test_exclusion_questions_get_the_fixed_answer_with_no_list_and_no_explanation(q):
+    s = Session(phone="1", step="province", lang="en", name="Craig")
+    r = handle(s, q, NIGHT, llm=FakeLLM("AI explains: SARS is a preferential creditor and cannot be discharged."), pricebook=PB)
+    msg = r.messages[0]
+    assert ("treated differently" in msg or "anders hanteer" in msg) and "preferential" not in msg and "AI explains" not in msg
+
+
+def test_the_exclusion_answer_lists_nothing_and_explains_nothing():
+    from app.content import tr as translate
+    for lang in ("en", "af", "zu"):
+        msg = translate("exclusions", lang).lower()
+        for word in ("sars", "tax", "maintenance", "fine", "municipal", "preferen", "onderhoud", "belasting", "boete", "intela"):
+            assert word not in msg, (lang, word)
+    assert "Your consultant will go through exactly which ones" in translate("exclusions", "en")
+    assert "treated differently" in translate("all_debts", "en") and "preferen" not in translate("all_debts", "en").lower()
+
+
+def test_ordinary_replies_mentioning_these_words_are_not_hijacked():
+    s = Session(phone="1", step="debt", lang="en", name="Craig", answers={"province": "GP"})
+    handle(s, "R250 000 including SARS and municipal", NIGHT, pricebook=PB)
+    assert s.answers.get("debt_amount") == 250000 and s.step == "home"
+
+
+def test_the_ai_is_told_not_to_list_the_exclusions():
+    from app.llm import FAQ_SYSTEM
+    assert "do not list or explain them" in FAQ_SYSTEM

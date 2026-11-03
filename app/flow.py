@@ -12,7 +12,7 @@ from . import callback as cb
 from .pricing import load_pricebook
 from .content import (
     AGENT_PHRASES, AI_QUESTION_PHRASES, CHANGE_PHRASES, CHANGED_MIND_PHRASES, CORRECTION_WORDS, COST_PHRASES, DISTRESS_PHRASES, NO_WORDS, OPTIONS, REQUEST_STARTS, START_WORDS, STOP_PHRASES,
-    COMPANY_REG_NUMBER, LEADS, M, ALL_DEBTS_PHRASES, OPTIONS, PAYMENT_PHRASES, PAYOFF_PHRASES, QUESTIONISH, SUMMONS_PHRASES, TERMS, TRUST_PHRASES, WHEN, YES_WORDS, money, options_text, tr,
+    COMPANY_REG_NUMBER, LEADS, M, ALL_DEBTS_PHRASES, EXCLUSION_PHRASES, OPTIONS, PAYMENT_PHRASES, PAYOFF_PHRASES, QUESTIONISH, SUMMONS_PHRASES, TERMS, TRUST_PHRASES, WHEN, YES_WORDS, money, options_text, tr,
 )
 
 SAST = timezone(timedelta(hours=2))
@@ -132,6 +132,17 @@ def is_cost_question(text):
     return has_phrase(text, COST_PHRASES)
 
 
+def _is_question_shaped(text):
+    t = norm(text)
+    first = t.split()[0] if t.split() else ""
+    return "?" in text or first in QUESTION_WORDS or any(t.startswith(r) for r in REQUEST_STARTS) or has_phrase(text, QUESTIONISH)
+
+
+def is_exclusion_question(text):
+    """SARS / maintenance / fines / municipal / 'which debts are excluded': only when phrased as a question."""
+    return has_phrase(text, EXCLUSION_PHRASES) and _is_question_shaped(text)
+
+
 def is_all_debts_question(text):
     """Only when it is actually phrased as a question or request: 'all debts' also appears in plain answers."""
     if not has_phrase(text, ALL_DEBTS_PHRASES):
@@ -172,7 +183,7 @@ def looks_like_question(text):
     if len(words) < 3:
         return False  # "yes?" / "no?" are answers, not questions
     t = " ".join(words)
-    if is_cost_question(t) or is_trust_question(t) or is_ai_question(t) or is_payment_question(t) or is_payoff_question(t) or is_summons_question(t) or is_all_debts_question(t) or any(t.startswith(r) for r in REQUEST_STARTS):
+    if is_cost_question(t) or is_trust_question(t) or is_ai_question(t) or is_payment_question(t) or is_payoff_question(t) or is_summons_question(t) or is_all_debts_question(t) or is_exclusion_question(t) or any(t.startswith(r) for r in REQUEST_STARTS):
         return True
     return "?" in text or words[0] in QUESTION_WORDS
 
@@ -499,6 +510,8 @@ def _faq_or_cost(s, t, llm, pb):
         return tr("payments", s.lang), False
     if is_payoff_question(t):
         return tr("payoff", s.lang), False
+    if is_exclusion_question(t):  # never list or explain them: the consultant covers it
+        return tr("exclusions", s.lang), False
     if is_all_debts_question(t):
         return tr("all_debts", s.lang), False
     if is_summons_question(t):
