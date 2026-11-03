@@ -1052,7 +1052,7 @@ def test_the_debt_review_comparison_is_in_the_ai_knowledge_with_craigs_three_fac
     from app.llm import FAQ_SYSTEM, faq_for_prompt
     prompt = faq_for_prompt(pathlib.Path("knowledge/faq.md").read_text())
     entry = prompt.split("## Q: Why is this better than debt review?")[1].split("## Q:")[0]
-    assert "7 years or more" in entry and "interest" in entry and "sometimes lowered" in entry and "flag" in entry
+    assert "5 years or more" in entry and "7 years" not in entry and "interest" in entry and "sometimes lowered" in entry and "flag" in entry
     assert "I can't tell you it's better" in entry and "go through both honestly" in entry
     assert "better\" than debt review" in FAQ_SYSTEM  # the AI is told never to claim it
     assert "## Q: I'm under debt review. Should I cancel it?" in prompt and "please don't cancel anything" in prompt

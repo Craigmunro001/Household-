@@ -113,10 +113,10 @@ A: I can't share names in this chat. Your consultant will explain how the legal 
 A: Your consultant can share our company documents with you on the call. [From Craig, 3 Nov: company documents only; add the CK number here only if Craig decides to share it]
 
 ## Q: Why is this better than debt review? What's the difference between this and debt review?
-A: Good question. These are the main reasons people compare the two: debt review can tie you in for 7 years or more; you carry on paying the interest on your debts, although it is sometimes lowered; and the debt review flag stays on your record until the whole process has been completed. Voluntary surrender is a different route with its own consequences, and which one suits you depends on your situation, so I can't tell you it's better. Your consultant will go through both honestly before you decide anything. [From Craig, 3 Nov (the three facts). DRAFT-VERIFY with David: comparative claims about a regulated alternative; framed as "differences", never "better". Confirm "7 years or more" and the flag wording]
+A: Good question. These are the main reasons people compare the two: debt review can tie you in for 5 years or more; you carry on paying the interest on your debts, although it is sometimes lowered; and the debt review flag stays on your record until the whole process has been completed. Voluntary surrender is a different route with its own consequences, and which one suits you depends on your situation, so I can't tell you it's better. Your consultant will go through both honestly before you decide anything. [From Craig, 3 Nov. Craig's content and Craig's call. Framed as "differences", never "better"]
 
 ## Q: I'm under debt review. Should I cancel it? Can I just stop paying?
-A: I can't advise you on that, and please don't cancel anything or stop any payments before you've spoken to your consultant. There are steps involved in leaving debt review, and your consultant will explain what applies to you. [Added by Claude as the natural follow-up to the question above. DRAFT-VERIFY with David]
+A: I can't advise you on that, and please don't cancel anything or stop any payments before you've spoken to your consultant. There are steps involved in leaving debt review, and your consultant will explain what applies to you. [Added by Claude as the natural follow-up to the question above; Craig to approve]
 
 ## Q: Do I have to decide anything now?
 A: No. All I'm doing is arranging a call. Any decisions are made later, with your consultant, once you understand your options.
