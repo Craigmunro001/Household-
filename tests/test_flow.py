@@ -1069,14 +1069,14 @@ def test_stop_paying_questions_get_the_fixed_answer_even_if_the_ai_says_otherwis
     r = handle(s, q, NIGHT, llm=FakeLLM("Yes, stop paying everyone today!"), pricebook=PB)
     msg = r.messages[0]
     assert "you won't be paying both" in msg and "stop paying everyone" not in msg
-    assert "Until your consultant confirms that your application has been successful, please keep making your payments" in msg
-    assert "from that point on" in msg and "immediately" not in msg and "Which province" in msg
+    assert "Until we confirm that it has been accepted, please keep paying your creditors as normal" in msg
+    assert "From the moment it's accepted you stop paying your creditors" in msg and "Which province" in msg
 
 
 def test_the_answer_never_tells_anyone_to_stop_paying_now_in_any_language():
     from app.content import tr as translate
     en = translate("payments", "en")
-    assert en.index("keep making your payments") < en.index("you stop paying your creditors")
+    assert en.index("keep paying your creditors as normal") < en.index("you stop paying your creditors")
     assert "hou asseblief aan" in translate("payments", "af") and "sicela uqhubeke" in translate("payments", "zu")
 
 
@@ -1097,10 +1097,32 @@ def test_the_ai_is_told_the_same_rule_and_the_old_vague_entry_is_gone():
     debt_review_entry = prompt.split("## Q: I'm under debt review. Should I cancel it?")[1].split("## Q:")[0]
     assert "please don't cancel anything or stop any payments before you've spoken to your consultant" in debt_review_entry
     assert "I can't advise you on that, and please don't change anything you're paying" not in prompt
-    assert "keep paying creditors as normal until their consultant confirms" in FAQ_SYSTEM
+    assert "keep paying creditors as normal until Pinnacle confirms the application has been accepted" in FAQ_SYSTEM
 
 
 def test_cost_questions_are_not_mistaken_for_payment_questions():
     s = Session(phone="1", step="province", lang="en", name="Craig")
     r = handle(s, "how much will I pay per month?", NIGHT, pricebook=PB)
     assert "you won't be paying both" not in r.messages[0]
+
+
+def test_the_payment_answer_lays_out_craigs_whole_process_in_order_and_names_no_internal_form():
+    from app.content import tr as translate
+    msg = translate("payments", "en")
+    steps = ["complete your application", "same day", "credit report", "verify your debts", "keep paying your creditors as normal",
+             "start your monthly payment", "end of that month on payday", "stop paying your creditors", "notify them that you've applied"]
+    positions = [msg.index(x) for x in steps]
+    assert positions == sorted(positions)
+    for hidden in ("LTC", "form", "guarantee", "debt free", "will be accepted"):
+        assert hidden not in msg
+    for lang in ("af", "zu"):
+        assert len(translate("payments", lang)) > 500
+
+
+def test_the_new_process_entries_are_in_the_ai_knowledge():
+    import pathlib
+    from app.llm import faq_for_prompt
+    prompt = faq_for_prompt(pathlib.Path("knowledge/faq.md").read_text())
+    for q in ("When do I start paying you?", "How long does the application take?", "What happens after I apply?"):
+        assert f"## Q: {q}" in prompt
+    assert "LTC" not in prompt

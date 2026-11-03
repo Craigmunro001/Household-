@@ -26,7 +26,16 @@ A: If you own a home, a trustee is appointed to look after your estate for your 
 A: Yes, it does affect your credit record and your ability to get credit while the process runs and for a period afterwards. Your consultant will explain what that means for you so there are no surprises. [DRAFT-VERIFY]
 
 ## Q: While I'm paying Pinnacle, do I stop paying my creditors? Do I pay both? Do I have to stop paying my creditors?
-A: No, you won't be paying both. Until your consultant confirms that your application has been successful, please keep making your payments to your creditors as normal and don't stop anything yourself. Once it has been successful, you stop paying your creditors from that point on and make one monthly payment towards the plan instead. Your consultant will tell you exactly when that happens and when your payments to us start. [From Craig, 3 Nov. The live bot answers this with FIXED wording in app/content.py; keep the two consistent]
+A: No, you won't be paying both. Here's how it works: you complete your application (this can be done the same day). We then get your credit report, verify your debts and decide whether your application can be accepted. Until we confirm that it has been accepted, please keep paying your creditors as normal and don't stop anything yourself. Once it's accepted, we ask you to start your monthly payment to us, normally from the end of that month on payday. From the moment it's accepted you stop paying your creditors, and we notify them that you've applied. Your consultant will confirm the exact dates for you. [From Craig, 3 Nov. The live bot answers this with FIXED wording in app/content.py; keep the two consistent]
+
+## Q: When do I start paying you? When is my first payment?
+A: Once we've accepted your application, we ask you to start your monthly payment, normally from the end of that month on payday. Your consultant will confirm the exact date. [From Craig, 3 Nov]
+
+## Q: How long does the application take? Can I apply today?
+A: You can complete your application the same day. After that we get your credit report, verify your debts and decide whether it can be accepted. [From Craig, 3 Nov]
+
+## Q: What happens after I apply? Do you tell my creditors?
+A: We get your credit report, verify your debts and decide whether your application can be accepted. Once it is accepted, we notify your creditors in writing that you've applied, and you stop paying them and pay one monthly amount towards the plan instead. [From Craig, 3 Nov. Do not name the internal letter or form]
 
 ## Q: Will the creditors stop phoning me?
 A: Your consultant will explain how creditors are dealt with in your situation on the call. I don't want to promise anything that I can't be sure of.
