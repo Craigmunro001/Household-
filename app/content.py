@@ -147,6 +147,15 @@ PAYMENT_PHRASES = [  # "do I stop paying my creditors while I pay Pinnacle?"
     "ukuyeka ukukhokha", "ngiyaqhubeka ngikhokha", "ngikhokhe bobabili",
 ]
 
+PAYOFF_PHRASES = [  # "can I pay it off quicker / lump sum / over more months?"
+    "pay it off quicker", "pay off quicker", "pay it off faster", "pay off faster", "pay quicker", "pay faster", "pay it quicker",
+    "pay it off early", "pay off early", "settle early", "settle quicker", "lump sum", "lumpsum", "pay extra", "extra payment", "extra payments",
+    "pay more each month", "pay more per month", "pay in one go", "pay it all at once", "pay everything upfront", "pay upfront", "pay up front",
+    "more months", "longer to pay", "pay it over longer", "spread it over",
+    "vinniger afbetaal", "vinniger betaal", "klompsom", "eenmalige betaling", "ekstra betaling", "meer maande",
+    "ngikhokhe ngokushesha", "inani elilodwa", "izinyanga eziningi",
+]
+
 STOP_PHRASES = ["stop", "unsubscribe", "opt out", "optout", "hou op", "yeka", "yima"]
 
 AGENT_PHRASES = [
@@ -335,6 +344,11 @@ M = {
         "en": "I'm Pinnacle's virtual assistant, an AI, so not a person. I take your details so that one of our consultants can phone you. If you'd rather speak to a person straight away, just type AGENT.",
         "af": "Ek is Pinnacle se virtuele assistent, 'n KI, so nie 'n mens nie. Ek neem jou besonderhede sodat een van ons konsultante jou kan bel. As jy liewer dadelik met 'n mens wil praat, tik net AGENT.",
         "zu": "Ngingumsizi we-Pinnacle we-virtual, i-AI, ngakho angiyena umuntu. Ngithatha imininingwane yakho ukuze omunye wabeluleki bethu akushayele ucingo. Uma ungathanda ukukhuluma nomuntu manje, bhala nje u-AGENT.",
+    },
+    "payoff": {
+        "en": "Yes, you can. You can pay it off quicker, for example with extra payments or a lump sum, and paying earlier shortens the plan rather than changing the total. You can also spread it over more months within our 25 to 36 month plans. Your consultant will discuss this with you, explain how it would work and how it affects the timeline of your process.",
+        "af": "Ja, jy kan. Jy kan dit vinniger afbetaal, byvoorbeeld met ekstra betalings of 'n klompsom, en vroeër betaal verkort die plan eerder as om die totaal te verander. Jy kan dit ook oor meer maande versprei binne ons planne van 25 tot 36 maande. Jou konsultant sal dit met jou bespreek, verduidelik hoe dit sal werk en hoe dit die tydlyn van jou proses raak.",
+        "zu": "Yebo, ungakwazi. Ungakhokha ngokushesha, isibonelo ngezinkokhelo ezengeziwe noma ngenani elilodwa, futhi ukukhokha kusenesikhathi kufinyeza uhlelo kunokushintsha isamba. Ungaphinda uyisakaze phezu kwezinyanga eziningi ngaphakathi kwamaplani ethu ezinyanga ezingu-25 kuya kwezingu-36. Umeluleki wakho uzokuxoxa nawe ngalokhu, achaze ukuthi kuzosebenza kanjani nokuthi kuthinta kanjani uhlelo lwesikhathi senqubo yakho.",
     },
     "payments": {
         "en": "Good question, and an important one. No, you won't be paying both. Here's how it works: you complete your application (this can be done the same day). We then get your credit report, verify your debts and decide whether your application can be accepted. Until we confirm that it has been accepted, please keep paying your creditors as normal and don't stop anything yourself. Once it's accepted, we ask you to start your monthly payment to us, normally from the end of that month on payday. From the moment it's accepted you stop paying your creditors, and we notify them that you've applied. Your consultant will confirm the exact dates for you.",

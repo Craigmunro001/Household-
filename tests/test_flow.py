@@ -1126,3 +1126,61 @@ def test_the_new_process_entries_are_in_the_ai_knowledge():
     for q in ("When do I start paying you?", "How long does the application take?", "What happens after I apply?"):
         assert f"## Q: {q}" in prompt
     assert "LTC" not in prompt
+
+
+# ------------------------------------------------------------ "can I pay it off quicker / lump sum / more months?"
+PAYOFF_QUESTIONS = ["can I pay it off quicker?", "can I pay a lump sum", "can I settle early", "is it possible to pay extra each month",
+                    "can I pay in one go", "can I spread it over more months?", "kan ek dit vinniger afbetaal"]
+
+
+@pytest.mark.parametrize("q", PAYOFF_QUESTIONS)
+def test_payoff_questions_get_the_fixed_yes_with_the_consultant_explaining_the_details(q):
+    s = Session(phone="1", step="province", lang="en", name="Craig")
+    r = handle(s, q, NIGHT, llm=FakeLLM("AI says: no, impossible."), pricebook=PB)
+    msg = r.messages[0] if s.lang == "en" else r.messages[0]
+    assert ("Yes, you can." in msg or "Ja, jy kan." in msg) and "impossible" not in msg
+
+
+def test_payoff_answer_content_and_restrictions():
+    from app.content import tr as translate
+    msg = translate("payoff", "en")
+    assert "pay it off quicker" in msg and "lump sum" in msg and "more months" in msg and "25 to 36 month plans" in msg
+    assert "Your consultant will discuss this with you" in msg and "timeline of your process" in msg
+    for hidden in ("two-stage", "two stage", "stage", "discount", "save", "guarantee", "48", "60"):
+        assert hidden not in msg, hidden
+    assert "Ja, jy kan" in translate("payoff", "af") and "Yebo, ungakwazi" in translate("payoff", "zu")
+
+
+def test_payoff_question_at_the_term_step_is_answered_and_the_term_question_comes_back():
+    s = Session(phone="1")
+    run(s, "hi", "1", "yes", "craig", "3", "250000", "2", "2")
+    assert s.step == "term"
+    r = handle(s, "can I pay it quicker than that?", NIGHT, pricebook=PB)
+    assert "Yes, you can." in r.messages[0] and "25 to 36 months" in r.messages[0] and s.step == "term" and s.fails == 0
+    handle(s, "30 months", NIGHT, pricebook=PB)
+    assert s.answers["term"] == 30
+
+
+def test_asking_for_a_term_beyond_36_months_is_still_refused_and_is_not_confused_with_the_payoff_answer():
+    s = Session(phone="1")
+    run(s, "hi", "1", "yes", "craig", "3", "250000", "2", "2")
+    r = handle(s, "60 months", NIGHT, pricebook=PB)
+    assert "25 to 36 months, nothing shorter or longer" in r.messages[0] and "Yes, you can" not in r.messages[0]
+
+
+def test_payoff_works_after_completion_and_in_the_ai_knowledge():
+    import pathlib
+    from app.llm import faq_for_prompt
+    s, _ = full_chat()
+    assert "Yes, you can." in handle(s, "can I pay a lump sum?", NIGHT, pricebook=PB).messages[0]
+    prompt = faq_for_prompt(pathlib.Path("knowledge/faq.md").read_text())
+    assert "## Q: Can I pay it off quicker?" in prompt and "two-stage" not in prompt
+
+
+def test_the_plan_length_entry_and_the_payoff_entry_do_not_contradict_each_other():
+    import pathlib
+    from app.llm import faq_for_prompt
+    prompt = faq_for_prompt(pathlib.Path("knowledge/faq.md").read_text())
+    entry = prompt.split("## Q: Can I pay over 48 or 60 months?")[1].split("## Q:")[0]
+    assert "25 to 36 months, nothing shorter or longer" in entry and "pay it off quicker with extra payments or a lump sum" in entry
+    assert "faster than 25 months" not in prompt

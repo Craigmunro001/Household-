@@ -12,7 +12,7 @@ from . import callback as cb
 from .pricing import load_pricebook
 from .content import (
     AGENT_PHRASES, AI_QUESTION_PHRASES, CHANGE_PHRASES, CHANGED_MIND_PHRASES, CORRECTION_WORDS, COST_PHRASES, DISTRESS_PHRASES, NO_WORDS, OPTIONS, REQUEST_STARTS, START_WORDS, STOP_PHRASES,
-    COMPANY_REG_NUMBER, LEADS, M, OPTIONS, PAYMENT_PHRASES, TERMS, TRUST_PHRASES, WHEN, YES_WORDS, money, options_text, tr,
+    COMPANY_REG_NUMBER, LEADS, M, OPTIONS, PAYMENT_PHRASES, PAYOFF_PHRASES, TERMS, TRUST_PHRASES, WHEN, YES_WORDS, money, options_text, tr,
 )
 
 SAST = timezone(timedelta(hours=2))
@@ -132,6 +132,10 @@ def is_cost_question(text):
     return has_phrase(text, COST_PHRASES)
 
 
+def is_payoff_question(text):
+    return has_phrase(text, PAYOFF_PHRASES)
+
+
 def is_payment_question(text):
     return has_phrase(text, PAYMENT_PHRASES)
 
@@ -155,7 +159,7 @@ def looks_like_question(text):
     if len(words) < 3:
         return False  # "yes?" / "no?" are answers, not questions
     t = " ".join(words)
-    if is_cost_question(t) or is_trust_question(t) or is_ai_question(t) or is_payment_question(t) or any(t.startswith(r) for r in REQUEST_STARTS):
+    if is_cost_question(t) or is_trust_question(t) or is_ai_question(t) or is_payment_question(t) or is_payoff_question(t) or any(t.startswith(r) for r in REQUEST_STARTS):
         return True
     return "?" in text or words[0] in QUESTION_WORDS
 
@@ -469,6 +473,8 @@ def _faq_or_cost(s, t, llm, pb):
         return tr("am_i_ai", s.lang), False
     if is_payment_question(t):  # the sequence matters: wrong wording here makes people stop paying too early
         return tr("payments", s.lang), False
+    if is_payoff_question(t):
+        return tr("payoff", s.lang), False
     if is_trust_question(t):
         return trust_text(s.lang), False
     if is_cost_question(t):
