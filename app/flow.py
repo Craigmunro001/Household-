@@ -12,7 +12,7 @@ from . import callback as cb
 from .pricing import load_pricebook
 from .content import (
     AGENT_PHRASES, AI_QUESTION_PHRASES, CHANGE_PHRASES, CHANGED_MIND_PHRASES, CORRECTION_WORDS, COST_PHRASES, DISTRESS_PHRASES, NO_WORDS, OPTIONS, REQUEST_STARTS, START_WORDS, STOP_PHRASES,
-    COMPANY_REG_NUMBER, LEADS, M, OPTIONS, PAYMENT_PHRASES, PAYOFF_PHRASES, SUMMONS_PHRASES, TERMS, TRUST_PHRASES, WHEN, YES_WORDS, money, options_text, tr,
+    COMPANY_REG_NUMBER, LEADS, M, ALL_DEBTS_PHRASES, OPTIONS, PAYMENT_PHRASES, PAYOFF_PHRASES, QUESTIONISH, SUMMONS_PHRASES, TERMS, TRUST_PHRASES, WHEN, YES_WORDS, money, options_text, tr,
 )
 
 SAST = timezone(timedelta(hours=2))
@@ -132,6 +132,15 @@ def is_cost_question(text):
     return has_phrase(text, COST_PHRASES)
 
 
+def is_all_debts_question(text):
+    """Only when it is actually phrased as a question or request: 'all debts' also appears in plain answers."""
+    if not has_phrase(text, ALL_DEBTS_PHRASES):
+        return False
+    t = norm(text)
+    first = t.split()[0] if t.split() else ""
+    return "?" in text or first in QUESTION_WORDS or any(t.startswith(r) for r in REQUEST_STARTS) or has_phrase(text, QUESTIONISH)
+
+
 def is_summons_question(text):
     return has_phrase(text, SUMMONS_PHRASES)
 
@@ -163,7 +172,7 @@ def looks_like_question(text):
     if len(words) < 3:
         return False  # "yes?" / "no?" are answers, not questions
     t = " ".join(words)
-    if is_cost_question(t) or is_trust_question(t) or is_ai_question(t) or is_payment_question(t) or is_payoff_question(t) or is_summons_question(t) or any(t.startswith(r) for r in REQUEST_STARTS):
+    if is_cost_question(t) or is_trust_question(t) or is_ai_question(t) or is_payment_question(t) or is_payoff_question(t) or is_summons_question(t) or is_all_debts_question(t) or any(t.startswith(r) for r in REQUEST_STARTS):
         return True
     return "?" in text or words[0] in QUESTION_WORDS
 
@@ -490,6 +499,8 @@ def _faq_or_cost(s, t, llm, pb):
         return tr("payments", s.lang), False
     if is_payoff_question(t):
         return tr("payoff", s.lang), False
+    if is_all_debts_question(t):
+        return tr("all_debts", s.lang), False
     if is_summons_question(t):
         note = "Lead mentions a summons or judgment - consultant to get the details of the accounts"
         if note not in s.notes:
@@ -583,8 +594,9 @@ def _answer_step(s, t, out, now, llm, pb):
         _answer_callback(s, t, out, now, llm, pb)
         return
 
-    # A genuine question is always answered first, even if it contains words that look like an answer.
-    if looks_like_question(t):
+    # A genuine question is always answered first, even if it contains words that look like an answer
+    # (but a debt amount like "250000, all my debts" is an answer).
+    if looks_like_question(t) and not (step == "debt" and all_amounts(t) and "?" not in t):
         _answer_question(s, t, out, llm, step, pb)
         return
 

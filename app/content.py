@@ -161,6 +161,16 @@ SUMMONS_PHRASES = [  # "I already have a summons / judgment - can I still join?"
     "dagvaarding", "dagvaardings", "vonnis", "vonnisse", "isamanisi", "isinqumo senkantolo",
 ]
 
+ALL_DEBTS_PHRASES = [  # "does it cover all my debts? what about a school or doctor?"
+    "all my debts", "all of my debts", "all debts", "all the debts", "every debt", "which debts", "what debts", "debts included",
+    "debts covered", "cover all", "covers all", "include all", "includes all", "not on my credit report", "not on the credit report",
+    "doctor", "hospital", "school fees", "school account",
+    "al my skulde", "alle skulde", "elke skuld", "watter skulde", "dokter", "skoolgeld",
+    "zonke izikweletu", "isikweletu sonke", "udokotela", "imali yesikole",
+]
+QUESTIONISH = ["do you", "does it", "does this", "will it", "will you", "what about", "are all", "is every", "is it", "can you",
+               "doen julle", "sluit dit", "dek dit", "ingesluit", "ingesluit?", "ingaba", "kufakiwe"]
+
 STOP_PHRASES = ["stop", "unsubscribe", "opt out", "optout", "hou op", "yeka", "yima"]
 
 AGENT_PHRASES = [
@@ -354,6 +364,11 @@ M = {
         "en": "I'm Pinnacle's virtual assistant, an AI, so not a person. I take your details so that one of our consultants can phone you. If you'd rather speak to a person straight away, just type AGENT.",
         "af": "Ek is Pinnacle se virtuele assistent, 'n KI, so nie 'n mens nie. Ek neem jou besonderhede sodat een van ons konsultante jou kan bel. As jy liewer dadelik met 'n mens wil praat, tik net AGENT.",
         "zu": "Ngingumsizi we-Pinnacle we-virtual, i-AI, ngakho angiyena umuntu. Ngithatha imininingwane yakho ukuze omunye wabeluleki bethu akushayele ucingo. Uma ungathanda ukukhuluma nomuntu manje, bhala nje u-AGENT.",
+    },
+    "all_debts": {
+        "en": "Yes, all your debts are included. We work from your credit report and your bank statements to find them. Anything that isn't on your credit report, like a school or a doctor, you'll need to tell us about so it can be included too. It's important that every debt is declared, and your consultant will go through it with you.",
+        "af": "Ja, al jou skulde word ingesluit. Ons werk van jou kredietverslag en jou bankstate af om hulle te vind. Enigiets wat nie op jou kredietverslag is nie, soos 'n skool of 'n dokter, sal jy vir ons moet sê sodat dit ook ingesluit kan word. Dit is belangrik dat elke skuld verklaar word, en jou konsultant sal dit saam met jou deurgaan.",
+        "zu": "Yebo, zonke izikweletu zakho ziyafakwa. Sisebenza ngombiko wakho wezikweletu (credit report) namabhange akho (bank statements) ukuze sizithole. Noma yini engekho embikweni wakho wezikweletu, njengesikole noma udokotela, kuzomele usitshele ngayo ukuze nayo ifakwe. Kubalulekile ukuthi zonke izikweletu zibikwe, futhi umeluleki wakho uzodlula nawe kukho.",
     },
     "summons": {
         "en": "Yes, it does work with us. Having a summons or a judgment doesn't stop you from applying. With debt review, an account that has already received a court summons can't be included in the plan. Your consultant will go through your accounts with you, including any summonses or judgments, so please have the details ready for the call.",

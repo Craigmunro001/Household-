@@ -1280,3 +1280,47 @@ def test_the_bot_never_quotes_the_law_in_any_language_or_in_the_ai_knowledge():
 def test_the_ai_is_told_never_to_quote_the_law():
     from app.llm import FAQ_SYSTEM
     assert "Never quote or cite the law: no Act names, section numbers or case names" in FAQ_SYSTEM
+
+
+# ------------------------------------------------------------ "does it cover all my debts?"
+ALL_DEBTS_QUESTIONS = ["does this cover all my debts?", "do you include every debt", "what about my kids school fees, is that included",
+                       "I owe my doctor, is that covered?", "will it include debts that are not on my credit report"]
+
+
+@pytest.mark.parametrize("q", ALL_DEBTS_QUESTIONS)
+def test_all_debts_questions_get_the_fixed_answer(q):
+    s = Session(phone="1", step="province", lang="en", name="Craig")
+    r = handle(s, q, NIGHT, llm=FakeLLM("AI says: everything is wiped, that is that."), pricebook=PB)
+    msg = r.messages[0]
+    assert "Yes, all your debts are included" in msg and "wiped" not in msg and "Which province" in msg
+
+
+def test_all_debts_answer_content_has_no_overpromise():
+    from app.content import tr as translate
+    msg = translate("all_debts", "en")
+    for needed in ("credit report", "bank statements", "a school or a doctor", "you'll need to tell us", "declared", "consultant will go through it"):
+        assert needed in msg, needed
+    for forbidden in ("paid off", "that is that", "wiped", "written off", "debt free", "guarantee", "discharged", "100%", "Act"):
+        assert forbidden not in msg, forbidden
+    assert "kredietverslag" in translate("all_debts", "af") and "credit report" in translate("all_debts", "zu")
+
+
+def test_a_plain_debt_amount_that_mentions_all_debts_is_still_an_answer_not_a_question():
+    for reply in ("250000 all my debts", "about R250 000, that's all debts added together", "all debts together is 250k"):
+        s = Session(phone="1", step="debt", lang="en", name="Craig", answers={"province": "GP"})
+        handle(s, reply, NIGHT, pricebook=PB)
+        assert s.answers.get("debt_amount") == 250000 and s.step == "home", reply
+
+
+def test_the_all_debts_words_alone_do_not_trigger_the_answer_in_ordinary_statements():
+    s = Session(phone="1", step="review", lang="en", name="Craig")
+    r = handle(s, "no", NIGHT, pricebook=PB)
+    assert "Yes, all your debts" not in r.messages[0]
+
+
+def test_documents_and_all_debts_entries_are_in_the_ai_knowledge():
+    import pathlib
+    from app.llm import faq_for_prompt
+    prompt = faq_for_prompt(pathlib.Path("knowledge/faq.md").read_text())
+    assert "## Q: Does this cover all my debts?" in prompt and "## Q: What documents do I need?" in prompt
+    assert "that is that" not in prompt

@@ -34,6 +34,12 @@ A: Once we've accepted your application, we ask you to start your monthly paymen
 ## Q: Can I pay it off quicker? Can I pay a lump sum? Can I pay it over more months?
 A: Yes, you can. You can pay it off quicker, for example with extra payments or a lump sum. Because no interest builds up, paying more each month simply finishes the plan sooner (paying double means roughly half the time) rather than changing the total. You can also spread it over more months, up to our maximum of 36. Your consultant will discuss this with you, explain how it would work and how it affects the timeline of your process. [From Craig, 3 Nov. The live bot answers this with FIXED wording in app/content.py. Do NOT mention the "two-stage" payment. Use "double = roughly half the time" only as a general illustration, never a quote]
 
+## Q: Does this cover all my debts? What about a school or doctor that isn't on my credit report?
+A: Yes, all your debts are included. We work from your credit report and your bank statements to find them. Anything that isn't on your credit report, like a school or a doctor, you'll need to tell us about so it can be included too. It's important that every debt is declared, and your consultant will go through it with you. [From Craig, 3 Nov. The live bot answers this with FIXED wording in app/content.py. Do not say "every debt will be paid off" or "that is that": included is not the same as discharged]
+
+## Q: What documents do I need? Do you need my bank statements?
+A: We work from your credit report and your bank statements, and your consultant will tell you exactly what else is needed on the call. [From Craig, 3 Nov]
+
 ## Q: Can I join if I already have a summons or a judgment?
 A: Yes, it does work with us. Having a summons or a judgment doesn't stop you from applying. With debt review, an account that has already received a court summons can't be included in the plan. Your consultant will go through your accounts with you, including any summonses or judgments, so please have the details ready for the call. [From Craig, 3 Nov. The live bot answers this with FIXED wording in app/content.py. State it as a fact, not a sales pitch. Craig's rule: the bot never quotes the law (no Act names or section numbers). Never say "100%" or promise acceptance]
 
