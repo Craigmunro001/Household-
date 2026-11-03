@@ -1232,11 +1232,10 @@ def test_summons_and_judgment_questions_get_the_fixed_yes_in_the_leads_language(
 def test_the_summons_answer_is_a_fact_not_a_pitch_and_makes_no_promise():
     from app.content import tr as translate
     msg = translate("summons", "en")
-    assert "can't be included in a debt review restructuring plan under the National Credit Act" in msg
-    for forbidden in ("100%", "guarantee", "definitely", "best", "better", "section", "s86", "s130", "you will be accepted"):
+    assert "an account that has already received a court summons can't be included in the plan" in msg
+    for forbidden in ("100%", "guarantee", "definitely", "best", "better", "section", "s86", "s130", "you will be accepted", "Act"):
         assert forbidden not in msg, forbidden
-    assert "consultant will go through your accounts" in msg
-    assert "National Credit Act" in translate("summons", "zu") and "Nasionale Kredietwet" in translate("summons", "af")
+    assert "consultant will go through your accounts" in msg and "it does work with us" in msg
 
 
 def test_the_consultant_is_told_about_the_summons_once():
@@ -1261,3 +1260,23 @@ def test_summons_entry_is_in_the_ai_knowledge_without_internal_references():
     prompt = faq_for_prompt(pathlib.Path("knowledge/faq.md").read_text())
     assert "## Q: Can I join if I already have a summons or a judgment?" in prompt
     assert "s86" not in prompt and "s130" not in prompt and "100%" not in prompt
+
+
+def test_the_bot_never_quotes_the_law_in_any_language_or_in_the_ai_knowledge():
+    """Craig's rule: it is a chatbot, not a consultant. No Act names or section numbers (POPIA, the privacy notice, is a compliance statement and stays)."""
+    import pathlib, re
+    from app import content
+    from app.llm import faq_for_prompt
+    statute = re.compile(r"(National Credit Act|Insolvency Act|Nasionale Kredietwet|Insolvensiewet|Consumer Protection Act|Companies Act|"
+                         r"Legal Practice Act|\bsections? \d|\bartikel \d|\bs\d{2,3}\b)", re.I)
+    for key, entry in content.M.items():
+        for lang, text in (entry.items() if isinstance(entry, dict) else []):
+            if isinstance(text, str):
+                assert not statute.search(text), (key, lang, statute.search(text).group(0))
+    prompt = faq_for_prompt(pathlib.Path("knowledge/faq.md").read_text())
+    assert not statute.search(prompt), statute.search(prompt).group(0)
+
+
+def test_the_ai_is_told_never_to_quote_the_law():
+    from app.llm import FAQ_SYSTEM
+    assert "Never quote or cite the law: no Act names, section numbers or case names" in FAQ_SYSTEM
