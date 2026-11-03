@@ -44,7 +44,7 @@ def get_settings() -> Settings:
         wa_phone_number_id=e("WHATSAPP_PHONE_NUMBER_ID", ""),
         wa_verify_token=e("WHATSAPP_VERIFY_TOKEN", ""),
         wa_app_secret=e("WHATSAPP_APP_SECRET", ""),
-        wa_api_version=e("WHATSAPP_API_VERSION", "v21.0"),
+        wa_api_version=e("WHATSAPP_API_VERSION", "v25.0"),
         anthropic_api_key=e("ANTHROPIC_API_KEY", ""),
         model=e("CLAUDE_MODEL", "claude-opus-5-5"),
         sheet_id=e("GOOGLE_SHEET_ID", ""),

@@ -134,7 +134,7 @@ def test_describe_shows_what_the_lead_would_see():
 
 
 class FakeSettings:
-    wa_api_version, wa_phone_number_id, wa_token = "v21.0", "123", "tok"
+    wa_api_version, wa_phone_number_id, wa_token = "v25.0", "123", "tok"
 
 
 def make_client(handler):

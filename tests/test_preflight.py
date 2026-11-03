@@ -86,3 +86,9 @@ def test_unreachable_server_is_reported_not_crashed():
         raise httpx.ConnectError("no route")
     rows = preflight.check_url("https://x.example", "v", httpx.Client(transport=httpx.MockTransport(boom)))
     assert rows[0][0] == preflight.FAIL
+
+
+def test_the_default_whatsapp_api_version_is_not_one_that_meta_is_about_to_retire():
+    from app.config import get_settings
+    get_settings.cache_clear()
+    assert get_settings().wa_api_version not in ("v20.0", "v21.0")
