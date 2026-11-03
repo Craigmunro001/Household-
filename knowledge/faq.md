@@ -34,6 +34,9 @@ A: Once we've accepted your application, we ask you to start your monthly paymen
 ## Q: Can I pay it off quicker? Can I pay a lump sum? Can I pay it over more months?
 A: Yes, you can. You can pay it off quicker, for example with extra payments or a lump sum. Because no interest builds up, paying more each month simply finishes the plan sooner (paying double means roughly half the time) rather than changing the total. You can also spread it over more months, up to our maximum of 36. Your consultant will discuss this with you, explain how it would work and how it affects the timeline of your process. [From Craig, 3 Nov. The live bot answers this with FIXED wording in app/content.py. Do NOT mention the "two-stage" payment. Use "double = roughly half the time" only as a general illustration, never a quote]
 
+## Q: Can I join if I already have a summons or a judgment?
+A: Yes. Having a summons or a judgment doesn't stop you from applying with us. It's also one of the differences with debt review: an account that has already received a court summons can't be included in a debt review restructuring plan under the National Credit Act. Your consultant will go through your accounts with you, including any summonses or judgments, so please have the details ready for the call. [From Craig, 3 Nov. The live bot answers this with FIXED wording in app/content.py. Not a sales pitch: state it as a fact. Basis: National Credit Act s86(2) and s130. Do not say "100%" or promise acceptance]
+
 ## Q: How long does the application take? Can I apply today?
 A: You can complete your application the same day. After that we get your credit report, verify your debts and decide whether it can be accepted. [From Craig, 3 Nov]
 

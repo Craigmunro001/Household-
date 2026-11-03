@@ -1213,3 +1213,51 @@ def test_interest_question_is_in_the_ai_knowledge_and_consistent():
     prompt = faq_for_prompt(pathlib.Path("knowledge/faq.md").read_text())
     assert "## Q: Is there interest on the plan?" in prompt and "No interest builds up on the plan" in prompt
     assert "Why is 36 months the maximum?" in prompt
+
+
+# ------------------------------------------------------------ "I already have a summons / judgment"
+SUMMONS_QUESTIONS = ["can I join if I already have a summons?", "I have a judgment against me, does that matter", "I got court papers from the sheriff",
+                     "what if there is a judgement on my account", "Ek het 'n dagvaarding ontvang, kan ek nog aansoek doen?"]
+
+
+@pytest.mark.parametrize("q", SUMMONS_QUESTIONS)
+def test_summons_and_judgment_questions_get_the_fixed_yes_in_the_leads_language(q):
+    s = Session(phone="1", step="province", lang="en", name="Craig")
+    r = handle(s, q, NIGHT, llm=FakeLLM("AI says: impossible, you are disqualified."), pricebook=PB)
+    msg = r.messages[0]
+    assert ("doesn't stop you from applying" in msg or "keer jou nie om" in msg) and "disqualified" not in msg
+    assert any("summons or judgment" in n for n in s.notes)
+
+
+def test_the_summons_answer_is_a_fact_not_a_pitch_and_makes_no_promise():
+    from app.content import tr as translate
+    msg = translate("summons", "en")
+    assert "can't be included in a debt review restructuring plan under the National Credit Act" in msg
+    for forbidden in ("100%", "guarantee", "definitely", "best", "better", "section", "s86", "s130", "you will be accepted"):
+        assert forbidden not in msg, forbidden
+    assert "consultant will go through your accounts" in msg
+    assert "National Credit Act" in translate("summons", "zu") and "Nasionale Kredietwet" in translate("summons", "af")
+
+
+def test_the_consultant_is_told_about_the_summons_once():
+    s = Session(phone="1", step="province", lang="en", name="Craig")
+    handle(s, "I have a summons", NIGHT, pricebook=PB)
+    handle(s, "and a judgment too", NIGHT, pricebook=PB)
+    assert sum("summons or judgment" in n for n in s.notes) == 1
+
+
+def test_summons_answer_works_at_any_stage_and_the_flow_carries_on():
+    s, _ = full_chat()
+    assert "doesn't stop you from applying" in handle(s, "I have a summons", NIGHT, pricebook=PB).messages[0]
+    s2 = Session(phone="1")
+    run(s2, "hi", "1", "yes", "craig", "3")
+    r = handle(s2, "do judgments matter?", NIGHT, pricebook=PB)
+    assert "doesn't stop you from applying" in r.messages[0] and "roughly how much" in r.messages[0].lower() and s2.step == "debt"
+
+
+def test_summons_entry_is_in_the_ai_knowledge_without_internal_references():
+    import pathlib
+    from app.llm import faq_for_prompt
+    prompt = faq_for_prompt(pathlib.Path("knowledge/faq.md").read_text())
+    assert "## Q: Can I join if I already have a summons or a judgment?" in prompt
+    assert "s86" not in prompt and "s130" not in prompt and "100%" not in prompt

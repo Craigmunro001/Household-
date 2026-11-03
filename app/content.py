@@ -156,6 +156,11 @@ PAYOFF_PHRASES = [  # "can I pay it off quicker / lump sum / over more months?"
     "ngikhokhe ngokushesha", "inani elilodwa", "izinyanga eziningi",
 ]
 
+SUMMONS_PHRASES = [  # "I already have a summons / judgment - can I still join?"
+    "summons", "summonses", "judgment", "judgement", "judgments", "judgements", "court papers", "sheriff",
+    "dagvaarding", "dagvaardings", "vonnis", "vonnisse", "isamanisi", "isinqumo senkantolo",
+]
+
 STOP_PHRASES = ["stop", "unsubscribe", "opt out", "optout", "hou op", "yeka", "yima"]
 
 AGENT_PHRASES = [
@@ -349,6 +354,11 @@ M = {
         "en": "I'm Pinnacle's virtual assistant, an AI, so not a person. I take your details so that one of our consultants can phone you. If you'd rather speak to a person straight away, just type AGENT.",
         "af": "Ek is Pinnacle se virtuele assistent, 'n KI, so nie 'n mens nie. Ek neem jou besonderhede sodat een van ons konsultante jou kan bel. As jy liewer dadelik met 'n mens wil praat, tik net AGENT.",
         "zu": "Ngingumsizi we-Pinnacle we-virtual, i-AI, ngakho angiyena umuntu. Ngithatha imininingwane yakho ukuze omunye wabeluleki bethu akushayele ucingo. Uma ungathanda ukukhuluma nomuntu manje, bhala nje u-AGENT.",
+    },
+    "summons": {
+        "en": "Yes. Having a summons or a judgment doesn't stop you from applying with us. It's also one of the differences with debt review: an account that has already received a court summons can't be included in a debt review restructuring plan under the National Credit Act. Your consultant will go through your accounts with you, including any summonses or judgments, so please have the details ready for the call.",
+        "af": "Ja. 'n Dagvaarding of 'n vonnis keer jou nie om by ons aansoek te doen nie. Dit is ook een van die verskille met skuldhersiening: 'n rekening wat reeds 'n hofdagvaarding ontvang het, kan nie onder die Nasionale Kredietwet by 'n skuldhersieningsplan ingesluit word nie. Jou konsultant sal jou rekeninge saam met jou deurgaan, insluitend enige dagvaardings of vonnisse, so hou asseblief die besonderhede gereed vir die oproep.",
+        "zu": "Yebo. Ukuba ne-summons noma i-judgment akukuvimbeli ukufaka isicelo kithi. Futhi kungolunye lwemehluko ne-debt review: i-akhawunti esivele yathola i-summons yenkantolo ayikwazi ukufakwa ohlelweni lokuhlelwa kabusha lwe-debt review ngaphansi kwe-National Credit Act. Umeluleki wakho uzobheka ama-akhawunti akho nawe, kuhlanganise nanoma yimaphi ama-summons noma ama-judgment, ngakho sicela ulungise imininingwane yocingo.",
     },
     "payoff": {
         "en": "Yes, you can. You can pay it off quicker, for example with extra payments or a lump sum. Because no interest builds up, paying more each month simply finishes the plan sooner (paying double means roughly half the time) rather than changing the total. You can also spread it over more months, up to our maximum of 36. Your consultant will discuss this with you, explain how it would work and how it affects the timeline of your process.",
