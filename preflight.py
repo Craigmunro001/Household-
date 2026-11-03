@@ -61,6 +61,26 @@ def check_content():
     return rows
 
 
+SERVER_REQUIRED = [("whatsapp_token", "WHATSAPP_TOKEN"), ("phone_number_id", "WHATSAPP_PHONE_NUMBER_ID"),
+                   ("verify_token", "WHATSAPP_VERIFY_TOKEN"), ("app_secret", "WHATSAPP_APP_SECRET")]
+SERVER_RECOMMENDED = [("anthropic_key", "ANTHROPIC_API_KEY (AI answers)"), ("google_sheet", "GOOGLE_SHEET_ID + GOOGLE_SERVICE_ACCOUNT_JSON (lead Sheet)"),
+                      ("alert_email", "NOTIFY_TO + SMTP_* (consultant alert emails)")]
+
+
+def server_config_rows(cfg):
+    """What the deployed server itself reports (yes/no only)."""
+    rows = []
+    for key, name in SERVER_REQUIRED:
+        rows.append((OK if cfg.get(key) else FAIL, f"server: {name}", "set" if cfg.get(key) else "MISSING on the server (Railway > Variables)"))
+    for key, name in SERVER_RECOMMENDED:
+        rows.append((OK if cfg.get(key) else WARN, f"server: {name}", "set" if cfg.get(key) else "not set on the server"))
+    if cfg.get("dev_mode"):
+        rows.append((FAIL, "server: DEV_MODE", "is ON: webhook signatures are NOT checked. Turn it off"))
+    db = str(cfg.get("db_path", ""))
+    rows.append((OK if db.startswith(("/data", "/app/data", "/mnt")) else WARN, "server: database location", db))
+    return rows
+
+
 def check_url(url, verify_token, client=None):
     rows, url = [], url.rstrip("/")
     c = client or httpx.Client(timeout=15)
@@ -69,6 +89,7 @@ def check_url(url, verify_token, client=None):
         body = r.json() if r.status_code == 200 else {}
         rows.append((OK if r.status_code == 200 else FAIL, "deployed /health", f"HTTP {r.status_code}"))
         if body:
+            rows += server_config_rows(body.get("config") or {})
             rows.append((OK if body.get("price_book") else FAIL, "deployed price book", str(body.get("price_book"))))
             rows.append((OK if body.get("llm") else WARN, "deployed AI layer", "on" if body.get("llm") else "off (no ANTHROPIC_API_KEY on the server)"))
             rows.append((OK if body.get("sheet") == "GoogleSheetSink" else WARN, "deployed lead store", str(body.get("sheet"))))
@@ -86,9 +107,10 @@ def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--url")
     args = ap.parse_args(argv)
-    rows = check_env(os.environ) + check_content()
-    if args.url:
-        rows += check_url(args.url, os.environ.get("WHATSAPP_VERIFY_TOKEN", ""))
+    if args.url:  # judge the deployed server, not this computer
+        rows = check_content() + check_url(args.url, os.environ.get("WHATSAPP_VERIFY_TOKEN", ""))
+    else:
+        rows = check_env(os.environ) + check_content()
     for status, name, detail in rows:
         print(f"[{status}] {name}: {detail}")
     failed = [r for r in rows if r[0] == FAIL]

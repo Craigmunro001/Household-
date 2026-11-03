@@ -27,7 +27,16 @@ pricebook = load_pricebook()
 
 @app.get("/health")
 def health():
-    return {"ok": True, "llm": bool(llm), "sheet": type(sink).__name__, "price_book": pricebook.generated if pricebook else None}
+    return {
+        "ok": True, "llm": bool(llm), "sheet": type(sink).__name__, "price_book": pricebook.generated if pricebook else None,
+        "config": {  # yes/no only, never the values
+            "whatsapp_token": bool(settings.wa_token), "phone_number_id": bool(settings.wa_phone_number_id),
+            "verify_token": bool(settings.wa_verify_token), "app_secret": bool(settings.wa_app_secret),
+            "anthropic_key": bool(settings.anthropic_api_key), "google_sheet": bool(settings.sheet_id and settings.google_sa),
+            "alert_email": bool(settings.smtp_host and settings.notify_to), "dev_mode": settings.dev_mode,
+            "db_path": settings.db_path, "api_version": settings.wa_api_version,
+        },
+    }
 
 
 @app.get("/webhook")

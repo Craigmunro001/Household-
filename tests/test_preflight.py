@@ -58,7 +58,9 @@ def fake_server(verify_token="v", sig_enforced=True, health=None):
     def handler(request):
         path = request.url.path
         if path == "/health":
-            return httpx.Response(200, json=health or {"ok": True, "llm": True, "sheet": "GoogleSheetSink", "price_book": "2 November 2026"})
+            return httpx.Response(200, json=health or {"ok": True, "llm": True, "sheet": "GoogleSheetSink", "price_book": "2 November 2026",
+                                                       "config": {k: True for k in ("whatsapp_token", "phone_number_id", "verify_token", "app_secret", "anthropic_key", "google_sheet", "alert_email")}
+                                                       | {"dev_mode": False, "db_path": "/data/sessions.sqlite3"}})
         if path == "/webhook" and request.method == "GET":
             ok = request.url.params.get("hub.verify_token") == verify_token
             return httpx.Response(200, text=request.url.params.get("hub.challenge")) if ok else httpx.Response(403)
@@ -92,3 +94,37 @@ def test_the_default_whatsapp_api_version_is_not_one_that_meta_is_about_to_retir
     from app.config import get_settings
     get_settings.cache_clear()
     assert get_settings().wa_api_version not in ("v20.0", "v21.0")
+
+
+def test_with_a_url_the_server_is_judged_not_this_computer():
+    cfg = {"whatsapp_token": True, "phone_number_id": True, "verify_token": True, "app_secret": False, "anthropic_key": False,
+           "google_sheet": False, "alert_email": False, "dev_mode": False, "db_path": "/data/sessions.sqlite3"}
+    rows = preflight.check_url("https://x.example", "v", fake_server(health={"ok": True, "llm": False, "sheet": "JsonlSink", "price_book": "2 November 2026", "config": cfg}))
+    st = statuses(rows)
+    assert st["server: WHATSAPP_TOKEN"] == preflight.OK and st["server: WHATSAPP_APP_SECRET"] == preflight.FAIL
+    assert st["server: ANTHROPIC_API_KEY (AI answers)"] == preflight.WARN and st["server: database location"] == preflight.OK
+
+
+def test_server_dev_mode_on_is_blocking():
+    rows = preflight.server_config_rows({"dev_mode": True, "db_path": "/data/x"})
+    assert statuses(rows)["server: DEV_MODE"] == preflight.FAIL
+
+
+def test_health_reports_yes_no_only_never_secret_values(monkeypatch):
+    import dataclasses
+    from fastapi.testclient import TestClient
+    import app.main as main
+    monkeypatch.setattr(main, "settings", dataclasses.replace(main.settings, wa_token="SUPERSECRETTOKEN", wa_app_secret="sekret",
+                                                               wa_phone_number_id="999", wa_verify_token="tok"))
+    body = TestClient(main.app).get("/health").json()
+    assert body["config"]["whatsapp_token"] is True and body["config"]["app_secret"] is True
+    assert "SUPERSECRETTOKEN" not in str(body) and "sekret" not in str(body)
+
+
+def test_the_fallback_lead_file_lives_on_the_same_volume_as_the_database(tmp_path):
+    from app.leads import JsonlSink, make_sink
+
+    class S:
+        sheet_id, google_sa_info, db_path = "", None, str(tmp_path / "vol" / "sessions.sqlite3")
+    sink = make_sink(S())
+    assert isinstance(sink, JsonlSink) and sink.path == tmp_path / "vol" / "leads.jsonl"

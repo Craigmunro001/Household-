@@ -58,4 +58,5 @@ def make_sink(settings):
             return GoogleSheetSink(settings.sheet_id, info)
         except Exception:
             log.exception("Google Sheet unavailable, falling back to local file")
-    return JsonlSink()
+    from pathlib import Path
+    return JsonlSink(Path(settings.db_path).parent / "leads.jsonl")  # same folder as the database: survives redeploys
