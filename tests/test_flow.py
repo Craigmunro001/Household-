@@ -1056,3 +1056,51 @@ def test_the_debt_review_comparison_is_in_the_ai_knowledge_with_craigs_three_fac
     assert "I can't tell you it's better" in entry and "go through both honestly" in entry
     assert "better\" than debt review" in FAQ_SYSTEM  # the AI is told never to claim it
     assert "## Q: I'm under debt review. Should I cancel it?" in prompt and "please don't cancel anything" in prompt
+
+
+# ------------------------------------------------------------ "do I stop paying my creditors?": fixed, sequence-safe answer
+PAY_QUESTIONS = ["while I'm paying Pinnacle do I stop paying my creditors?", "do I pay both you and my creditors", "do I stop paying my creditors?",
+                 "should I keep paying my creditors in the meantime", "can I stop paying them now"]
+
+
+@pytest.mark.parametrize("q", PAY_QUESTIONS)
+def test_stop_paying_questions_get_the_fixed_answer_even_if_the_ai_says_otherwise(q):
+    s = Session(phone="1", step="province", lang="en", name="Craig")
+    r = handle(s, q, NIGHT, llm=FakeLLM("Yes, stop paying everyone today!"), pricebook=PB)
+    msg = r.messages[0]
+    assert "you won't be paying both" in msg and "stop paying everyone" not in msg
+    assert "Until your consultant confirms that your application has been successful, please keep making your payments" in msg
+    assert "from that point on" in msg and "immediately" not in msg and "Which province" in msg
+
+
+def test_the_answer_never_tells_anyone_to_stop_paying_now_in_any_language():
+    from app.content import tr as translate
+    en = translate("payments", "en")
+    assert en.index("keep making your payments") < en.index("you stop paying your creditors")
+    assert "hou asseblief aan" in translate("payments", "af") and "sicela uqhubeke" in translate("payments", "zu")
+
+
+def test_payment_answer_works_at_every_stage():
+    s, _ = full_chat()
+    assert "you won't be paying both" in handle(s, "do I stop paying my creditors?", NIGHT, pricebook=PB).messages[0]
+    s2, r = at_callback("do I pay both?")
+    assert "you won't be paying both" in last(r) and s2.step == "callback"
+
+
+def test_the_ai_is_told_the_same_rule_and_the_old_vague_entry_is_gone():
+    import pathlib
+    from app.llm import FAQ_SYSTEM, faq_for_prompt
+    prompt = faq_for_prompt(pathlib.Path("knowledge/faq.md").read_text())
+    headings = [line for line in prompt.splitlines() if line.startswith("## Q:")]
+    assert not any(h.startswith("## Q: Do I have to stop paying my creditors?") for h in headings)   # old standalone entry is gone
+    assert sum("While I'm paying Pinnacle" in h for h in headings) == 1
+    debt_review_entry = prompt.split("## Q: I'm under debt review. Should I cancel it?")[1].split("## Q:")[0]
+    assert "please don't cancel anything or stop any payments before you've spoken to your consultant" in debt_review_entry
+    assert "I can't advise you on that, and please don't change anything you're paying" not in prompt
+    assert "keep paying creditors as normal until their consultant confirms" in FAQ_SYSTEM
+
+
+def test_cost_questions_are_not_mistaken_for_payment_questions():
+    s = Session(phone="1", step="province", lang="en", name="Craig")
+    r = handle(s, "how much will I pay per month?", NIGHT, pricebook=PB)
+    assert "you won't be paying both" not in r.messages[0]

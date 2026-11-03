@@ -64,6 +64,8 @@
 ## FAQ batch 1 (Craig, 3 Nov)
 - Q1 "Why is this better than debt review?" -> loaded as "the main differences" (debt review can tie you in for 5 years or more [Craig changed 7 to 5 on 3 Nov]; you keep paying interest, sometimes lowered; the debt review flag stays until the whole process is completed). Framed as differences, not "better", with the balancing line that voluntary surrender has its own consequences. This one is Craig's call (the attorney is not involved in debt review). Added follow-up "I'm under debt review, should I cancel?" -> the bot never advises cancelling or stopping payments.
 
+- Q2 "While I'm paying Pinnacle, do I stop paying my creditors?" -> FIXED answer (EN/AF/ZU), not the AI: no, you won't pay both; keep paying creditors as normal until the consultant confirms the application has been successful; from then on one monthly payment towards the plan; the consultant says exactly when, and when payments to Pinnacle start. Craig's words were "stop paying creditors immediately"; the bot says "from that point on" and puts the condition FIRST so nobody stops paying early. OPEN for Craig: when do payments to Pinnacle begin (before or after the application succeeds)? Not stated anywhere in the bot yet.
+
 ## Next steps, in order
 1. Craig: the ~50 questions and answers, in batches of 10-15 (best source: real lead questions).
 2. Craig: trust facts (attorney firm and how to verify, company details/address/website, registrations) for "is this a scam?".

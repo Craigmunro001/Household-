@@ -25,8 +25,8 @@ A: If you own a home, a trustee is appointed to look after your estate for your 
 ## Q: Will it affect my credit record? Can I get credit again?
 A: Yes, it does affect your credit record and your ability to get credit while the process runs and for a period afterwards. Your consultant will explain what that means for you so there are no surprises. [DRAFT-VERIFY]
 
-## Q: Do I have to stop paying my creditors?
-A: I can't advise you on that. Please don't change anything you're paying until you've spoken to your consultant, who will explain what's best in your situation.
+## Q: While I'm paying Pinnacle, do I stop paying my creditors? Do I pay both? Do I have to stop paying my creditors?
+A: No, you won't be paying both. Until your consultant confirms that your application has been successful, please keep making your payments to your creditors as normal and don't stop anything yourself. Once it has been successful, you stop paying your creditors from that point on and make one monthly payment towards the plan instead. Your consultant will tell you exactly when that happens and when your payments to us start. [From Craig, 3 Nov. The live bot answers this with FIXED wording in app/content.py; keep the two consistent]
 
 ## Q: Will the creditors stop phoning me?
 A: Your consultant will explain how creditors are dealt with in your situation on the call. I don't want to promise anything that I can't be sure of.

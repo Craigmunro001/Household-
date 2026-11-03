@@ -140,6 +140,13 @@ AI_QUESTION_PHRASES = [  # asking WHAT it is (not asking to speak to someone)
     "ungumuntu", "ngikhuluma nomuntu na", "uyirobhothi",
 ]
 
+PAYMENT_PHRASES = [  # "do I stop paying my creditors while I pay Pinnacle?"
+    "stop paying", "keep paying", "carry on paying", "continue paying", "still pay my", "still pay the", "pay both", "pay my creditors",
+    "pay the creditors", "pay pinnacle and", "while i'm paying", "while i am paying", "pay you and my", "stop my payments",
+    "ophou betaal", "bly betaal", "albei betaal", "betaal my skuldeisers", "betaal die skuldeisers",
+    "ukuyeka ukukhokha", "ngiyaqhubeka ngikhokha", "ngikhokhe bobabili",
+]
+
 STOP_PHRASES = ["stop", "unsubscribe", "opt out", "optout", "hou op", "yeka", "yima"]
 
 AGENT_PHRASES = [
@@ -328,6 +335,11 @@ M = {
         "en": "I'm Pinnacle's virtual assistant, an AI, so not a person. I take your details so that one of our consultants can phone you. If you'd rather speak to a person straight away, just type AGENT.",
         "af": "Ek is Pinnacle se virtuele assistent, 'n KI, so nie 'n mens nie. Ek neem jou besonderhede sodat een van ons konsultante jou kan bel. As jy liewer dadelik met 'n mens wil praat, tik net AGENT.",
         "zu": "Ngingumsizi we-Pinnacle we-virtual, i-AI, ngakho angiyena umuntu. Ngithatha imininingwane yakho ukuze omunye wabeluleki bethu akushayele ucingo. Uma ungathanda ukukhuluma nomuntu manje, bhala nje u-AGENT.",
+    },
+    "payments": {
+        "en": "Good question, and an important one. No, you won't be paying both. Until your consultant confirms that your application has been successful, please keep making your payments to your creditors as normal and don't stop anything yourself. Once it has been successful, you stop paying your creditors from that point on and make one monthly payment towards the plan instead. Your consultant will tell you exactly when that happens and when your payments to us start.",
+        "af": "Goeie vraag, en 'n belangrike een. Nee, jy sal nie albei betaal nie. Totdat jou konsultant bevestig dat jou aansoek suksesvol was, hou asseblief aan om jou skuldeisers soos gewoonlik te betaal en moenie self enigiets stop nie. Sodra dit suksesvol was, hou jy van daardie punt af op om jou skuldeisers te betaal en maak jy in plaas daarvan een maandelikse betaling tot die plan. Jou konsultant sal jou presies sê wanneer dit gebeur en wanneer jou betalings aan ons begin.",
+        "zu": "Umbuzo omuhle, futhi obalulekile. Cha, ngeke ukhokhe kokubili. Kuze kube umeluleki wakho eqinisekisa ukuthi isicelo sakho siphumelele, sicela uqhubeke nokukhokha abakweletwa njengenjwayelo futhi ungayeki lutho ngokwakho. Uma siphumelele, uyeka ukukhokha abakweletwa kusukela ngaleso sikhathi bese wenza inkokhelo eyodwa yanyanga zonke ohlelweni esikhundleni salokho. Umeluleki wakho uzokutshela ngqo ukuthi kwenzeka nini nokuthi inkokhelo yakho kithi iqala nini.",
     },
     "trust": {
         "en": "Fair question, and I'm glad you asked. Pinnacle Debt Solutions has been helping South Africans with their debt since 2016. We've advertised on East Coast Radio in KwaZulu-Natal for 3 years, on Vuma FM in KwaZulu-Natal for over a year, and on Hot FM in Gauteng for 2 years. Nothing is paid or signed in this chat, and I will never ask for your banking details. Your consultant can share our company documents with you on the call, and you can ask them anything before you decide anything.{reg} If you'd like a person now, just type AGENT.",
