@@ -1359,3 +1359,53 @@ def test_ordinary_replies_mentioning_these_words_are_not_hijacked():
 def test_the_ai_is_told_not_to_list_the_exclusions():
     from app.llm import FAQ_SYSTEM
     assert "do not list or explain them" in FAQ_SYSTEM
+
+
+# ------------------------------------------------------------ "what happens if I miss a payment?"
+MISSED_QUESTIONS = ["what happens if I miss a payment?", "what if I can't make a payment one month", "can I skip a payment?",
+                    "what if I fall behind", "what if I lose my job and can't pay?", "Wat gebeur as ek 'n betaling misloop?"]
+
+
+@pytest.mark.parametrize("q", MISSED_QUESTIONS)
+def test_missed_payment_questions_get_the_fixed_kind_honest_answer(q):
+    s = Session(phone="1", step="province", lang="en", name="Craig")
+    r = handle(s, q, NIGHT, llm=FakeLLM("AI says: no problem, skip it, nothing happens."), pricebook=PB)
+    msg = r.messages[0]
+    assert ("life happens" in msg or "die lewe gebeur" in msg) and "skip it" not in msg
+    assert any("missed" in n.lower() for n in s.notes)
+
+
+def test_missed_payment_answer_content():
+    from app.content import tr as translate
+    msg = translate("missed_payment", "en")
+    for needed in ("life happens", "tell us as early as you can", "work through it together", "We can't give you permission to miss a payment",
+                   "on its own merits", "delay your case", "later court date", "full amount before we go to court", "work against you",
+                   "consultant will explain"):
+        assert needed in msg, needed
+    for forbidden in ("attorney", "at risk", "we want to make money", "in business", "guarantee", "penalty", "R1", "Act"):
+        assert forbidden not in msg, forbidden
+    assert "nie toestemming" not in translate("missed_payment", "af") and "toestemming" in translate("missed_payment", "af")
+    assert len(translate("missed_payment", "zu")) > 400
+
+
+def test_missed_payment_consultant_note_is_added_once():
+    s = Session(phone="1", step="province", lang="en", name="Craig")
+    handle(s, "what if I miss a payment?", NIGHT, pricebook=PB)
+    handle(s, "what happens if I fall behind", NIGHT, pricebook=PB)
+    assert sum("missed" in n.lower() for n in s.notes) == 1
+
+
+def test_missed_payment_words_in_a_plain_answer_do_not_trigger_the_answer():
+    s = Session(phone="1", step="callback", lang="en", name="Craig")
+    s.answers = {"province": "GP"}
+    r = handle(s, "Friday after 2pm", NIGHT, pricebook=PB)
+    assert "life happens" not in r.messages[0]
+
+
+def test_missed_payment_entry_is_in_the_ai_knowledge_without_internal_background():
+    import pathlib
+    from app.llm import FAQ_SYSTEM, faq_for_prompt
+    prompt = faq_for_prompt(pathlib.Path("knowledge/faq.md").read_text())
+    entry = prompt.split("## Q: What happens if I miss a payment?")[1].split("## Q:")[0]
+    assert "life happens" in entry and "attorney" not in entry and "carries the risk" not in entry
+    assert "never give permission to skip or delay a payment" in FAQ_SYSTEM

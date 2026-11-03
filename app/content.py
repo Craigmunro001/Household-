@@ -168,6 +168,14 @@ ALL_DEBTS_PHRASES = [  # "does it cover all my debts? what about a school or doc
     "al my skulde", "alle skulde", "elke skuld", "watter skulde", "dokter", "skoolgeld",
     "zonke izikweletu", "isikweletu sonke", "udokotela", "imali yesikole",
 ]
+MISSED_PHRASES = [  # "what happens if I miss a payment / can't make a payment?"
+    "miss a payment", "miss one payment", "miss my payment", "missed a payment", "missed payment", "missed payments", "missing a payment",
+    "skip a payment", "skip a month", "fall behind", "falling behind", "pay late", "paying late", "late payment", "late with a payment",
+    "can't make a payment", "cant make a payment", "cannot make a payment", "can't afford the payment", "cant afford the payment",
+    "unable to pay", "what if i can't pay", "what if i cant pay", "what if i cannot pay", "lose my job", "can't pay one month",
+    "betaling misloop", "mis 'n betaling", "gemiste betaling", "agter raak", "kan nie 'n betaling maak nie", "kan nie betaal nie",
+    "ngiphutha inkokhelo", "ngiweqa inkokhelo", "angikwazi ukukhokha inkokhelo", "ngiphuthelwa",
+]
 EXCLUSION_PHRASES = [  # "what about SARS / maintenance / fines / municipal? which debts are excluded?"
     "sars", "tax", "maintenance", "child support", "traffic fine", "traffic fines", "fines", "municipal", "municipality", "rates and taxes",
     "excluded", "exclusions", "exclude", "not included", "not covered", "which debts are not", "debts not covered", "left out",
@@ -375,6 +383,11 @@ M = {
         "en": "Yes, all your debts are included in the process, although a few types of debt are treated differently, and your consultant will go through those with you. We work from your credit report and your bank statements to find your debts. Anything that isn't on your credit report, like a school or a doctor, you'll need to tell us about so it can be included too. It's important that every debt is declared.",
         "af": "Ja, al jou skulde word by die proses ingesluit, hoewel 'n paar soorte skuld anders hanteer word, en jou konsultant sal dit saam met jou deurgaan. Ons werk van jou kredietverslag en jou bankstate af om jou skulde te vind. Enigiets wat nie op jou kredietverslag is nie, soos 'n skool of 'n dokter, sal jy vir ons moet sê sodat dit ook ingesluit kan word. Dit is belangrik dat elke skuld verklaar word.",
         "zu": "Yebo, zonke izikweletu zakho ziyafakwa enqubweni, nakuba ezinye izinhlobo zezikweletu ziphathwa ngokuhlukile, futhi umeluleki wakho uzodlula nawe kuzo. Sisebenza ngombiko wakho wezikweletu (credit report) namabhange akho (bank statements) ukuze sithole izikweletu zakho. Noma yini engekho embikweni wakho wezikweletu, njengesikole noma udokotela, kuzomele usitshele ngayo ukuze nayo ifakwe. Kubalulekile ukuthi zonke izikweletu zibikwe.",
+    },
+    "missed_payment": {
+        "en": "That's a fair question, and we understand that life happens. If you ever struggle to make a payment, please tell us as early as you can what's going on, and we'll work through it together. We can't give you permission to miss a payment, but every situation is looked at on its own merits. If it becomes an ongoing problem, we may have to delay your case and plan for a later court date, and collect the full amount before we go to court, which can work against you. Your consultant will explain how this works for you.",
+        "af": "Dis 'n regmatige vraag, en ons verstaan dat die lewe gebeur. As jy ooit sukkel om 'n betaling te maak, sê asseblief so vroeg as moontlik vir ons wat aangaan, dan werk ons dit saam deur. Ons kan nie vir jou toestemming gee om 'n betaling te misloop nie, maar elke situasie word op sy eie meriete beoordeel. As dit 'n voortdurende probleem word, sal ons dalk jou saak moet uitstel en vir 'n latere hofdatum moet beplan, en die volle bedrag moet invorder voordat ons hof toe gaan, wat teen jou kan werk. Jou konsultant sal verduidelik hoe dit vir jou werk.",
+        "zu": "Umbuzo ofanele, futhi siyaqonda ukuthi impilo iyenzeka. Uma uke wabhekana nobunzima bokwenza inkokhelo, sicela usitshele ngokushesha okukhulu ukuthi kwenzekani, futhi sizolisebenzela ndawonye. Asikwazi ukukunika imvume yokweqa inkokhelo, kodwa isimo ngasinye sibhekwa ngokwaso. Uma kuba yinkinga eqhubekayo, singase sidinge ukubambezela icala lakho futhi sihlele usuku lwenkantolo olwenzeka kamuva, futhi siqoqe inani eliphelele ngaphambi kokuya enkantolo, okungakulimaza. Umeluleki wakho uzochaza ukuthi lokhu kusebenza kanjani kuwe.",
     },
     "exclusions": {
         "en": "Some types of debt are treated differently in this process. Your consultant will go through exactly which ones, and how they apply to you, on the call.",
