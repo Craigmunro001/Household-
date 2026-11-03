@@ -38,9 +38,7 @@ pytest
 - Webhook signatures are verified; duplicate deliveries are ignored.
 
 ## Going live
-1. **Meta**: developers.facebook.com -> create app (Business) -> add WhatsApp. Add your existing WhatsApp Business
-   app number using Meta's *coexistence* option so it keeps working on your phone while the bot handles the API
-   (confirm the current requirements in Meta's onboarding). Create a permanent System User token.
+1. **Meta**: developers.facebook.com -> create app (Business) -> add WhatsApp. **Use a separate, dedicated number for the bot** (a new SIM or a landline/VoIP number that can receive a verification call; it must not be registered on WhatsApp). Keep your existing, busy client line exactly as it is. Reason: sharing one number between the WhatsApp Business app and the Cloud API ("coexistence") has to be set up through a Meta Tech Provider/Solution Partner, South African availability is unconfirmed, and it switches off app features (quick replies, labels, away messages, broadcast lists, calls) and can disconnect if the app is not opened for about 14 days. Complete Meta business verification and set the display name to "Pinnacle Debt Solutions". Create a permanent System User token.
 2. **Google**: create a service account, enable the Sheets API, share the target Sheet with the service account's email.
 3. **Railway**: deploy this repo, add a volume mounted at `/data` and set `DB_PATH=/data/sessions.sqlite3`,
    and set the variables from `.env.example` in Railway (never in the repo, never in chat).

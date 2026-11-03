@@ -73,6 +73,10 @@
 - Guard added: a debt-amount reply that mentions "all debts" (e.g. "250000 all my debts") is still treated as the answer, not a question.
 - Q6 "What happens if I miss a payment?" -> FIXED answer (EN/AF/ZU): understanding tone ("life happens"); tell us early and we'll work through it together; we cannot give permission to miss a payment; every situation on its merits; if it becomes an ongoing problem the case may be delayed to a later court date and the full amount collected before going to court, which can work against the lead; the consultant explains. Left OUT on purpose (background only): that the attorney carries the risk, and that Pinnacle is in business to make money. The consultant gets a note "asked about missing payments - check affordability on the call" (once).
 
+## WhatsApp number decision (3 Nov) - recommendation, awaiting Craig
+- Recommend a DEDICATED number for the bot; keep the busy client line untouched. Coexistence (same number on the app and the API) needs onboarding through a Meta Tech Provider/Solution Partner (our direct build cannot do it), Meta's page does not confirm South Africa, it disables several app features, caps throughput, and disconnects after about 14 days of app inactivity.
+- Consultants take over by PHONING the lead (the bot's handover already promises a contact; the alert email carries the WhatsApp number), so v1 needs no shared chat inbox. Add an inbox tool later if consultants want to reply in WhatsApp.
+
 ## Next steps, in order
 1. Craig: the ~50 questions and answers, in batches of 10-15 (best source: real lead questions).
 2. Craig: trust facts (attorney firm and how to verify, company details/address/website, registrations) for "is this a scam?".
