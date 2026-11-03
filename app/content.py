@@ -255,10 +255,15 @@ M = {
         "af": "Dankie. Jou skuld is buite die reeks waarvoor ek 'n skatting kan gee, so 'n konsultant sal 'n bedrag saam met jou uitwerk tydens die oproep.",
         "zu": "Ngiyabonga. Isikweletu sakho siphandle kobubanzi engingakwazi ukunikeza isilinganiso ngabo, ngakho umeluleki uzobala inani nawe ngesikhathi socingo.",
     },
-    "term_range": {
-        "en": "Our plans run 25 to 36 months, nothing shorter or longer. Which would you like: 25, 30 or 36 months?",
-        "af": "Ons planne loop 25 tot 36 maande, nie korter of langer nie. Watter een wil jy hê: 25, 30 of 36 maande?",
-        "zu": "Amaplani ethu aqhubeka izinyanga ezingu-25 kuya kwezingu-36, akukho okufushane noma okude. Ufuna isiphi: izinyanga ezingu-25, 30 noma 36?",
+    "term_range_long": {
+        "en": "Our plans run 25 to 36 months, and 36 is the maximum. We can't go longer, because dragging the process out wouldn't be fair to your creditors, who carry their own legal costs while it continues. Which would you like: 25, 30 or 36 months?",
+        "af": "Ons planne loop 25 tot 36 maande, en 36 is die maksimum. Ons kan nie langer gaan nie, want om die proses uit te rek sou nie billik wees teenoor jou skuldeisers nie, wat hul eie regskoste dra solank dit duur. Watter een wil jy hê: 25, 30 of 36 maande?",
+        "zu": "Amaplani ethu aqhubeka izinyanga ezingu-25 kuya kwezingu-36, futhi engu-36 iyona ephezulu. Asikwazi ukudlulela ngale, ngoba ukudonsa inqubo ngeke kube nobulungisa kubakweletwa bakho, abathwala izindleko zabo zomthetho kuyilapho iqhubeka. Ufuna esiphi: izinyanga ezingu-25, 30 noma 36?",
+    },
+    "term_range_short": {
+        "en": "Our plans run 25 to 36 months. If you'd like to be finished sooner, you can pay extra or a lump sum, and your consultant will explain how. Which would you like to start with: 25, 30 or 36 months?",
+        "af": "Ons planne loop 25 tot 36 maande. As jy vinniger klaar wil wees, kan jy ekstra of 'n klompsom betaal, en jou konsultant sal verduidelik hoe. Met watter een wil jy begin: 25, 30 of 36 maande?",
+        "zu": "Amaplani ethu aqhubeka izinyanga ezingu-25 kuya kwezingu-36. Uma ufuna ukuqeda ngokushesha, ungakhokha okwengeziwe noma inani elilodwa, futhi umeluleki wakho uzochaza ukuthi kuyenziwa kanjani. Ufuna ukuqala ngesiphi: izinyanga ezingu-25, 30 noma 36?",
     },
     "one_figure": {
         "en": "Could you give me one total figure, with all your debts added together? A rough amount is fine.",
@@ -346,9 +351,9 @@ M = {
         "zu": "Ngingumsizi we-Pinnacle we-virtual, i-AI, ngakho angiyena umuntu. Ngithatha imininingwane yakho ukuze omunye wabeluleki bethu akushayele ucingo. Uma ungathanda ukukhuluma nomuntu manje, bhala nje u-AGENT.",
     },
     "payoff": {
-        "en": "Yes, you can. You can pay it off quicker, for example with extra payments or a lump sum, and paying earlier shortens the plan rather than changing the total. You can also spread it over more months within our 25 to 36 month plans. Your consultant will discuss this with you, explain how it would work and how it affects the timeline of your process.",
-        "af": "Ja, jy kan. Jy kan dit vinniger afbetaal, byvoorbeeld met ekstra betalings of 'n klompsom, en vroeër betaal verkort die plan eerder as om die totaal te verander. Jy kan dit ook oor meer maande versprei binne ons planne van 25 tot 36 maande. Jou konsultant sal dit met jou bespreek, verduidelik hoe dit sal werk en hoe dit die tydlyn van jou proses raak.",
-        "zu": "Yebo, ungakwazi. Ungakhokha ngokushesha, isibonelo ngezinkokhelo ezengeziwe noma ngenani elilodwa, futhi ukukhokha kusenesikhathi kufinyeza uhlelo kunokushintsha isamba. Ungaphinda uyisakaze phezu kwezinyanga eziningi ngaphakathi kwamaplani ethu ezinyanga ezingu-25 kuya kwezingu-36. Umeluleki wakho uzokuxoxa nawe ngalokhu, achaze ukuthi kuzosebenza kanjani nokuthi kuthinta kanjani uhlelo lwesikhathi senqubo yakho.",
+        "en": "Yes, you can. You can pay it off quicker, for example with extra payments or a lump sum. Because no interest builds up, paying more each month simply finishes the plan sooner (paying double means roughly half the time) rather than changing the total. You can also spread it over more months, up to our maximum of 36. Your consultant will discuss this with you, explain how it would work and how it affects the timeline of your process.",
+        "af": "Ja, jy kan. Jy kan dit vinniger afbetaal, byvoorbeeld met ekstra betalings of 'n klompsom. Omdat daar geen rente oploop nie, beteken meer betaal elke maand eenvoudig dat die plan vinniger klaar is (dubbel betaal beteken ongeveer die helfte van die tyd) eerder as dat die totaal verander. Jy kan dit ook oor meer maande versprei, tot ons maksimum van 36. Jou konsultant sal dit met jou bespreek, verduidelik hoe dit sal werk en hoe dit die tydlyn van jou proses raak.",
+        "zu": "Yebo, ungakwazi. Ungakhokha ngokushesha, isibonelo ngezinkokhelo ezengeziwe noma ngenani elilodwa. Ngoba akukho nzalo eqoqekayo, ukukhokha okwengeziwe qanyanga kufinyeza uhlelo kunokushintsha isamba (ukukhokha kabili kusho cishe ingxenye yesikhathi). Ungaphinda uyisakaze phezu kwezinyanga eziningi, kuze kube yisiphetho sethu esingu-36. Umeluleki wakho uzokuxoxa nawe ngalokhu, achaze ukuthi kuzosebenza kanjani nokuthi kuthinta kanjani uhlelo lwesikhathi senqubo yakho.",
     },
     "payments": {
         "en": "Good question, and an important one. No, you won't be paying both. Here's how it works: you complete your application (this can be done the same day). We then get your credit report, verify your debts and decide whether your application can be accepted. Until we confirm that it has been accepted, please keep paying your creditors as normal and don't stop anything yourself. Once it's accepted, we ask you to start your monthly payment to us, normally from the end of that month on payday. From the moment it's accepted you stop paying your creditors, and we notify them that you've applied. Your consultant will confirm the exact dates for you.",

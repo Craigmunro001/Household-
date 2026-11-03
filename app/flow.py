@@ -213,15 +213,26 @@ def parse_amount(text):
     return amounts[0] if amounts else None
 
 
+def requested_months(text):
+    """The number of months a lead asked for ('48', '60 months', '5 years', '2.5 years'), or None."""
+    t = norm(text)
+    m = re.search(r"\b(\d{1,3}(?:[.,]\d)?)\b", text.lower().replace(",", "."))
+    if not m:
+        return None
+    n = float(m.group(1))
+    if re.search(r"\b(year|years|yr|yrs|jaar|nyaka|unyaka|iminyaka)\b", t):
+        n *= 12
+    return int(n) if n == int(n) else None
+
+
 def parse_term(text):
     """-> (months, out_of_range). Only 25, 30 or 36 are valid; any other number outside 25-36 is 'out of range'."""
     t = norm(text)
     if t in ("1", "2", "3"):
         return TERMS[int(t) - 1], False
-    m = re.search(r"\b(\d{1,3})\b", t)
-    if not m:
+    n = requested_months(text)
+    if n is None:
         return None, False
-    n = int(m.group(1))
     if n in TERMS:
         return n, False
     return None, not (25 <= n <= 36)
@@ -606,7 +617,8 @@ def _answer_step(s, t, out, now, llm, pb):
                 out.messages += [figure, ask(s, "marital", lead=True, pb=pb)]
                 return
         elif out_of_range:
-            out.messages.append(tr("term_range", s.lang))  # "nothing shorter or longer"; no exceptions offered
+            longer = (requested_months(t) or 0) > max(TERMS)  # why we can't go longer vs how to finish sooner; no exceptions offered
+            out.messages.append(tr("term_range_long" if longer else "term_range_short", s.lang))
             return
     else:
         value = parse_choice(step, t) or (llm.classify(step, t, s.lang) if llm else None)

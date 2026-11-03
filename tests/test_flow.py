@@ -327,7 +327,8 @@ def test_amount_parsing(text, amount):
 
 
 @pytest.mark.parametrize("text,value", [("1", (25, False)), ("2", (30, False)), ("3", (36, False)), ("30 months", (30, False)),
-                                        ("60 months", (None, True)), ("28", (None, False)), ("hello", (None, False))])
+                                        ("60 months", (None, True)), ("28", (None, False)), ("hello", (None, False)),
+                                        ("3 years", (36, False)), ("5 years", (None, True)), ("2 years", (None, True)), ("2.5 years", (30, False))])
 def test_term_parsing(text, value):
     assert parse_term(text) == value
 
@@ -1144,7 +1145,8 @@ def test_payoff_questions_get_the_fixed_yes_with_the_consultant_explaining_the_d
 def test_payoff_answer_content_and_restrictions():
     from app.content import tr as translate
     msg = translate("payoff", "en")
-    assert "pay it off quicker" in msg and "lump sum" in msg and "more months" in msg and "25 to 36 month plans" in msg
+    assert "pay it off quicker" in msg and "lump sum" in msg and "more months" in msg and "maximum of 36" in msg
+    assert "no interest builds up" in msg and "paying double means roughly half the time" in msg and "R1" not in msg
     assert "Your consultant will discuss this with you" in msg and "timeline of your process" in msg
     for hidden in ("two-stage", "two stage", "stage", "discount", "save", "guarantee", "48", "60"):
         assert hidden not in msg, hidden
@@ -1165,7 +1167,7 @@ def test_asking_for_a_term_beyond_36_months_is_still_refused_and_is_not_confused
     s = Session(phone="1")
     run(s, "hi", "1", "yes", "craig", "3", "250000", "2", "2")
     r = handle(s, "60 months", NIGHT, pricebook=PB)
-    assert "25 to 36 months, nothing shorter or longer" in r.messages[0] and "Yes, you can" not in r.messages[0]
+    assert "36 is the maximum" in r.messages[0] and "fair to your creditors" in r.messages[0] and "Yes, you can" not in r.messages[0]
 
 
 def test_payoff_works_after_completion_and_in_the_ai_knowledge():
@@ -1182,5 +1184,32 @@ def test_the_plan_length_entry_and_the_payoff_entry_do_not_contradict_each_other
     from app.llm import faq_for_prompt
     prompt = faq_for_prompt(pathlib.Path("knowledge/faq.md").read_text())
     entry = prompt.split("## Q: Can I pay over 48 or 60 months?")[1].split("## Q:")[0]
-    assert "25 to 36 months, nothing shorter or longer" in entry and "pay it off quicker with extra payments or a lump sum" in entry
+    assert "36 is the maximum" in entry and "fair to your creditors" in entry and "pay it off quicker with extra payments or a lump sum" in entry
     assert "faster than 25 months" not in prompt
+
+
+@pytest.mark.parametrize("asked,expect", [("60 months", "fair to your creditors"), ("48", "fair to your creditors"), ("5 years", "fair to your creditors"),
+                                          ("12 months", "finished sooner"), ("2 years", "finished sooner"), ("6 months", "finished sooner")])
+def test_a_term_outside_the_range_gets_the_right_reason_or_the_right_way_out(asked, expect):
+    s = Session(phone="1")
+    run(s, "hi", "1", "yes", "craig", "3", "250000", "2", "2")
+    msg = handle(s, asked, NIGHT, pricebook=PB).messages[0]
+    assert expect in msg and "25 to 36 months" in msg and s.step == "term" and "estimate" not in s.answers
+    assert "exception" not in msg.lower()
+    assert ("36 is the maximum" in msg) == (expect == "fair to your creditors")
+
+
+def test_the_reason_for_the_cap_blames_the_process_not_the_lead_and_names_no_money():
+    from app.content import tr as translate
+    for key in ("term_range_long", "term_range_short"):
+        for lang in ("en", "af", "zu"):
+            assert "R1" not in translate(key, lang) and "interest" not in translate(key, lang).lower()
+    assert "legal costs" in translate("term_range_long", "en")
+
+
+def test_interest_question_is_in_the_ai_knowledge_and_consistent():
+    import pathlib
+    from app.llm import faq_for_prompt
+    prompt = faq_for_prompt(pathlib.Path("knowledge/faq.md").read_text())
+    assert "## Q: Is there interest on the plan?" in prompt and "No interest builds up on the plan" in prompt
+    assert "Why is 36 months the maximum?" in prompt

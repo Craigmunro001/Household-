@@ -32,7 +32,7 @@ A: No, you won't be paying both. Here's how it works: you complete your applicat
 A: Once we've accepted your application, we ask you to start your monthly payment, normally from the end of that month on payday. Your consultant will confirm the exact date. [From Craig, 3 Nov]
 
 ## Q: Can I pay it off quicker? Can I pay a lump sum? Can I pay it over more months?
-A: Yes, you can. You can pay it off quicker, for example with extra payments or a lump sum, and paying earlier shortens the plan rather than changing the total. You can also spread it over more months within our 25 to 36 month plans. Your consultant will discuss this with you, explain how it would work and how it affects the timeline of your process. [From Craig, 3 Nov. The live bot answers this with FIXED wording in app/content.py. Craig said NOT to explain the "two-stage" payment: do not mention it. "More months" is kept inside 25-36: CONFIRM with Craig]
+A: Yes, you can. You can pay it off quicker, for example with extra payments or a lump sum. Because no interest builds up, paying more each month simply finishes the plan sooner (paying double means roughly half the time) rather than changing the total. You can also spread it over more months, up to our maximum of 36. Your consultant will discuss this with you, explain how it would work and how it affects the timeline of your process. [From Craig, 3 Nov. The live bot answers this with FIXED wording in app/content.py. Do NOT mention the "two-stage" payment. Use "double = roughly half the time" only as a general illustration, never a quote]
 
 ## Q: How long does the application take? Can I apply today?
 A: You can complete your application the same day. After that we get your credit report, verify your debts and decide whether it can be accepted. [From Craig, 3 Nov]
@@ -94,8 +94,11 @@ A: A home would be sold by the trustee, usually by auction, to pay part of your 
 ## Q: Who actually handles my plan?
 A: Pinnacle handles the first part of the plan, and then an attorney takes over the collection for the rest. [From Craig, 2 Nov]
 
-## Q: Can I pay over 48 or 60 months? Can I choose a plan shorter than 25 months?
-A: Our plans run 25 to 36 months, nothing shorter or longer. If you want to be finished sooner, you can pay it off quicker with extra payments or a lump sum, and your consultant will explain how that works. [From Craig, 2 Nov (plan length) and 3 Nov (paying off quicker). The assistant must not offer to ask anyone for an exception to the 25-36 month range]
+## Q: Can I pay over 48 or 60 months? Why is 36 months the maximum? Can I choose a plan shorter than 25 months?
+A: Our plans run 25 to 36 months, and 36 is the maximum. We can't go longer, because dragging the process out wouldn't be fair to your creditors, who carry their own legal costs while it continues. If you want to be finished sooner, you can pay it off quicker with extra payments or a lump sum, and your consultant will explain how that works. [From Craig, 2 and 3 Nov. The assistant must not offer to ask anyone for an exception to the 25-36 month range]
+
+## Q: Is there interest on the plan? Does it cost more if I take longer?
+A: No interest builds up on the plan, so the total doesn't grow. If you pay more each month it simply finishes sooner. Your consultant will confirm the details for your situation. [From Craig, 3 Nov]
 
 ## Q: Why does it cost more outside Gauteng?
 A: A matter outside Gauteng needs a correspondent attorney at the Master's Office, and that fee comes out of the estate first, so the monthly amount is higher. [From Craig, 2 Nov. The assistant must not quote the correspondent fee.]
